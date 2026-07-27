@@ -20,6 +20,17 @@
         p {
             color: #94a3b8;
         }
+        .score-board {
+            background-color: #1e293b;
+            border: 2px solid #38bdf8;
+            border-radius: 12px;
+            padding: 10px;
+            max-width: 300px;
+            margin: 15px auto;
+            font-size: 18px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
         .game-container {
             background-color: rgba(30, 41, 59, 0.7);
             border: 1px solid #334155;
@@ -66,7 +77,6 @@
             font-size: 40px;
             margin: 10px 0;
         }
-        /* تنسيق شبكة إكس-او */
         .board {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -99,7 +109,12 @@
     <h1>منصة الألعاب الترفيهية</h1>
     <p>استمتع بتحدي الألعاب داخل بوتك على التليجرام!</p>
 
-    <!-- اللعبة الأولى: الحجر والورق والمقص -->
+    <!-- لوحة النقاط العامة -->
+    <div class="score-board">
+        🏆 نقاطك الإجمالية: <span id="totalScore">0</span>
+    </div>
+
+    <!-- اللعبة الأولى -->
     <div class="game-container">
         <h2>🪨 الحجر، الورق، المقص</h2>
         <p>اختر حركتك:</p>
@@ -111,7 +126,7 @@
         <div class="result" id="rpsResult">اختر لنبدأ التحدي!</div>
     </div>
 
-    <!-- اللعبة الثانية: تخمين الرقم -->
+    <!-- اللعبة الثانية -->
     <div class="game-container">
         <h2>🔢 تخمين الرقم السرّي</h2>
         <p>خمّن رقماً بين 1 و 10:</p>
@@ -121,7 +136,7 @@
         <div class="result" id="guessResult">حاول تخمين الرقم الصحيح!</div>
     </div>
 
-    <!-- اللعبة الثالثة: رمي النرد السريع -->
+    <!-- اللعبة الثالثة -->
     <div class="game-container">
         <h2>🎲 حظ النرد السريع</h2>
         <p>اضغط للرمي واكتشف حظك (الهدف ظهور رقم 6):</p>
@@ -130,7 +145,7 @@
         <div class="result" id="diceResult">جاهز لاختبار الحظ؟</div>
     </div>
 
-    <!-- اللعبة الرابعة: إكس-او (Tic-Tac-Toe) -->
+    <!-- اللعبة الرابعة -->
     <div class="game-container">
         <h2>❌ إكس - أو ⭕</h2>
         <p>العب مع صديقك على نفس الشاشة:</p>
@@ -150,6 +165,13 @@
     </div>
 
     <script>
+        // نظام النقاط العام
+        let score = 0;
+        function addScore(points) {
+            score += points;
+            document.getElementById('totalScore').innerText = score;
+        }
+
         // كود اللعبة الأولى
         function playRPS(userChoice) {
             const choices = ['حجر', 'ورق', 'مقص'];
@@ -164,6 +186,7 @@
                 (userChoice === 'مقص' && computerChoice === 'ورق')
             ) {
                 result = `🎉 مبروك فزت! البوت اختار (${computerChoice})`;
+                addScore(10); // ربح 10 نقاط
             } else {
                 result = `❌ حظاً أوفر، البوت فاز! اختار (${computerChoice})`;
             }
@@ -184,6 +207,7 @@
 
             if (userNum === secretNumber) {
                 guessResult.innerText = `🎉 كفو! لقد أصبت الرقم السري (${secretNumber}) بنجاح!`;
+                addScore(20); // ربح 20 نقطة لتخمين الرقم الصحيح
             } else if (userNum > secretNumber) {
                 guessResult.innerText = "📉 رقمك أكبر من الرقم السري، جرب رقماً أصغر.";
             } else {
@@ -200,12 +224,13 @@
             const diceResult = document.getElementById('diceResult');
             if (randomNum === 6) {
                 diceResult.innerText = `🔥 مذهل! ظهر الرقم 6، لقد ربحت الكأس الذهبي! 🏆`;
+                addScore(30); // ربح 30 نقطة عند ظهور 6
             } else {
                 diceResult.innerText = `🎲 ظهر الرقم (${randomNum}). حاول مرة أخرى للحصول على 6!`;
             }
         }
 
-        // كود اللعبة الرابعة (إكس-او)
+        // كود اللعبة الرابعة
         let board = ['', '', '', '', '', '', '', '', ''];
         let currentPlayer = 'X';
         let gameActive = true;
@@ -214,16 +239,15 @@
             if (board[index] === '' && gameActive) {
                 board[index] = currentPlayer;
                 document.getElementsByClassName('cell')[index].innerText = currentPlayer;
-                
                 checkWinner();
             }
         }
 
         function checkWinner() {
             const winConditions = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8], // صفوف
-                [0, 3, 6], [1, 4, 7], [2, 5, 8], // أعمدة
-                [0, 4, 8], [2, 4, 6]             // أقطار
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
             ];
 
             let roundWon = false;
@@ -241,6 +265,7 @@
 
             if (roundWon) {
                 document.getElementById('tttResult').innerText = `🏆 الفائز هو اللاعب: ${currentPlayer}!`;
+                addScore(15); // ربح 15 نقطة عند الفوز بإكس-او
                 gameActive = false;
                 return;
             }
