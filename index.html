@@ -3,56 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقعي الشخصي - بوت تليجرام</title>
+    <title>منصة المبرمج - الألعاب الترفيهية</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e272e, #485460);
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
             margin: 0;
         }
-        .profile-card {
-            background: #ffffff;
-            color: #2f3640;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 350px;
-            width: 90%;
-        }
         h1 {
-            color: #0088cc;
+            color: #38bdf8;
             margin-bottom: 10px;
         }
         p {
-            color: #718093;
-            font-size: 16px;
-            line-height: 1.6;
+            color: #94a3b8;
         }
-        .btn {
-            display: inline-block;
-            background-color: #0088cc;
-            color: white;
+        .game-container {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            margin: 30px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .choices button {
+            background-color: #38bdf8;
+            border: none;
+            color: #0f172a;
+            font-size: 18px;
             padding: 10px 20px;
-            margin-top: 15px;
+            margin: 5px;
             border-radius: 8px;
-            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .choices button:hover {
+            background-color: #0ea5e9;
+            transform: scale(1.05);
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
             font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div class="profile-card">
-        <h1>أهلاً بك!</h1>
-        <p>هذا هو موقعي التجريبي الأول المرتبط ببوت تليجرام بنجاح تام.</p>
-        <a href="#" class="btn">تواصل معنا</a>
+    <h1>مرحباً بك في منصة المبرمج</h1>
+    <p>استمتع بلعبتك الأولى داخل بوت التليجرام!</p>
+
+    <div class="game-container">
+        <h2>لعبة الحجر، الورق، المقص</h2>
+        <p>اختر إحدى الحركات أدناه:</p>
+        
+        <div class="choices">
+            <button onclick="play('حجر')">🪨 حجر</button>
+            <button onclick="play('ورق')">📄 ورق</button>
+            <button onclick="play('مقص')">✂️ مقص</button>
+        </div>
+
+        <div class="result" id="resultText">اختر لعبتك لنبدأ التحدي!</div>
     </div>
+
+    <script>
+        function play(userChoice) {
+            const choices = ['حجر', 'ورق', 'مقص'];
+            // اختيار عشوائي للبوت
+            const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            
+            let result = '';
+
+            if (userChoice === computerChoice) {
+                result = `تعادل! البوت اختار (${computerChoice})`;
+            } else if (
+                (userChoice === 'حجر' && computerChoice === 'مقص') ||
+                (userChoice === 'ورق' && computerChoice === 'حجر') ||
+                (userChoice === 'مقص' && computerChoice === 'ورق')
+            ) {
+                result = `🎉 مبروك، لقد فزت! البوت اختار (${computerChoice})`;
+            } else {
+                result = `❌ حظاً أوفر، البوت فاز! اختار (${computerChoice})`;
+            }
+
+            document.getElementById('resultText').innerText = result;
+        }
+    </script>
 
 </body>
 </html>
