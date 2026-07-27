@@ -20,15 +20,13 @@
         p {
             color: #94a3b8;
         }
-        .score-board {
+        .user-setup, .score-board, .leaderboard-container {
             background-color: #1e293b;
             border: 2px solid #38bdf8;
             border-radius: 12px;
-            padding: 10px;
-            max-width: 300px;
+            padding: 15px;
+            max-width: 320px;
             margin: 15px auto;
-            font-size: 18px;
-            font-weight: bold;
             color: #38bdf8;
         }
         .game-container {
@@ -40,7 +38,7 @@
             margin: 20px auto;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         }
-        .choices button, .game-container button {
+        .choices button, .game-container button, .user-setup button {
             background-color: #38bdf8;
             border: none;
             color: #0f172a;
@@ -52,7 +50,7 @@
             font-weight: bold;
             transition: 0.2s;
         }
-        .choices button:hover, .game-container button:hover {
+        .choices button:hover, .game-container button:hover, .user-setup button:hover {
             background-color: #0ea5e9;
             transform: scale(1.05);
         }
@@ -63,7 +61,7 @@
             border: 1px solid #475569;
             background-color: #0f172a;
             color: #fff;
-            width: 60%;
+            width: 70%;
             margin-bottom: 10px;
             text-align: center;
         }
@@ -102,6 +100,17 @@
             background-color: #1e293b;
             border-color: #38bdf8;
         }
+        ol {
+            padding-right: 20px;
+            text-align: right;
+            margin: 10px 0 0 0;
+            color: #94a3b8;
+        }
+        li {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -109,12 +118,28 @@
     <h1>منصة الألعاب الترفيهية</h1>
     <p>استمتع بتحدي الألعاب داخل بوتك على التليجرام!</p>
 
-    <!-- لوحة النقاط العامة -->
-    <div class="score-board">
-        🏆 نقاطك الإجمالية: <span id="totalScore">0</span>
+    <!-- تسجيل اسم اللاعب -->
+    <div class="user-setup" id="setupSection">
+        <p>أدخل اسمك المستعار للبدء:</p>
+        <input type="text" id="playerNameInput" placeholder="اسم اللاعب...">
+        <br>
+        <button onclick="savePlayerName()">حفظ والبدء</button>
     </div>
 
-    <!-- اللعبة الأولى -->
+    <!-- لوحة النقاط الشخصية -->
+    <div class="score-board" id="scoreSection" style="display: none;">
+        👤 اللاعب: <span id="displayName" style="color:#fff;"></span> | 🏆 النقاط: <span id="totalScore">0</span>
+    </div>
+
+    <!-- لوحة الصدارة (Leaderboard) -->
+    <div class="leaderboard-container" id="leaderboardSection" style="display: none;">
+        <h3>📊 لوحة الصدارة (أفضل اللاعبين)</h3>
+        <ol id="leaderboardList">
+            <!-- يتم تعبئتها تلقائياً عبر البرمجة -->
+        </ol>
+    </div>
+
+    <!-- الألعاب الأربعة -->
     <div class="game-container">
         <h2>🪨 الحجر، الورق، المقص</h2>
         <p>اختر حركتك:</p>
@@ -126,7 +151,6 @@
         <div class="result" id="rpsResult">اختر لنبدأ التحدي!</div>
     </div>
 
-    <!-- اللعبة الثانية -->
     <div class="game-container">
         <h2>🔢 تخمين الرقم السرّي</h2>
         <p>خمّن رقماً بين 1 و 10:</p>
@@ -136,7 +160,6 @@
         <div class="result" id="guessResult">حاول تخمين الرقم الصحيح!</div>
     </div>
 
-    <!-- اللعبة الثالثة -->
     <div class="game-container">
         <h2>🎲 حظ النرد السريع</h2>
         <p>اضغط للرمي واكتشف حظك (الهدف ظهور رقم 6):</p>
@@ -145,7 +168,6 @@
         <div class="result" id="diceResult">جاهز لاختبار الحظ؟</div>
     </div>
 
-    <!-- اللعبة الرابعة -->
     <div class="game-container">
         <h2>❌ إكس - أو ⭕</h2>
         <p>العب مع صديقك على نفس الشاشة:</p>
@@ -165,15 +187,85 @@
     </div>
 
     <script>
-        // نظام النقاط العام
+        let playerName = "";
         let score = 0;
+
+        // التحقق مما إذا كان اللاعب مسجلاً مسبقاً
+        window.onload = function() {
+            const savedName = localStorage.getItem("gamePlayerName");
+            const savedScore = localStorage.getItem("gamePlayerScore");
+            if (savedName) {
+                playerName = savedName;
+                score = savedScore ? parseInt(savedScore) : 0;
+                document.getElementById("setupSection").style.display = "none";
+                document.getElementById("scoreSection").style.display = "block";
+                document.getElementById("leaderboardSection").style.display = "block";
+                document.getElementById("displayName").innerText = playerName;
+                document.getElementById("totalScore").innerText = score;
+                updateLeaderboard(playerName, score);
+            }
+        };
+
+        function savePlayerName() {
+            const inputVal = document.getElementById("playerNameInput").value.trim();
+            if (!inputVal) {
+                alert("الرجاء إدخال اسم صحيح!");
+                return;
+            }
+            playerName = inputVal;
+            score = 0;
+            localStorage.setItem("gamePlayerName", playerName);
+            localStorage.setItem("gamePlayerScore", score);
+
+            document.getElementById("setupSection").style.display = "none";
+            document.getElementById("scoreSection").style.display = "block";
+            document.getElementById("leaderboardSection").style.display = "block";
+            document.getElementById("displayName").innerText = playerName;
+            document.getElementById("totalScore").innerText = score;
+            updateLeaderboard(playerName, score);
+        }
+
         function addScore(points) {
             score += points;
             document.getElementById('totalScore').innerText = score;
+            localStorage.setItem("gamePlayerScore", score);
+            updateLeaderboard(playerName, score);
+        }
+
+        // تحديث وعرض قائمة الصدارة الوهمية مع اللاعب الحالي
+        function updateLeaderboard(currentName, currentScore) {
+            let list = document.getElementById("leaderboardList");
+            
+            // قائمة أمثلة للاعبين تنافسيين مع اللاعب الحالي
+            let players = [
+                { name: "أحمد المبدع", score: 120 },
+                { name: "سارة المحترفة", score: 95 },
+                { name: "فارس التحدي", score: 60 }
+            ];
+
+            // إضافة أو تحديث اللاعب الحالي في القائمة
+            let existing = players.find(p => p.name === currentName);
+            if (existing) {
+                existing.score = currentScore;
+            } else {
+                players.push({ name: currentName, score: currentScore });
+            }
+
+            // ترتيب اللاعبين من الأعلى للأدنى
+            players.sort((a, b) => b.score - a.score);
+
+            // عرض القائمة في الـ HTML
+            list.innerHTML = "";
+            players.forEach(p => {
+                let li = document.createElement("li");
+                li.innerText = `${p.name} — ${p.score} نقطة`;
+                list.appendChild(li);
+            });
         }
 
         // كود اللعبة الأولى
         function playRPS(userChoice) {
+            if (!playerName) { alert("الرجاء إدخال اسمك أولاً في الأعلى!"); return; }
             const choices = ['حجر', 'ورق', 'مقص'];
             const computerChoice = choices[Math.floor(Math.random() * choices.length)];
             let result = '';
@@ -186,7 +278,7 @@
                 (userChoice === 'مقص' && computerChoice === 'ورق')
             ) {
                 result = `🎉 مبروك فزت! البوت اختار (${computerChoice})`;
-                addScore(10); // ربح 10 نقاط
+                addScore(10);
             } else {
                 result = `❌ حظاً أوفر، البوت فاز! اختار (${computerChoice})`;
             }
@@ -197,6 +289,7 @@
         const secretNumber = Math.floor(Math.random() * 10) + 1;
 
         function checkGuess() {
+            if (!playerName) { alert("الرجاء إدخال اسمك أولاً في الأعلى!"); return; }
             const userNum = Number(document.getElementById('userGuess').value);
             const guessResult = document.getElementById('guessResult');
 
@@ -207,7 +300,7 @@
 
             if (userNum === secretNumber) {
                 guessResult.innerText = `🎉 كفو! لقد أصبت الرقم السري (${secretNumber}) بنجاح!`;
-                addScore(20); // ربح 20 نقطة لتخمين الرقم الصحيح
+                addScore(20);
             } else if (userNum > secretNumber) {
                 guessResult.innerText = "📉 رقمك أكبر من الرقم السري، جرب رقماً أصغر.";
             } else {
@@ -217,6 +310,7 @@
 
         // كود اللعبة الثالثة
         function rollDice() {
+            if (!playerName) { alert("الرجاء إدخال اسمك أولاً في الأعلى!"); return; }
             const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
             const randomNum = Math.floor(Math.random() * 6) + 1;
             document.getElementById('diceIcon').innerText = diceFaces[randomNum - 1];
@@ -224,7 +318,7 @@
             const diceResult = document.getElementById('diceResult');
             if (randomNum === 6) {
                 diceResult.innerText = `🔥 مذهل! ظهر الرقم 6، لقد ربحت الكأس الذهبي! 🏆`;
-                addScore(30); // ربح 30 نقطة عند ظهور 6
+                addScore(30);
             } else {
                 diceResult.innerText = `🎲 ظهر الرقم (${randomNum}). حاول مرة أخرى للحصول على 6!`;
             }
@@ -236,6 +330,7 @@
         let gameActive = true;
 
         function makeMove(index) {
+            if (!playerName) { alert("الرجاء إدخال اسمك أولاً في الأعلى!"); return; }
             if (board[index] === '' && gameActive) {
                 board[index] = currentPlayer;
                 document.getElementsByClassName('cell')[index].innerText = currentPlayer;
@@ -265,7 +360,7 @@
 
             if (roundWon) {
                 document.getElementById('tttResult').innerText = `🏆 الفائز هو اللاعب: ${currentPlayer}!`;
-                addScore(15); // ربح 15 نقطة عند الفوز بإكس-او
+                addScore(15);
                 gameActive = false;
                 return;
             }
