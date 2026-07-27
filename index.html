@@ -3,78 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة المبرمج - الألعاب الترفيهية</title>
+    <title>منصة الألعاب - بوت تليجرام</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #0f172a;
-            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #fff;
             text-align: center;
             padding: 20px;
             margin: 0;
         }
         h1 {
             color: #38bdf8;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         p {
             color: #94a3b8;
         }
         .game-container {
-            background-color: #1e293b;
-            border-radius: 12px;
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid #334155;
+            border-radius: 16px;
             padding: 20px;
             max-width: 400px;
-            margin: 30px auto;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin: 20px auto;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
         }
-        .choices button {
+        .choices button, .game-container button {
             background-color: #38bdf8;
             border: none;
             color: #0f172a;
-            font-size: 18px;
-            padding: 10px 20px;
-            margin: 5px;
+            font-size: 16px;
+            padding: 10px 18px;
+            margin: 6px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
             transition: 0.2s;
         }
-        .choices button:hover {
+        .choices button:hover, .game-container button:hover {
             background-color: #0ea5e9;
             transform: scale(1.05);
         }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background-color: #0f172a;
+            color: #fff;
+            width: 60%;
+            margin-bottom: 10px;
+            text-align: center;
+        }
         .result {
-            margin-top: 20px;
-            font-size: 18px;
+            margin-top: 15px;
+            font-size: 16px;
             font-weight: bold;
+            color: #38bdf8;
         }
     </style>
 </head>
 <body>
 
-    <h1>مرحباً بك في منصة المبرمج</h1>
-    <p>استمتع بلعبتك الأولى داخل بوت التليجرام!</p>
+    <h1>منصة الألعاب الترفيهية</h1>
+    <p>استمتع بتحدي الألعاب داخل بوتك على التليجرام!</p>
 
+    <!-- اللعبة الأولى: الحجر والورق والمقص -->
     <div class="game-container">
-        <h2>لعبة الحجر، الورق، المقص</h2>
-        <p>اختر إحدى الحركات أدناه:</p>
-        
+        <h2>🪨 الحجر، الورق، المقص</h2>
+        <p>اختر حركتك:</p>
         <div class="choices">
-            <button onclick="play('حجر')">🪨 حجر</button>
-            <button onclick="play('ورق')">📄 ورق</button>
-            <button onclick="play('مقص')">✂️ مقص</button>
+            <button onclick="playRPS('حجر')">حجر</button>
+            <button onclick="playRPS('ورق')">ورق</button>
+            <button onclick="playRPS('مقص')">مقص</button>
         </div>
+        <div class="result" id="rpsResult">اختر لنبدأ التحدي!</div>
+    </div>
 
-        <div class="result" id="resultText">اختر لعبتك لنبدأ التحدي!</div>
+    <!-- اللعبة الثانية: تخمين الرقم -->
+    <div class="game-container">
+        <h2>🔢 تخمين الرقم السرّي</h2>
+        <p>خمّن رقماً بين 1 و 10:</p>
+        <input type="number" id="userGuess" min="1" max="10" placeholder="أدخل رقمك هنا">
+        <br>
+        <button onclick="checkGuess()">تحقق من الرقم</button>
+        <div class="result" id="guessResult">حاول تخمين الرقم الصحيح!</div>
     </div>
 
     <script>
-        function play(userChoice) {
+        // كود اللعبة الأولى
+        function playRPS(userChoice) {
             const choices = ['حجر', 'ورق', 'مقص'];
-            // اختيار عشوائي للبوت
             const computerChoice = choices[Math.floor(Math.random() * choices.length)];
-            
             let result = '';
 
             if (userChoice === computerChoice) {
@@ -84,12 +105,32 @@
                 (userChoice === 'ورق' && computerChoice === 'حجر') ||
                 (userChoice === 'مقص' && computerChoice === 'ورق')
             ) {
-                result = `🎉 مبروك، لقد فزت! البوت اختار (${computerChoice})`;
+                result = `🎉 مبروك فزت! البوت اختار (${computerChoice})`;
             } else {
                 result = `❌ حظاً أوفر، البوت فاز! اختار (${computerChoice})`;
             }
+            document.getElementById('rpsResult').innerText = result;
+        }
 
-            document.getElementById('resultText').innerText = result;
+        // كود اللعبة الثانية (رقم عشوائي سري يتم توليده عند تشغيل الصفحة)
+        const secretNumber = Math.floor(Math.random() * 10) + 1;
+
+        function checkGuess() {
+            const userNum = Number(document.getElementById('userGuess').value);
+            const guessResult = document.getElementById('guessResult');
+
+            if (!userNum) {
+                guessResult.innerText = "⚠️ الرجاء إدخال رقم صحيح أولاً!";
+                return;
+            }
+
+            if (userNum === secretNumber) {
+                guessResult.innerText = `🎉 كفو! لقد أصبت الرقم السري (${secret secretNumber || secretNumber}) بنجاح!`;
+            } else if (userNum > secretNumber) {
+                guessResult.innerText = "📉 رقمك أكبر من الرقم السري، جرب رقماً أصغر.";
+            } else {
+                guessResult.innerText = "📈 رقمك أصغر من الرقم السري، جرب رقماً أكبر.";
+            }
         }
     </script>
 
