@@ -66,6 +66,32 @@
             font-size: 40px;
             margin: 10px 0;
         }
+        /* تنسيق شبكة إكس-او */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 220px;
+            margin: 15px auto;
+        }
+        .cell {
+            background-color: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            height: 60px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cell:hover {
+            background-color: #1e293b;
+            border-color: #38bdf8;
+        }
     </style>
 </head>
 <body>
@@ -100,8 +126,27 @@
         <h2>🎲 حظ النرد السريع</h2>
         <p>اضغط للرمي واكتشف حظك (الهدف ظهور رقم 6):</p>
         <div class="dice-display" id="diceIcon">🎲</div>
-        <button onclick="rollDice()">ا رمِ النرد</button>
+        <button onclick="rollDice()">ارمِ النرد</button>
         <div class="result" id="diceResult">جاهز لاختبار الحظ؟</div>
+    </div>
+
+    <!-- اللعبة الرابعة: إكس-او (Tic-Tac-Toe) -->
+    <div class="game-container">
+        <h2>❌ إكس - أو ⭕</h2>
+        <p>العب مع صديقك على نفس الشاشة:</p>
+        <div class="board" id="board">
+            <div class="cell" onclick="makeMove(0)"></div>
+            <div class="cell" onclick="makeMove(1)"></div>
+            <div class="cell" onclick="makeMove(2)"></div>
+            <div class="cell" onclick="makeMove(3)"></div>
+            <div class="cell" onclick="makeMove(4)"></div>
+            <div class="cell" onclick="makeMove(5)"></div>
+            <div class="cell" onclick="makeMove(6)"></div>
+            <div class="cell" onclick="makeMove(7)"></div>
+            <div class="cell" onclick="makeMove(8)"></div>
+        </div>
+        <button onclick="resetTicTacToe()">إعادة اللعبة</button>
+        <div class="result" id="tttResult">دور اللاعب: X</div>
     </div>
 
     <script>
@@ -146,7 +191,7 @@
             }
         }
 
-        // كود اللعبة الثالثة (رمي النرد)
+        // كود اللعبة الثالثة
         function rollDice() {
             const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
             const randomNum = Math.floor(Math.random() * 6) + 1;
@@ -157,6 +202,67 @@
                 diceResult.innerText = `🔥 مذهل! ظهر الرقم 6، لقد ربحت الكأس الذهبي! 🏆`;
             } else {
                 diceResult.innerText = `🎲 ظهر الرقم (${randomNum}). حاول مرة أخرى للحصول على 6!`;
+            }
+        }
+
+        // كود اللعبة الرابعة (إكس-او)
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+
+        function makeMove(index) {
+            if (board[index] === '' && gameActive) {
+                board[index] = currentPlayer;
+                document.getElementsByClassName('cell')[index].innerText = currentPlayer;
+                
+                checkWinner();
+            }
+        }
+
+        function checkWinner() {
+            const winConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // صفوف
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // أعمدة
+                [0, 4, 8], [2, 4, 6]             // أقطار
+            ];
+
+            let roundWon = false;
+            for (let condition of winConditions) {
+                let a = board[condition[0]];
+                let b = board[condition[1]];
+                let c = board[condition[2]];
+
+                if (a === '' || b === '' || c === '') continue;
+                if (a === b && b === c) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                document.getElementById('tttResult').innerText = `🏆 الفائز هو اللاعب: ${currentPlayer}!`;
+                gameActive = false;
+                return;
+            }
+
+            if (!board.includes('')) {
+                document.getElementById('tttResult').innerText = `🤝 تعادل! لا توجد خانات فارغة.`;
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            document.getElementById('tttResult').innerText = `دور اللاعب: ${currentPlayer}`;
+        }
+
+        function resetTicTacToe() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            document.getElementById('tttResult').innerText = `دور اللاعب: X`;
+            let cells = document.getElementsByClassName('cell');
+            for (let cell of cells) {
+                cell.innerText = '';
             }
         }
     </script>
