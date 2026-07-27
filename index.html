@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الألعاب - بوت تليجرام</title>
+    <title>منصة الألعاب الاحترافية - بوت تليجرام</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -62,6 +62,10 @@
             font-weight: bold;
             color: #38bdf8;
         }
+        .dice-display {
+            font-size: 40px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -91,6 +95,15 @@
         <div class="result" id="guessResult">حاول تخمين الرقم الصحيح!</div>
     </div>
 
+    <!-- اللعبة الثالثة: رمي النرد السريع -->
+    <div class="game-container">
+        <h2>🎲 حظ النرد السريع</h2>
+        <p>اضغط للرمي واكتشف حظك (الهدف ظهور رقم 6):</p>
+        <div class="dice-display" id="diceIcon">🎲</div>
+        <button onclick="rollDice()">ا رمِ النرد</button>
+        <div class="result" id="diceResult">جاهز لاختبار الحظ؟</div>
+    </div>
+
     <script>
         // كود اللعبة الأولى
         function playRPS(userChoice) {
@@ -112,7 +125,7 @@
             document.getElementById('rpsResult').innerText = result;
         }
 
-        // كود اللعبة الثانية (رقم عشوائي سري يتم توليده عند تشغيل الصفحة)
+        // كود اللعبة الثانية
         const secretNumber = Math.floor(Math.random() * 10) + 1;
 
         function checkGuess() {
@@ -125,11 +138,25 @@
             }
 
             if (userNum === secretNumber) {
-                guessResult.innerText = `🎉 كفو! لقد أصبت الرقم السري (${secret secretNumber || secretNumber}) بنجاح!`;
+                guessResult.innerText = `🎉 كفو! لقد أصبت الرقم السري (${secretNumber}) بنجاح!`;
             } else if (userNum > secretNumber) {
                 guessResult.innerText = "📉 رقمك أكبر من الرقم السري، جرب رقماً أصغر.";
             } else {
                 guessResult.innerText = "📈 رقمك أصغر من الرقم السري، جرب رقماً أكبر.";
+            }
+        }
+
+        // كود اللعبة الثالثة (رمي النرد)
+        function rollDice() {
+            const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            const randomNum = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('diceIcon').innerText = diceFaces[randomNum - 1];
+            
+            const diceResult = document.getElementById('diceResult');
+            if (randomNum === 6) {
+                diceResult.innerText = `🔥 مذهل! ظهر الرقم 6، لقد ربحت الكأس الذهبي! 🏆`;
+            } else {
+                diceResult.innerText = `🎲 ظهر الرقم (${randomNum}). حاول مرة أخرى للحصول على 6!`;
             }
         }
     </script>
