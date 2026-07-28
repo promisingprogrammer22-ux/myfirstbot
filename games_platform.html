@@ -3,573 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة الألعاب الاحترافية - Master Arcade Hub</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Promising Developer - صالة الألعاب</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0b0f19; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; }
+        
+        .header-bar { width: 100%; max-width: 480px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #131b2e; padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .balance-badge { display: flex; align-items: center; gap: 8px; font-weight: bold; color: #f39c12; font-size: 18px; }
+        .vip-link { font-size: 13px; color: #00d2d3; text-decoration: none; background: rgba(0,210,211,0.1); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(0,210,211,0.2); }
+        
+        .deposit-box { width: 100%; max-width: 480px; background: linear-gradient(135deg, #192238 0%, #111827 100%); padding: 15px; border-radius: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(243, 156, 18, 0.2); }
+        .deposit-info h4 { font-size: 14px; color: #e5e7eb; margin-bottom: 3px; }
+        .deposit-info p { font-size: 11px; color: #9ca3af; }
+        .deposit-btn { background: linear-gradient(135deg, #f39c12 0%, #d35400 100%); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(243,156,18,0.3); }
 
-        :root {
-            --bg-base: #030712;
-            --panel-bg: rgba(15, 23, 42, 0.95);
-            --neon-cyan: #00f0ff;
-            --neon-pink: #ff007f;
-            --neon-gold: #fbbf24;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
+        .section-title { width: 100%; max-width: 480px; font-size: 15px; color: #9ca3af; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+        .games-grid { width: 100%; max-width: 480px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .game-card { background: #131b2e; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: all 0.2s ease; }
+        .game-card:active { transform: scale(0.97); background: #1a233a; border-color: #f39c12; }
+        .game-icon { font-size: 36px; margin-bottom: 10px; }
+        .game-name { font-size: 15px; font-weight: bold; color: #fff; margin-bottom: 4px; }
+        .game-desc { font-size: 11px; color: #9ca3af; }
 
-        body {
-            background-color: var(--bg-base);
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 50% 100%, rgba(255, 0, 127, 0.1) 0%, transparent 50%);
-            color: var(--text-main);
-            font-family: 'Cairo', sans-serif;
-            margin: 0;
-            padding: 12px;
-            text-align: center;
-            min-height: 100vh;
-        }
-
-        /* رأس الحساب */
-        .hud-header {
-            background: var(--panel-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 16px;
-            padding: 12px 16px;
-            max-width: 420px;
-            margin: 0 auto 12px auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-        }
-        .hud-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--neon-cyan);
-            cursor: pointer;
-        }
-        .hud-balance {
-            font-size: 16px;
-            font-weight: 900;
-            color: var(--neon-gold);
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
-        }
-
-        /* لوحة الإيداع المالي الحقيقي */
-        .deposit-panel {
-            background: var(--panel-bg);
-            border: 1px solid rgba(251, 191, 36, 0.4);
-            border-radius: 14px;
-            padding: 10px 16px;
-            max-width: 420px;
-            margin: 0 auto 16px auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .deposit-info {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-align: right;
-        }
-        .deposit-btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            border: none;
-            font-family: 'Cairo', sans-serif;
-            font-size: 13px;
-            font-weight: 900;
-            padding: 8px 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
-        }
-
-        /* الشاشات */
-        .view-section {
-            display: none;
-            max-width: 420px;
-            margin: 0 auto;
-        }
-        .view-section.active {
-            display: block;
-        }
-
-        /* صالة الألعاب (Lobby) */
-        .section-header {
-            font-size: 15px;
-            font-weight: 900;
-            margin-bottom: 14px;
-            color: var(--text-main);
-            text-align: right;
-            padding-right: 4px;
-        }
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        .game-card {
-            background: var(--panel-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
-            padding: 18px 12px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.25s;
-        }
-        .game-card:hover {
-            border-color: var(--neon-cyan);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 240, 255, 0.15);
-        }
-        .game-icon { font-size: 32px; margin-bottom: 8px; }
-        .game-name { font-size: 14px; font-weight: 900; color: var(--text-main); }
-        .game-desc { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
-
-        /* حاوية الألعاب الداخلية */
-        .arcade-container {
-            background: var(--panel-bg);
-            backdrop-filter: blur(16px);
-            border: 2px solid rgba(0, 240, 255, 0.4);
-            border-radius: 24px;
-            padding: 16px;
-            box-shadow: 0 15px 40px rgba(0, 240, 255, 0.15);
-        }
-        .back-lobby-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-main);
-            font-family: 'Cairo';
-            font-size: 11px;
-            font-weight: 700;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            float: right;
-            margin-bottom: 10px;
-        }
-
+        /* شاشات الألعاب الفرعية */
+        .game-view { display: none; width: 100%; max-width: 480px; background: #131b2e; border-radius: 14px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); text-align: center; }
+        .back-btn { background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-bottom: 15px; float: left; }
+        
         /* عجلة الحظ */
-        .wheel-wrapper {
-            position: relative;
-            width: 240px;
-            height: 240px;
-            margin: 10px auto 16px auto;
-            clear: both;
-        }
-        canvas { display: block; width: 100%; height: 100%; }
-        .wheel-pointer {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 20px solid var(--neon-pink);
-            z-index: 10;
-        }
+        .wheel-container { position: relative; width: 240px; height: 240px; margin: 15px auto; }
+        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #f39c12; }
+        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 20px solid #e74c3c; z-index: 10; }
+        .action-btn { background: #e91e63; color: #fff; border: none; padding: 12px 24px; border-radius: 25px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 15px rgba(233,30,99,0.4); width: 100%; }
 
-        /* أزرار التشغيل العامة */
-        .action-btn {
-            background: linear-gradient(135deg, var(--neon-cyan), #0088ff);
-            color: #030712;
-            border: none;
-            font-family: 'Cairo', sans-serif;
-            font-size: 15px;
-            font-weight: 900;
-            padding: 12px 28px;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
-            transition: 0.2s;
-            margin-top: 10px;
-        }
-        .action-btn:active { transform: scale(0.95); }
-        .action-btn:disabled { background: #334155; color: #94a3b8; box-shadow: none; cursor: not-allowed; }
-
-        .result-display {
-            margin-top: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            min-height: 25px;
-            color: var(--neon-cyan);
-        }
-
-        /* تنسيق ألعاب الورق والقلاع */
-        .cards-row {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-            clear: both;
-        }
-        .card-item {
-            width: 70px;
-            height: 100px;
-            background: #1e293b;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-weight: 900;
-            font-size: 18px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .card-item:hover, .card-item.selected {
-            border-color: var(--neon-gold);
-            transform: translateY(-5px);
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
-        }
-
-        /* لوحة التحكم الخفية للمبرمج */
-        .admin-panel {
-            display: none;
-            background: rgba(15, 23, 42, 0.95);
-            border: 2px dashed var(--neon-cyan);
-            border-radius: 16px;
-            padding: 15px;
-            max-width: 420px;
-            margin: 0 auto 12px auto;
-            text-align: right;
-        }
-        .admin-input {
-            width: 100%;
-            background: #030712;
-            border: 1px solid #334155;
-            color: white;
-            padding: 8px;
-            border-radius: 8px;
-            font-family: 'Cairo';
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
+        /* لوحات الألعاب الأخرى */
+        .play-area-box { padding: 20px 0; }
+        .play-area-box h3 { color: #f39c12; margin-bottom: 10px; font-size: 18px; }
+        .play-area-box p { color: #9ca3af; font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
     </style>
 </head>
 <body>
 
-    <!-- رأس الحساب -->
-    <div class="hud-header">
-        <div class="hud-title" onclick="toggleAdminPanel()">⚡ صالة VIP [⚙️]</div>
-        <div class="hud-balance" id="balance-box">1000 🪙</div>
-    </div>
-
-    <!-- لوحة المشرف السرية -->
-    <div class="admin-panel" id="adminPanel">
-        <div style="font-size:13px; font-weight:900; color:var(--neon-cyan); margin-bottom:6px;">🛠️ لوحة تحكم المشرف</div>
-        <input type="number" id="customAmount" class="admin-input" placeholder="تعديل الرصيد يدوياً...">
-        <button style="background:var(--neon-cyan); border:none; padding:6px 12px; border-radius:8px; font-weight:900; cursor:pointer;" onclick="adminSetBalance()">تحديث الرصيد</button>
-    </div>
-
-    <!-- لوحة الإيداع الحقيقي -->
-    <div class="deposit-panel">
-        <div class="deposit-info">
-            <strong>شحن رصيد الإيداع الحقيقي</strong><br>
-            <span>يتطلب اعتماد عملية الدفع المالية</span>
+    <div class="header-bar">
+        <div class="balance-badge">
+            <span>🪙</span> <span id="userBalance">1000</span>
         </div>
-        <button class="deposit-btn" onclick="openRealDeposit()">إيداع مالي 💳</button>
+        <a href="#" class="vip-link">[⚙️] صالة VIP</a>
     </div>
 
-    <!-- الشاشة الأولى: صالة الألعاب الرئيسية (Lobby) -->
-    <div id="lobbyView" class="view-section active">
-        <div class="section-header">🎮 اختر لعبة للبدء (حرفية تامة):</div>
+    <div class="deposit-box">
+        <div class="deposit-info">
+            <h4>شحن رصيد الإيداع الحقيقي</h4>
+            <p>يتطلب اعتماد عملية الدفع المالية</p>
+        </div>
+        <button class="deposit-btn" onclick="addDeposit()">إيداع مالي</button>
+    </div>
+
+    <!-- القائمة الرئيسية للألعاب -->
+    <div id="mainMenu" style="width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center;">
+        <div class="section-title">🎮 اختر لعبة للبدء:</div>
+        
         <div class="games-grid">
-            <div class="game-card" onclick="switchView('wheelView')">
+            <div class="game-card" onclick="openGame('tarneeb')">
+                <div class="game-icon">🃏</div>
+                <div class="game-name">طرنيب الجلسات</div>
+                <div class="game-desc">تحدي جماعي ذكي</div>
+            </div>
+            <div class="game-card" onclick="openGame('wheel')">
                 <div class="game-icon">🎰</div>
                 <div class="game-name">عجلة الحظ</div>
                 <div class="game-desc">مضاعفات مدفوعة كبرى</div>
             </div>
-            <div class="game-card" onclick="switchView('tarneebView')">
-                <div class="game-icon">🃏</div>
-                <div class="game-name">طرنيب الجلسات</div>
-                <div class="game-desc">تحدي الورق الذكي</div>
-            </div>
-            <div class="game-card" onclick="switchView('arenaView')">
-                <div class="game-icon">⚔️</div>
-                <div class="game-name">ساحة المعركة</div>
-                <div class="game-desc">مبارزة نيون مباشرة</div>
-            </div>
-            <div class="game-card" onclick="switchView('trixView')">
+            <div class="game-card" onclick="openGame('trix')">
                 <div class="game-icon">👑</div>
                 <div class="game-name">تريكس الممالك</div>
-                <div class="game-desc">صناديق الحظ الملكية</div>
+                <div class="game-desc">لعبة الملوك الكلاسيكية</div>
+            </div>
+            <div class="game-card" onclick="openGame('pvp')">
+                <div class="game-icon">⚔️</div>
+                <div class="game-name">ساحة المعركة</div>
+                <div class="game-desc">تحدي اللاعبين مباشرة</div>
             </div>
         </div>
     </div>
 
-    <!-- 1. شاشة عجلة الحظ -->
-    <div id="wheelView" class="view-section">
-        <div class="arcade-container">
-            <button class="back-lobby-btn" onclick="switchView('lobbyView')">⬅ الصالة</button>
-            <div style="font-size:15px; font-weight:900; margin-bottom:4px; color:var(--text-main); clear:both;">عجلة المضاعفات المدفوعة</div>
-            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">التدويرة تكلف <strong style="color:var(--neon-gold)">100 نقطة</strong></div>
-            <div class="wheel-wrapper">
-                <div class="wheel-pointer"></div>
-                <canvas id="wheelCanvas" width="500" height="500"></canvas>
-            </div>
-            <button class="action-btn" id="spinBtn" onclick="startSpinning()">تدوير العجلة (100 🪙)</button>
-            <div class="result-display" id="wheelResult">جاهز للتحدي..</div>
+    <!-- شاشة عجلة الحظ -->
+    <div id="wheelView" class="game-view">
+        <button class="back-btn" onclick="closeGame()">← عودة للصالة</button>
+        <div style="clear: both;"></div>
+        <h3 style="color: #f39c12; margin-bottom: 5px;">عجلة المضاعفات المدفوعة</h3>
+        <p style="font-size: 11px; color: #9ca3af; margin-bottom: 10px;">التدويرة تكلف 100 نقطة</p>
+        
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelCanvas" width="300" height="300"></canvas>
+        </div>
+        
+        <button class="action-btn" onclick="spinWheel()">تدوير العجلة ( 100 🪙 )</button>
+        <div id="wheelResult" style="margin-top: 12px; font-weight: bold; font-size: 14px; color: #00d2d3;">جاهز للتحدي..</div>
+    </div>
+
+    <!-- شاشة طرنيب الجلسات -->
+    <div id="tarneebView" class="game-view">
+        <button class="back-btn" onclick="closeGame()">← عودة للصالة</button>
+        <div style="clear: both;"></div>
+        <div class="play-area-box">
+            <h3>🎴 طرنيب الجلسات الحية</h3>
+            <p>اختر حكمك ونافس الخصوم الآن واجمع النقاط المضاعفة!</p>
+            <button class="action-btn" onclick="playCardGame('طرنيب', 200)">بدء الجلسة (رهان 200 🪙)</button>
         </div>
     </div>
 
-    <!-- 2. شاشة طرنيب الجلسات (لعبة كروت حية) -->
-    <div id="tarneebView" class="view-section">
-        <div class="arcade-container">
-            <button class="back-lobby-btn" onclick="switchView('lobbyView')">⬅ الصالة</button>
-            <div style="font-size:15px; font-weight:900; margin-bottom:4px; color:var(--text-main); clear:both;">طرنيب الجلسات - تحدي الورق</div>
-            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">اختر ورقة الأقوى لتتغلب على الخصم (تكلفة الجولة: 100 🪙)</div>
-            
-            <div style="font-size:12px; color:var(--neon-cyan); margin-bottom:5px;" id="tarneebStatus">اختر ورقة من يدك:</div>
-            <div class="cards-row" id="playerCardsContainer">
-                <div class="card-item" onclick="playTarneebCard(1)">🂡<span style="font-size:11px">قص</span></div>
-                <div class="card-item" onclick="playTarneebCard(2)">🂮<span style="font-size:11px">شايب</span></div>
-                <div class="card-item" onclick="playTarneebCard(3)">🂭<span style="font-size:11px">بنت</span></div>
-            </div>
-            <button class="action-btn" id="tarneebBtn" onclick="resetTarneeb()" style="display:none;">جولة جديدة 🔄</button>
-            <div class="result-display" id="tarneebResult">في انتظار اختيارك..</div>
+    <!-- شاشة تريكس الممالك -->
+    <div id="trixView" class="game-view">
+        <button class="back-btn" onclick="closeGame()">← عودة للصالة</button>
+        <div style="clear: both;"></div>
+        <div class="play-area-box">
+            <h3>👑 تريكس الممالك الكلاسيكية</h3>
+            <p>املأ الممالك الخمس وتجنب اللوتس والشيخ لتفوز بالجائزة الكبرى!</p>
+            <button class="action-btn" onclick="playCardGame('تريكس', 300)">دخول القاعة (رهان 300 🪙)</button>
         </div>
     </div>
 
-    <!-- 3. شاشة ساحة المعركة (PVP / نيون ديو) -->
-    <div id="arenaView" class="view-section">
-        <div class="arcade-container">
-            <button class="back-lobby-btn" onclick="switchView('lobbyView')">⬅ الصالة</button>
-            <div style="font-size:15px; font-weight:900; margin-bottom:4px; color:var(--text-main); clear:both;">ساحة المعركة الثنائية</div>
-            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">اختر سلاح الطاقة لهزيمة حارس الساحة (تكلفة الدخول: 150 🪙)</div>
-
-            <div class="cards-row">
-                <div class="card-item" onclick="playArena('rock')" style="font-size:24px;">⚡<span style="font-size:10px">طاقة</span></div>
-                <div class="card-item" onclick="playArena('paper')" style="font-size:24px;">🛡️<span style="font-size:10px">درع</span></div>
-                <div class="card-item" onclick="playArena('scissors')" style="font-size:24px;">⚔️<span style="font-size:10px">سيف</span></div>
-            </div>
-            <div class="result-display" id="arenaResult">اختر سلاحك للهجوم..</div>
-        </div>
-    </div>
-
-    <!-- 4. شاشة تريكس الممالك (صناديق الحظ الملكية) -->
-    <div id="trixView" class="view-section">
-        <div class="arcade-container">
-            <button class="back-lobby-btn" onclick="switchView('lobbyView')">⬅ الصالة</button>
-            <div style="font-size:15px; font-weight:900; margin-bottom:4px; color:var(--text-main); clear:both;">تريكس الممالك - الصناديق الملكية</div>
-            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">اختر صندوقاً ملكياً واحداً لاكتشاف الكنز (تكلفة الفتح: 100 🪙)</div>
-
-            <div class="cards-row">
-                <div class="card-item" onclick="openChest(1)" style="font-size:28px;">📦</div>
-                <div class="card-item" onclick="openChest(2)" style="font-size:28px;">👑</div>
-                <div class="card-item" onclick="openChest(3)" style="font-size:28px;">🏺</div>
-            </div>
-            <button class="action-btn" id="trixBtn" onclick="resetTrix()" style="display:none;">إعادة المحاولة 🔄</button>
-            <div class="result-display" id="trixResult">اختر صندوقاً لاختبار حظك..</div>
+    <!-- شاشة ساحة المعركة -->
+    <div id="pvpView" class="game-view">
+        <button class="back-btn" onclick="closeGame()">← عودة للصالة</button>
+        <div style="clear: both;"></div>
+        <div class="play-area-box">
+            <h3>⚔️ ساحة المعركة الثنائية PvP</h3>
+            <p>تحدي مباشر ضد لاعب حقيقي في الوقت الفعلي على الطاولة الذكية.</p>
+            <button class="action-btn" onclick="playCardGame('مبارزة', 500)">بحث عن خصم (رهان 500 🪙)</button>
         </div>
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        try { tg.expand(); } catch(e) {}
-
         let balance = 1000;
 
         function updateBalance(amount) {
             balance += amount;
-            let box = document.getElementById("balance-box");
-            box.innerText = balance + " 🪙";
+            document.getElementById('userBalance').innerText = balance;
         }
 
-        function switchView(viewId) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            if(viewId === 'wheelView') drawWheel(currentAngle);
+        function addDeposit() {
+            updateBalance(500);
+            alert("تم محاكاة اعتماد الإيداع بنجاح! +500 نقطة رصيد حقيقي.");
         }
 
-        // الصوتيات الحية
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) {
-            if (!audioCtx) return;
-            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            if (type === 'tick') {
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
-            } else if (type === 'win') {
-                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.4);
-                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
-            } else if (type === 'lose') {
-                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        function openGame(gameId) {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.querySelectorAll('.game-view').forEach(el => el.style.display = 'none');
+            
+            if(gameId === 'wheel') {
+                document.getElementById('wheelView').style.display = 'block';
+                drawWheel();
+            } else if(gameId === 'tarneeb') {
+                document.getElementById('tarneebView').style.display = 'block';
+            } else if(gameId === 'trix') {
+                document.getElementById('trixView').style.display = 'block';
+            } else if(gameId === 'pvp') {
+                document.getElementById('pvpView').style.display = 'block';
             }
         }
 
-        // 1. عجلة الحظ
-        let isSpinning = false;
-        let currentAngle = 0;
+        function closeGame() {
+            document.querySelectorAll('.game-view').forEach(el => el.style.display = 'none');
+            document.getElementById('mainMenu').style.display = 'flex';
+        }
+
+        // إعداد عجلة الحظ
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
         const sectors = [
-            { label: "1000 🪙", color: "#ff007f", value: 1000 },
-            { label: "تخطي", color: "#1e293b", value: 0 },
-            { label: "400 🪙", color: "#00f0ff", value: 400 },
-            { label: "200 🪙", color: "#3b82f6", value: 200 },
-            { label: "2500 🪙", color: "#fbbf24", value: 2500 },
-            { label: "استرداد", color: "#8b5cf6", value: 100 },
-            { label: "600 🪙", color: "#ec4899", value: 600 },
-            { label: "حظاً أوفر", color: "#0f172a", value: 0 }
+            {label: '600 🪙', color: '#e91e63'},
+            {label: 'حظاً أوفر', color: '#111827'},
+            {label: '1000 🪙', color: '#e91e63'},
+            {label: 'تخطي', color: '#1f2937'},
+            {label: '400 🪙', color: '#00bcd4'},
+            {label: '200 🪙', color: '#2196f3'},
+            {label: '2500 🪙', color: '#ff9800'},
+            {label: 'استرداد', color: '#9c27b0'}
         ];
-        const canvas = document.getElementById("wheelCanvas");
-        const ctx = canvas.getContext("2d");
-        const arcSize = (2 * Math.PI) / sectors.length;
+        
+        let currentAngle = 0;
 
         function drawWheel(angle = 0) {
-            let center = canvas.width / 2;
-            let radius = center - 10;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.translate(center, center);
-            ctx.rotate(angle);
-            sectors.forEach((sec, i) => {
-                let startAngle = i * arcSize;
-                let endAngle = (i + 1) * arcSize;
-                ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, radius, startAngle, endAngle);
-                ctx.closePath(); ctx.fillStyle = sec.color; ctx.fill();
-                ctx.strokeStyle = "#030712"; ctx.lineWidth = 4; ctx.stroke();
-                ctx.save(); ctx.rotate(startAngle + arcSize / 2);
-                ctx.textAlign = "right"; ctx.fillStyle = "#ffffff"; ctx.font = "bold 26px 'Cairo'";
-                ctx.fillText(sec.label, radius - 35, 10); ctx.restore();
+            const arc = Math.PI / (sectors.length / 2);
+            ctx.clearRect(0, 0, 300, 300);
+            
+            sectors.forEach((sector, i) => {
+                const ang = angle + i * arc;
+                ctx.beginPath();
+                ctx.fillStyle = sector.color;
+                ctx.moveTo(150, 150);
+                ctx.arc(150, 150, 140, ang, ang + arc);
+                ctx.lineTo(150, 150);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(150, 150);
+                ctx.rotate(ang + arc / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 13px Tahoma";
+                ctx.fillText(sector.label, 110, 5);
+                ctx.restore();
             });
-            ctx.restore();
-            ctx.beginPath(); ctx.arc(center, center, 45, 0, 2 * Math.PI);
-            ctx.fillStyle = "#0f172a"; ctx.fill(); ctx.lineWidth = 6; ctx.strokeStyle = "#fbbf24"; ctx.stroke();
-            ctx.fillStyle = "#ffffff"; ctx.font = "bold 18px 'Cairo'"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.fillText("VIP", center, center);
         }
 
-        function startSpinning() {
+        let isSpinning = false;
+        function spinWheel() {
             if (isSpinning) return;
-            if (balance < 100) { alert("رصيدك لا يكفي!"); return; }
+            if (balance < 100) {
+                alert("رصيدك غير كافي للتدوير! قم بشحن رصيدك.");
+                return;
+            }
+            
             updateBalance(-100);
             isSpinning = true;
-            document.getElementById("spinBtn").disabled = true;
-            let extraSpins = (Math.floor(Math.random() * 4) + 5) * (2 * Math.PI);
-            let targetAngle = currentAngle + extraSpins + (Math.floor(Math.random() * sectors.length) * arcSize);
-            let startTime = null, duration = 4000, lastTickAngle = currentAngle;
+            document.getElementById('wheelResult').innerText = "جاري تدوير العجلة...";
 
-            function animateSpin(timestamp) {
-                if (!startTime) startTime = timestamp;
-                let progress = (timestamp - startTime) / duration;
-                if (progress < 1) {
-                    let currentPosition = currentAngle + (targetAngle - currentAngle) * (1 - Math.pow(1 - progress, 3));
-                    drawWheel(currentPosition);
-                    if (Math.abs(currentPosition - lastTickAngle) > arcSize / 2) { playSound('tick'); lastTickAngle = currentPosition; }
-                    requestAnimationFrame(animateSpin);
+            let spinAngle = Math.random() * 2000 + 3000;
+            let start = null;
+            let duration = 3000;
+
+            function animate(timestamp) {
+                if (!start) start = timestamp;
+                let progress = timestamp - start;
+                let easeOut = 1 - Math.pow(1 - Math.min(progress / duration, 1), 3);
+                let currentRot = currentAngle + easeOut * spinAngle;
+                
+                drawWheel(currentRot * Math.PI / 180);
+
+                if (progress < duration) {
+                    requestAnimationFrame(animate);
                 } else {
-                    currentAngle = targetAngle % (2 * Math.PI);
-                    drawWheel(currentAngle);
-                    isSpinning = false; document.getElementById("spinBtn").disabled = false;
-                    let winningIndex = Math.floor((2 * Math.PI - (currentAngle % (2 * Math.PI))) % (2 * Math.PI) / arcSize) % sectors.length;
-                    let prize = sectors[winningIndex];
-                    if (prize.value > 0) { playSound('win'); updateBalance(prize.value); document.getElementById("wheelResult").innerHTML = `<span style="color:var(--neon-gold);">🎉 مبروك ربحت ${prize.label}!</span>`; }
-                    else { playSound('lose'); document.getElementById("wheelResult").innerHTML = `<span style="color:#f87171;">❌ حظاً أوفر!</span>`; }
+                    currentAngle = currentRot % 360;
+                    isSpinning = false;
+                    
+                    // تحديد الجائزة عشوائياً بناءً على النتيجة
+                    const winningIdx = Math.floor(Math.random() * sectors.length);
+                    const prizeText = sectors[winningIdx].label;
+                    
+                    let reward = 0;
+                    if(prizeText.includes('🪙')) {
+                        reward = parseInt(prizeText);
+                        updateBalance(reward);
+                        document.getElementById('wheelResult').innerText = `مبروك! ربحت ${reward} نقطة 🎉`;
+                    } else {
+                        document.getElementById('wheelResult').innerText = `حظاً أوفر في المرة القادمة!`;
+                    }
                 }
             }
-            requestAnimationFrame(animateSpin);
+            requestAnimationFrame(animate);
         }
 
-        // 2. طرنيب الجلسات
-        function playTarneebCard(cardVal) {
-            if (balance < 100) { alert("رصيدك لا يكفي!"); return; }
-            updateBalance(-100);
-            let botVal = Math.floor(Math.random() * 3) + 1;
-            let res = document.getElementById("tarneebResult");
-            if (cardVal >= botVal) {
-                playSound('win'); updateBalance(300);
-                res.innerHTML = `<span style="color:var(--neon-gold);">🎉 هزمْت الموزع! ربحت 300 نقطة!</span>`;
-            } else {
-                playSound('lose');
-                res.innerHTML = `<span style="color:#f87171;">❌ ورقة الموزع كانت أقوى! خسرت الجولة.</span>`;
+        function playCardGame(gameName, cost) {
+            if (balance < cost) {
+                alert("رصيدك غير كافي للبدء، يلزم شحن رصيد إضافي.");
+                return;
             }
-            document.getElementById("tarneebBtn").style.display = "inline-block";
-        }
-        function resetTarneeb() {
-            document.getElementById("tarneebResult").innerText = "اختر ورقة من يدك:";
-            document.getElementById("tarneebBtn").style.display = "none";
-        }
-
-        // 3. ساحة المعركة
-        function playArena(playerChoice) {
-            if (balance < 150) { alert("رصيدك لا يكفي (150 نقطة مطلوبة)!"); return; }
-            updateBalance(-150);
-            const choices = ['rock', 'paper', 'scissors'];
-            let botChoice = choices[Math.floor(Math.random() * choices.length)];
-            let res = document.getElementById("arenaResult");
-
-            if (playerChoice === botChoice) {
-                playSound('tick'); updateBalance(150);
-                res.innerHTML = `<span style="color:var(--neon-cyan);">⚖️ تعادل! استرددت رصيدك.</span>`;
-            } else if ((playerChoice === 'rock' && botChoice === 'scissors') || (playerChoice === 'paper' && botChoice === 'rock') || (playerChoice === 'scissors' && botChoice === 'paper')) {
-                playSound('win'); updateBalance(400);
-                res.innerHTML = `<span style="color:var(--neon-gold);">🔥 انتصار ساحق! ربحت 400 نقطة!</span>`;
+            updateBalance(-cost);
+            let winAmount = cost * (Math.random() > 0.5 ? 2 : 0);
+            if(winAmount > 0) {
+                updateBalance(winAmount);
+                alert(`تهانينا! فزت في جولة ${gameName} وحصلت على ${winAmount} نقطة! 🏆`);
             } else {
-                playSound('lose');
-                res.innerHTML = `<span style="color:#f87171;">💀 هزمك حارس الساحة!</span>`;
+                alert(`للأسف خسرت جولة ${gameName} (-${cost} نقطة). حاول مجدداً!`);
             }
-        }
-
-        // 4. تريكس الممالك
-        function openChest(chestId) {
-            if (balance < 100) { alert("رصيدك لا يكفي!"); return; }
-            updateBalance(-100);
-            let winningChest = Math.floor(Math.random() * 3) + 1;
-            let res = document.getElementById("trixResult");
-            if (chestId === winningChest) {
-                playSound('win'); updateBalance(500);
-                res.innerHTML = `<span style="color:var(--neon-gold);">👑 وجدْت كنز الملك! ربحت 500 نقطة!</span>`;
-            } else {
-                playSound('lose');
-                res.innerHTML = `<span style="color:#f87171;">💨 الصندوق كان فارغاً! حظاً أوفر.</span>`;
-            }
-            document.getElementById("trixBtn").style.display = "inline-block";
-        }
-        function resetTrix() {
-            document.getElementById("trixResult").innerText = "اختر صندوقاً لاختبار حظك..";
-            document.getElementById("trixBtn").style.display = "none";
-        }
-
-        // لوحة المشرف
-        function toggleAdminPanel() {
-            let panel = document.getElementById("adminPanel");
-            panel.style.display = panel.style.display === "block" ? "none" : "block";
-        }
-        function adminSetBalance() {
-            let val = parseInt(document.getElementById("customAmount").value);
-            if (!isNaN(val)) { balance = val; document.getElementById("balance-box").innerText = balance + " 🪙"; alert("تم التحديث!"); }
-        }
-        function openRealDeposit() {
-            let amount = prompt("أدخل مبلغ الإيداع المالي:", "10");
-            if(amount) alert("تم إرسال طلب الدفع بقيمة " + amount + " بنجاع للاعتماد.");
         }
     </script>
 </body>
