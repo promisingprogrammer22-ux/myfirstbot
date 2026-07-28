@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>منصة الألعاب الاحترافية</title>
-    <!-- ربط مكتبة تيليجرام الرسمية لضمان الاستجابة الكاملة على الجوال -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -34,7 +33,7 @@
             background: #161b22;
             border: 2px solid #00ffff;
             border-radius: 12px;
-            padding: 20px 10px;
+            padding: 18px 10px;
             cursor: pointer;
             color: white;
             display: flex;
@@ -48,47 +47,75 @@
             background: #21262d;
         }
         .game-icon {
-            font-size: 35px;
-            margin-bottom: 8px;
+            font-size: 32px;
+            margin-bottom: 6px;
         }
         .game-name {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
         }
-        /* نافذة اللعبة الداخلية */
+        /* حاوية الألعاب الداخلية */
         #game-container {
             display: none;
             margin-top: 10px;
             background: #161b22;
             border: 2px solid #ff007f;
             border-radius: 12px;
-            padding: 15px;
-            min-height: 350px;
+            padding: 20px;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .back-btn {
             background: #ff4444;
             color: white;
             border: none;
-            padding: 8px 20px;
+            padding: 8px 15px;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
             margin-bottom: 15px;
+            float: right;
+        }
+        .choice-btn, .action-btn {
+            background: #21262d;
+            border: 2px solid #00ffff;
+            color: white;
+            font-size: 18px;
+            padding: 12px 20px;
+            margin: 6px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .choice-btn:active, .action-btn:active {
+            background: #00ffff;
+            color: #0d1117;
+        }
+        .result-display {
+            font-size: 16px;
+            margin-top: 15px;
+            font-weight: bold;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
 
     <div class="header-box">
-        🎮 مرحباً بك في منصة الألعاب الاحترافية
+        🎮 منصة الألعاب الاحترافية الشاملة
     </div>
 
-    <!-- قائمة الألعاب -->
+    <!-- القائمة الرئيسية للألعاب -->
     <div id="platform-menu">
         <div class="games-grid">
             <div class="game-card" onclick="loadGame('rps')">
                 <div class="game-icon">✂️</div>
                 <div class="game-name">حجر ورقة مقص</div>
+            </div>
+            <div class="game-card" onclick="loadGame('roulette')">
+                <div class="game-icon">🎰</div>
+                <div class="game-name">روليت الحظ</div>
             </div>
             <div class="game-card" onclick="loadGame('solitaire')">
                 <div class="game-icon">🎴</div>
@@ -98,26 +125,33 @@
                 <div class="game-icon">♟️</div>
                 <div class="game-name">شطرنج</div>
             </div>
-            <div class="game-card" onclick="loadGame('roulette')">
-                <div class="game-icon">🎰</div>
-                <div class="game-name">روليت</div>
+            <div class="game-card" onclick="loadGame('tarneeb')">
+                <div class="game-icon">🃏</div>
+                <div class="game-name">طرنيب</div>
+            </div>
+            <div class="game-card" onclick="loadGame('trix')">
+                <div class="game-icon">👑</div>
+                <div class="game-name">تريكس</div>
+            </div>
+            <div class="game-card" onclick="loadGame('basra')">
+                <div class="game-icon">🎯</div>
+                <div class="game-name">بصره</div>
             </div>
         </div>
     </div>
 
-    <!-- منطقة عرض اللعبة المختارة -->
+    <!-- نافذة عرض اللعبة -->
     <div id="game-container">
-        <button class="back-btn" onclick="goBackToMenu()">🔙 العودة للمنصة</button>
-        <div id="game-content">جاري تحميل اللعبة...</div>
+        <button class="back-btn" onclick="goBackToMenu()">🔙 رجوع للمنصة</button>
+        <div style="clear: both;"></div>
+        <div id="game-content"></div>
     </div>
 
     <script>
-        // تفعيل تهيئة تيليجرام ويب أب
         let tg = window.Telegram.WebApp;
         tg.expand();
 
         function loadGame(gameType) {
-            // إخفاء القائمة وإظهار حاوية اللعبة
             document.getElementById('platform-menu').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
             
@@ -125,15 +159,98 @@
 
             if (gameType === 'rps') {
                 contentDiv.innerHTML = `
-                    <h3>✂️ لعبة حجر ورقة مقص التفاعلية</h3>
-                    <p>اختر سلاحك واهزم الذكاء الاصطناعي الآن!</p>
-                    <button onclick="alert('اخترت الحجر!')" style="padding:10px; margin:5px; background:#333; color:#fff; border:none; border-radius:5px;">🪨 حجر</button>
-                    <button onclick="alert('اخترت الورقة!')" style="padding:10px; margin:5px; background:#333; color:#fff; border:none; border-radius:5px;">📄 ورقة</button>
-                    <button onclick="alert('اخترت المقَص!')" style="padding:10px; margin:5px; background:#333; color:#fff; border:none; border-radius:5px;">✂️ مقص</button>
+                    <h3>✂️ تحدي حجر ورقة مقص</h3>
+                    <p>اختر سلاحك واهزم الذكاء الاصطناعي:</p>
+                    <div>
+                        <button class="choice-btn" onclick="playRPS('حجر')">🪨 حجر</button>
+                        <button class="choice-btn" onclick="playRPS('ورقة')">📄 ورقة</button>
+                        <button class="choice-btn" onclick="playRPS('مقص')">✂️ مقص</button>
+                    </div>
+                    <div id="rps-result" class="result-display">في انتظار اختيارك...</div>
                 `;
-            } else {
-                contentDiv.innerHTML = `<h3>🚀 هذه اللعبة قيد التحديث الأقوى قريباً!</h3><p>انتظرونا بميزات خرافية.</p>`;
+            } 
+            else if (gameType === 'roulette') {
+                contentDiv.innerHTML = `
+                    <h3>🎰 روليت الحظ السريع</h3>
+                    <p>اختبر حظك واربح نقاطاً افتراضية الآن!</p>
+                    <button class="action-btn" onclick="spinRoulette()">🎲 تدوير العجلة</button>
+                    <div id="roulette-result" class="result-display">اضغط لتدوير العجلة..</div>
+                `;
             }
+            else if (gameType === 'solitaire') {
+                contentDiv.innerHTML = `
+                    <h3>🎴 سوليتير الكلاسيكية</h3>
+                    <p>لعبة ترتيب الأوراق الذكية</p>
+                    <button class="action-btn" onclick="alert('تم خلط الأوراق بنجاح! ابدأ السحب.')">🃏 سحب ورقة جديدة</button>
+                    <div class="result-display" style="color: #00ffff;">الموضع الحالي: جاهز للعب</div>
+                `;
+            }
+            else if (gameType === 'chess') {
+                contentDiv.innerHTML = `
+                    <h3>♟️ رقعة الشطرنج الذكية</h3>
+                    <p>تحدي التكتيك والعقل</p>
+                    <div class="result-display" style="color: #ffa500;">جاري إعداد رقعة البداية للمواجهة...</div>
+                    <button class="action-btn" onclick="alert('حركة البداية للجندي e4 تمت!')">🎯 تحريك الجندي e4</button>
+                `;
+            }
+            else if (gameType === 'tarneeb') {
+                contentDiv.innerHTML = `
+                    <h3>🃏 طرنيب الجلسات</h3>
+                    <p>اللعبة الأكثر جماهيرية</p>
+                    <div class="result-display">تم توزيع الأوراق. طلب الطرنيب: <span style="color:#00ff00;">الباص</span></div>
+                    <button class="action-btn" onclick="alert('تم طلب طرنيب 7!')">♠️ اطلب 7</button>
+                `;
+            }
+            else if (gameType === 'trix') {
+                contentDiv.innerHTML = `
+                    <h3>👑 تريكس الملوك</h3>
+                    <p>اختر المملكة المفضلة لديك</p>
+                    <button class="action-btn" onclick="alert('مملكة القلوب مفعلة!')">❤️ قلوب</button>
+                    <button class="action-btn" onclick="alert('مملكة الديناري مفعلة!')">♦️ ديناري</button>
+                `;
+            }
+            else if (gameType === 'basra') {
+                contentDiv.innerHTML = `
+                    <h3>🎯 بصره المصرية</h3>
+                    <p>اجمع الأوراق واقفل الطاولة!</p>
+                    <button class="action-btn" onclick="alert('تم تجميع ورق البصره بنجاح! +10 نقاط')">💥 لم الورق (بصره)</button>
+                `;
+            }
+        }
+
+        // منطق لعبة حجر ورقة مقص
+        function playRPS(playerChoice) {
+            const choices = ['حجر', 'ورقة', 'مقص'];
+            const botChoice = choices[Math.floor(Math.random() * choices.length)];
+            let resultText = "", color = "#ffffff";
+
+            if (playerChoice === botChoice) {
+                resultText = `تعادل! البوت اخترق نفس اختيارك (${botChoice})`;
+                color = "#ffa500";
+            } else if (
+                (playerChoice === 'حجر' && botChoice === 'مقص') ||
+                (playerChoice === 'ورقة' && botChoice === 'حجر') ||
+                (playerChoice === 'مقص' && botChoice === 'ورقة')
+            ) {
+                resultText = `🎉 مبروك فزت! البوت اختار (${botChoice})`;
+                color = "#00ff00";
+            } else {
+                resultText = `❌ خسرت للأسف! البوت اختار (${botChoice})`;
+                color = "#ff4444";
+            }
+
+            document.getElementById('rps-result').innerHTML = `
+                إختيارك: ${playerChoice} <br>
+                إختيار البوت: ${botChoice} <br><br>
+                <span style="color: ${color};">${resultText}</span>
+            `;
+        }
+
+        // منطق لعبة الروليت
+        function spinRoulette() {
+            const prizes = ['100 نقطة 🪙', 'حظاً أوفر ❌', '500 نقطة 💎', 'ضعف النقود 💰', 'لفة إضافية 🎁'];
+            const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+            document.getElementById('roulette-result').innerHTML = `🎡 النتيجة: <span style="color:#00ff00; font-size:18px;">${randomPrize}</span>`;
         }
 
         function goBackToMenu() {
