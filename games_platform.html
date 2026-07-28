@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة الألعاب الذكية الاحترافية</title>
+    <title>منصة الألعاب الاحترافية</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,264 +11,232 @@
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-        h1 {
-            margin-bottom: 20px;
-            color: #00fff5;
-            font-size: 22px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #00fff5;
-            border-radius: 15px;
-            padding: 20px;
-            cursor: pointer;
-            transition: 0.3s;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0f172a 100%);
+            color: #ffffff;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
         }
-        .card:hover {
-            background: rgba(0, 255, 245, 0.2);
-            transform: scale(1.05);
+
+        /* شريط معلومات اللاعب العلوي */
+        .player-hud {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
-        .icon {
-            font-size: 35px;
-            margin-bottom: 10px;
+
+        .player-info h4 {
+            font-size: 14px;
+            color: #00f3ff;
+            margin-bottom: 2px;
         }
-        .name {
+
+        .player-info span {
             font-size: 16px;
             font-weight: bold;
         }
-        #gameModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: #16213e;
-            border: 2px solid #00fff5;
-            padding: 20px;
-            border-radius: 15px;
-            width: 95%;
-            max-width: 380px;
+
+        .header-title {
             text-align: center;
-            max-height: 90vh;
-            overflow-y: auto;
+            margin-bottom: 25px;
         }
-        .modal-content h3 {
-            color: #00fff5;
-            margin-bottom: 10px;
-        }
-        .btn-choice {
-            background: #00fff5;
-            color: #1a1a2e;
-            border: none;
-            padding: 10px 15px;
-            margin: 5px 0;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-        }
-        .close-btn {
-            background: #57606f;
-            color: white;
-            margin-top: 15px;
-        }
-        .cards-container {
+
+        .header-title h1 {
+            font-size: 24px;
+            color: #00f3ff;
+            text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+            align-items: center;
             justify-content: center;
-            margin: 15px 0;
+            gap: 10px;
         }
-        .playing-card {
-            background: white;
-            color: #1a1a2e;
-            border-radius: 8px;
-            width: 55px;
-            height: 75px;
+
+        /* شبكة الألعاب الحديثة */
+        .games-grid {
+            width: 100%;
+            max-width: 480px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding-bottom: 30px;
+        }
+
+        .game-card {
+            background: rgba(22, 27, 34, 0.9);
+            border: 2px solid rgba(0, 243, 255, 0.4);
+            border-radius: 18px;
+            padding: 20px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
         }
-        .playing-card:hover {
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        .game-card:hover {
             transform: translateY(-5px);
-            background: #f1f2f6;
+            border-color: #00f3ff;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
+            background: rgba(30, 41, 59, 0.95);
         }
-        .table-area {
-            background: rgba(0,0,0,0.4);
-            border: 1px dashed #00fff5;
-            border-radius: 10px;
-            padding: 12px;
-            margin: 10px 0;
-            min-height: 70px;
-            font-size: 14px;
+
+        .game-card:active {
+            transform: scale(0.96);
+        }
+
+        .game-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+        }
+
+        .game-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        /* زر خاص لعرض الحجر ورقة مقص بلعمود الكامل لتناسق الشكل */
+        .game-card.full-width {
+            grid-column: span 2;
+            flex-direction: row;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .game-card.full-width .game-icon {
+            margin-bottom: 0;
+        }
+
+        /* تأثير وميض خفيف للمنصة */
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.5); }
+            100% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+        }
+
+        .highlight-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #ffaa00;
+            color: #000;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 6px;
         }
     </style>
 </head>
 <body>
 
-    <h1>🎮 منصة الألعاب الاحترافية</h1>
-    <div class="grid" id="gamesGrid">
-        <div class="card" onclick="startTarneebGame()">
-            <div class="icon">🃏</div>
-            <div class="name">طرنيب (حقيقية)</div>
+    <!-- شريط معلومات اللاعب -->
+    <div class="player-hud">
+        <div class="player-info">
+            <h4>الحساب النشط</h4>
+            <span id="playerUsername">Promising User</span>
         </div>
-        <div class="card" onclick="playSimpleGame('روليت', '🎰', 'تدوير العجلة للحصول على جائزة فورية!')">
-            <div class="icon">🎰</div>
-            <div class="name">روليت</div>
-        </div>
-        <div class="card" onclick="playSimpleGame('تريكس', '👑', 'تجميع الأكلات وبدء جولة التريكس التكتيكية!')">
-            <div class="icon">👑</div>
-            <div class="name">تريكس</div>
-        </div>
-        <div class="card" onclick="playSimpleGame('سوليتير', '🎴', 'ترتيب الأوراق وسحب الورقة المناسبة!')">
-            <div class="icon">🎴</div>
-            <div class="name">سوليتير</div>
-        </div>
-        <div class="card" onclick="playSimpleGame('بصره', '🎯', 'رمي الورقة ومطابقة الطاولة لجمع النقاط!')">
-            <div class="icon">🎯</div>
-            <div class="name">بصره</div>
-        </div>
-        <div class="card" onclick="playSimpleGame('شطرنج', '♟️', 'نقلة سريعة ذكية ضد حاسوب البوت!')">
-            <div class="icon">♟️</div>
-            <div class="name">شطرنج</div>
-        </div>
-        <div class="card" onclick="openRPS()">
-            <div class="icon">✂️</div>
-            <div class="name">حجر ورقة مقص</div>
+        <div class="player-info" style="text-align: left;">
+            <h4>الرصيد الافتراضي</h4>
+            <span id="playerBalance" style="color: #00ff88;">0 ل.س</span>
         </div>
     </div>
 
-    <div id="gameModal">
-        <div class="modal-content" id="modalBody">
-            <h3 id="gameTitle">عنوان اللعبة</h3>
-            <p id="gameDesc">محتوى اللعبة...</p>
-            <div id="gameArea"></div>
-            <button class="btn-choice close-btn" onclick="closeModal()">إغلاق النافذة</button>
-        </div>
+    <!-- عنوان المنصة -->
+    <div class="header-title">
+        <h1>🎮 منصة الألعاب الاحترافية</h1>
+    </div>
+
+    <!-- شبكة الألعاب والتحديات -->
+    <div class="games-grid">
+        
+        <!-- روليت -->
+        <a href="#" class="game-card" onclick="openGame('روليت')">
+            <div class="highlight-badge">حماس</div>
+            <div class="game-icon">🎰</div>
+            <div class="game-name">روليت</div>
+        </a>
+
+        <!-- طرنيب -->
+        <a href="#" class="game-card" onclick="openGame('طرنيب حقيقية')">
+            <div class="highlight-badge">محبوبة</div>
+            <div class="game-icon">🃏</div>
+            <div class="game-name">طرنيب (حقيقية)</div>
+        </a>
+
+        <!-- سوليتير -->
+        <a href="#" class="game-card" onclick="openGame('سوليتير')">
+            <div class="game-icon">🎴</div>
+            <div class="game-name">سوليتير</div>
+        </a>
+
+        <!-- تريكس -->
+        <a href="#" class="game-card" onclick="openGame('تريكس')">
+            <div class="game-icon">👑</div>
+            <div class="game-name">تريكس</div>
+        </a>
+
+        <!-- شطرنج -->
+        <a href="#" class="game-card" onclick="openGame('شطرنج')">
+            <div class="highlight-badge">ذكاء</div>
+            <div class="game-icon">♟️</div>
+            <div class="game-name">شطرنج</div>
+        </a>
+
+        <!-- بصره -->
+        <a href="#" class="game-card" onclick="openGame('بصره')">
+            <div class="game-icon">🎯</div>
+            <div class="game-name">بصره</div>
+        </a>
+
+        <!-- حجر ورقة مقص (بعرض كامل مميز) -->
+        <a href="#" class="game-card full-width" onclick="openGame('حجر ورقة مقص')">
+            <div class="game-icon">✂️</div>
+            <div class="game-name">حجر ورقة مقص (تحدي مباشر سريح)</div>
+        </a>
+
     </div>
 
     <script>
-        // محرك لعبة الطرنيب الحقيقية بالبطاقات
-        function startTarneebGame() {
-            document.getElementById('gameModal').style.display = 'flex';
-            document.getElementById('gameTitle').innerText = "🃏 طرنيب (لعب حقيقي)";
-            document.getElementById('gameDesc').innerText = "اختر ورقة من يدك لرميها على الطاولة ضد البوت:";
-            
-            const playerHand = [
-                {name: 'قص ♠', val: 14},
-                {name: 'ملك ♣', val: 13},
-                {name: 'بنت ♥', val: 12},
-                {name: '10 ♦', val: 10},
-                {name: '7 ♠', val: 7}
-            ];
-
-            let cardsHTML = `
-                <div class="table-area">حالة الطاولة:<br><span id="tableCard" style="color:#00fff5;">في انتظار اختيارك للورقة...</span></div>
-                <p style="margin: 8px 0; font-size: 13px;">أوراقك المتاحة:</p>
-                <div class="cards-container">
-            `;
-            
-            playerHand.forEach((card) => {
-                cardsHTML += `<div class="playing-card" onclick="playTarneebCard('${card.name}', ${card.val})"><span style="font-size:18px;">${card.name.split(' ')[0]}</span><span style="font-size:12px; color:#555;">${card.name.split(' ')[1]}</span></div>`;
-            });
-            
-            cardsHTML += `</div><p id="tarneebResult" style="margin-top:10px; color:#ff4757; font-weight:bold;"></p>`;
-            document.getElementById('gameArea').innerHTML = cardsHTML;
-        }
-
-        function playTarneebCard(cardName, val) {
-            const botCards = ['قص هارت ♥', 'ملك سبيت ♠', '10 كلف ♣', '9 دمنه ♦'];
-            const botPlayed = botCards[Math.floor(Math.random() * botCards.length)];
-            
-            document.getElementById('tableCardinnerHTML').innerText = "";
-            document.getElementById('tableCard').innerHTML = `أنت لعبت: <b>${cardName}</b><br>البوت رد بـ: <b>${botPlayed}</b>`;
-            
-            let roundRes = (val >= 10) ? "🎉 فزت بالجولة وأخذت الأكل لصالحك!" : "😢 البوت غطى عليك، خسرت الجولة!";
-            document.getElementById('tarneebResult').innerText = roundRes;
-        }
-
-        function playSimpleGame(name, icon, desc) {
-            document.getElementById('gameModal').style.display = 'flex';
-            document.getElementById('gameTitle').innerText = `${icon} ${name}`;
-            document.getElementById('gameDesc').innerText = desc;
-            document.getElementById('gameArea').innerHTML = `
-                <button class="btn-choice" onclick="runAction('${name}')">بدء جولة تفاعلية سريعة</button>
-                <p id="simpleRes" style="margin-top:15px; color:#00fff5; font-weight:bold;"></p>
-            `;
-        }
-
-        function runAction(name) {
-            const results = [
-                `أنت بطل ${name}! حققت فوزاً مذهلاً 🏆`,
-                `جولة ممتعة في ${name}! انتهت بالتعادل 🤝`,
-                `محاولة رائعة في ${name}، حاول مرة أخرى لتفوز! 🚀`
-            ];
-            document.getElementById('simpleRes').innerText = results[Math.floor(Math.random() * results.length)];
-        }
-
-        function openRPS() {
-            document.getElementById('gameModal').style.display = 'flex';
-            document.getElementById('gameTitle').innerText = "✂️ حجر ورقة مقص";
-            document.getElementById('gameDesc').innerText = "اختر سلاحك وتحدى البوت:";
-            document.getElementById('gameArea').innerHTML = `
-                <div style="margin: 15px 0;">
-                    <button class="btn-choice" onclick="rpsResult('حجر')">🪨 حجر</button>
-                    <button class="btn-choice" onclick="rpsResult('ورقة')">📄 ورقة</button>
-                    <button class="btn-choice" onclick="rpsResult('مقص')">✂️ مقص</button>
-                </div>
-                <p id="rpsResultText" style="margin-top: 15px; font-weight: bold; color: #00fff5;"></p>
-            `;
-        }
-
-        function rpsResult(playerChoice) {
-            const choices = ['حجر', 'ورقة', 'مقص'];
-            const botChoice = choices[Math.floor(Math.random() * choices.length)];
-            let res = "";
-            if (playerChoice === botChoice) {
-                res = `تعادل! اختيار البوت: ${botChoice}`;
-            } else if (
-                (playerChoice === 'حجر' && botChoice === 'مقص') ||
-                (playerChoice === 'ورقة' && botChoice === 'حجر') ||
-                (playerChoice === 'مقص' && botChoice === 'ورقة')
-            ) {
-                res = `أنت الفائز! 🏆 اختيار البوت: ${botChoice}`;
-            } else {
-                res = `خسرت أمام البوت! 😢 اختيار البوت: ${botChoice}`;
-            }
-            document.getElementById('rpsResultText').innerText = res;
-        }
-
-        function closeModal() {
-            document.getElementById('gameModal').style.display = 'none';
+        // دالة تفاعلية عند الضغط على أي لعبة للانتقال لعالم التحدي
+        function openGame(gameName) {
+            alert("أنت على وشك دخول طاولة: " + gameName + "\nجهز نفسك للتحدي والمنافسة القوية! 🚀");
+            // هنا يمكنك لاحقاً ربط كل لعبة بصفحتها الخاصة أو سكريبت اللعبة البرمجي الخاص بها
         }
     </script>
 
