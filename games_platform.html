@@ -2,107 +2,143 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>منصة الألعاب الاحترافية</title>
+    <!-- ربط مكتبة تيليجرام الرسمية لضمان الاستجابة الكاملة على الجوال -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             background-color: #0d1117;
             color: #ffffff;
             font-family: Arial, sans-serif;
             text-align: center;
-            padding: 20px;
+            margin: 0;
+            padding: 15px;
+        }
+        .header-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
         }
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            max-width: 600px;
-            margin: 20px auto;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto;
         }
         .game-card {
             background: #161b22;
             border: 2px solid #00ffff;
             border-radius: 12px;
-            padding: 15px;
-            text-decoration: none;
+            padding: 20px 10px;
+            cursor: pointer;
             color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: 0.3s;
+            transition: 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
-        .game-card:hover {
+        .game-card:active {
+            transform: scale(0.95);
             background: #21262d;
-            transform: scale(1.05);
         }
         .game-icon {
-            font-size: 30px;
-            margin-bottom: 10px;
+            font-size: 35px;
+            margin-bottom: 8px;
         }
         .game-name {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
+        }
+        /* نافذة اللعبة الداخلية */
+        #game-container {
+            display: none;
+            margin-top: 10px;
+            background: #161b22;
+            border: 2px solid #ff007f;
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 350px;
+        }
+        .back-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
 
-    <h2>🎮 منصة الألعاب الاحترافية</h2>
+    <div class="header-box">
+        🎮 مرحباً بك في منصة الألعاب الاحترافية
+    </div>
 
-    <div class="games-grid">
-        <a href="#" class="game-card" onclick="openGame('tarneeb')">
-            <div class="game-icon">🃏</div>
-            <div class="game-name">طرنيب</div>
-        </a>
+    <!-- قائمة الألعاب -->
+    <div id="platform-menu">
+        <div class="games-grid">
+            <div class="game-card" onclick="loadGame('rps')">
+                <div class="game-icon">✂️</div>
+                <div class="game-name">حجر ورقة مقص</div>
+            </div>
+            <div class="game-card" onclick="loadGame('solitaire')">
+                <div class="game-icon">🎴</div>
+                <div class="game-name">سوليتير</div>
+            </div>
+            <div class="game-card" onclick="loadGame('chess')">
+                <div class="game-icon">♟️</div>
+                <div class="game-name">شطرنج</div>
+            </div>
+            <div class="game-card" onclick="loadGame('roulette')">
+                <div class="game-icon">🎰</div>
+                <div class="game-name">روليت</div>
+            </div>
+        </div>
+    </div>
 
-        <a href="#" class="game-card" onclick="openGame('roulette')">
-            <div class="game-icon">🎰</div>
-            <div class="game-name">روليت</div>
-        </a>
-
-        <a href="#" class="game-card" onclick="openGame('trix')">
-            <div class="game-icon">👑</div>
-            <div class="game-name">تريكس</div>
-        </a>
-
-        <a href="#" class="game-card" onclick="openGame('solitaire')">
-            <div class="game-icon">🎴</div>
-            <div class="game-name">سوليتير</div>
-        </a>
-
-        <a href="#" class="game-card" onclick="openGame('basra')">
-            <div class="game-icon">🎯</div>
-            <div class="game-name">بصره</div>
-        </a>
-
-        <a href="#" class="game-card" onclick="openGame('chess')">
-            <div class="game-icon">♟️</div>
-            <div class="game-name">شطرنج</div>
-        </a>
-
-        <a href="#" class="game-card" onclick="openGame('rps')">
-            <div class="game-icon">✂️</div>
-            <div class="game-name">حجر ورقة مقص</div>
-        </a>
+    <!-- منطقة عرض اللعبة المختارة -->
+    <div id="game-container">
+        <button class="back-btn" onclick="goBackToMenu()">🔙 العودة للمنصة</button>
+        <div id="game-content">جاري تحميل اللعبة...</div>
     </div>
 
     <script>
-        function openGame(gameName) {
-            const gameFiles = {
-                'tarneeb': 'tarneeb.html',
-                'trix': 'trix.html',
-                'chess': 'chess.html',
-                'basra': 'basra.html',
-                'solitaire': 'solitaire.html',
-                'roulette': 'roulette.html',
-                'rps': 'rps.html'
-            };
+        // تفعيل تهيئة تيليجرام ويب أب
+        let tg = window.Telegram.WebApp;
+        tg.expand();
 
-            if (gameFiles[gameName]) {
-                window.location.href = gameFiles[gameName];
+        function loadGame(gameType) {
+            // إخفاء القائمة وإظهار حاوية اللعبة
+            document.getElementById('platform-menu').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            
+            let contentDiv = document.getElementById('game-content');
+
+            if (gameType === 'rps') {
+                contentDiv.innerHTML = `
+                    <h3>✂️ لعبة حجر ورقة مقص التفاعلية</h3>
+                    <p>اختر سلاحك واهزم الذكاء الاصطناعي الآن!</p>
+                    <button onclick="alert('اخترت الحجر!')" style="padding:10px; margin:5px; background:#333; color:#fff; border:none; border-radius:5px;">🪨 حجر</button>
+                    <button onclick="alert('اخترت الورقة!')" style="padding:10px; margin:5px; background:#333; color:#fff; border:none; border-radius:5px;">📄 ورقة</button>
+                    <button onclick="alert('اخترت المقَص!')" style="padding:10px; margin:5px; background:#333; color:#fff; border:none; border-radius:5px;">✂️ مقص</button>
+                `;
             } else {
-                alert("This game is under continuous update!");
+                contentDiv.innerHTML = `<h3>🚀 هذه اللعبة قيد التحديث الأقوى قريباً!</h3><p>انتظرونا بميزات خرافية.</p>`;
             }
+        }
+
+        function goBackToMenu() {
+            document.getElementById('game-container').style.display = 'none';
+            document.getElementById('platform-menu').style.display = 'block';
         }
     </script>
 
