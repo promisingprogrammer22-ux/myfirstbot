@@ -3,43 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Promising Developer - صالة الألعاب</title>
+    <title>Promising Developer - صالة الألعاب الاحترافية</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0b0f19; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 15px; }
+        body { background-color: #070913; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 12px; overflow-x: hidden; }
         
-        .header-bar { width: 100%; max-width: 480px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #131b2e; padding: 12px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-        .balance-badge { display: flex; align-items: center; gap: 8px; font-weight: bold; color: #f39c12; font-size: 18px; }
-        .vip-link { font-size: 13px; color: #00d2d3; text-decoration: none; background: rgba(0,210,211,0.1); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(0,210,211,0.2); }
-        
-        .deposit-box { width: 100%; max-width: 480px; background: linear-gradient(135deg, #192238 0%, #111827 100%); padding: 15px; border-radius: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(243, 156, 18, 0.2); }
-        .deposit-info h4 { font-size: 14px; color: #e5e7eb; margin-bottom: 3px; }
+        /* شريط الرصيد العلوي مع توهج نيون */
+        .header-bar { width: 100%; max-width: 480px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: linear-gradient(135deg, #131b2e 0%, #1a233a 100%); padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(0,210,211,0.2); box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .balance-badge { display: flex; align-items: center; gap: 8px; font-weight: bold; color: #f39c12; font-size: 20px; text-shadow: 0 0 10px rgba(243,156,18,0.4); }
+        .vip-link { font-size: 13px; color: #00d2d3; text-decoration: none; background: rgba(0,210,211,0.12); padding: 6px 14px; border-radius: 10px; border: 1px solid rgba(0,210,211,0.3); font-weight: bold; animation: pulseGlow 2s infinite; }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(0,210,211,0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(0,210,211,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,210,211,0); }
+        }
+
+        /* صندوق الإيداع الجذاب */
+        .deposit-box { width: 100%; max-width: 480px; background: linear-gradient(135deg, #1e1b10 0%, #111827 100%); padding: 14px 16px; border-radius: 14px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(243, 156, 18, 0.35); box-shadow: 0 4px 15px rgba(243,156,18,0.1); }
+        .deposit-info h4 { font-size: 14px; color: #fcd34d; margin-bottom: 3px; font-weight: bold; }
         .deposit-info p { font-size: 11px; color: #9ca3af; }
-        .deposit-btn { background: linear-gradient(135deg, #f39c12 0%, #d35400 100%); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(243,156,18,0.3); }
+        .deposit-btn { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); color: #fff; border: none; padding: 8px 16px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(245,158,11,0.4); transition: transform 0.1s; }
+        .deposit-btn:active { transform: scale(0.95); }
 
-        .section-title { width: 100%; max-width: 480px; font-size: 15px; color: #9ca3af; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .section-title { width: 100%; max-width: 480px; font-size: 14px; color: #93c5fd; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; font-weight: bold; }
 
-        .games-grid { width: 100%; max-width: 480px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .game-card { background: #131b2e; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 20px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: all 0.2s ease; }
-        .game-card:active { transform: scale(0.97); background: #1a233a; border-color: #f39c12; }
-        .game-icon { font-size: 36px; margin-bottom: 10px; }
-        .game-name { font-size: 15px; font-weight: bold; color: #fff; margin-bottom: 4px; }
+        /* شبكة الألعاب بلمسة جمالية عالية */
+        .games-grid { width: 100%; max-width: 480px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .game-card { background: linear-gradient(145deg, #131b2e 0%, #0d1322 100%); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 18px 10px; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: all 0.25s ease; position: relative; overflow: hidden; }
+        .game-card::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #00d2d3, transparent); opacity: 0; transition: opacity 0.3s; }
+        .game-card:hover::after, .game-card:active::after { opacity: 1; }
+        .game-card:active { transform: scale(0.96); border-color: #00d2d3; box-shadow: 0 0 15px rgba(0,210,211,0.2); }
+        .game-icon { font-size: 38px; margin-bottom: 8px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+        .game-name { font-size: 15px; font-weight: bold; color: #fff; margin-bottom: 3px; }
         .game-desc { font-size: 11px; color: #9ca3af; }
 
-        /* شاشات الألعاب الفرعية */
-        .game-view { display: none; width: 100%; max-width: 480px; background: #131b2e; border-radius: 14px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); text-align: center; }
-        .back-btn { background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-bottom: 15px; float: left; }
-        
-        /* عجلة الحظ */
-        .wheel-container { position: relative; width: 240px; height: 240px; margin: 15px auto; }
-        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #f39c12; }
-        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 20px solid #e74c3c; z-index: 10; }
-        .action-btn { background: #e91e63; color: #fff; border: none; padding: 12px 24px; border-radius: 25px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 15px rgba(233,30,99,0.4); width: 100%; }
+        /* شاشات الألعاب الحية التفاعلية الداخلية */
+        .game-view { display: none; width: 100%; max-width: 480px; background: #111827; border-radius: 16px; padding: 18px; border: 1px solid rgba(255,255,255,0.1); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* لوحات الألعاب الأخرى */
-        .play-area-box { padding: 20px 0; }
-        .play-area-box h3 { color: #f39c12; margin-bottom: 10px; font-size: 18px; }
-        .play-area-box p { color: #9ca3af; font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+        .back-btn { background: rgba(255,255,255,0.08); color: #e5e7eb; border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; float: left; font-weight: bold; transition: background 0.2s; }
+        .back-btn:hover { background: rgba(255,255,255,0.15); }
+        
+        /* عجلة الحظ الكبرى */
+        .wheel-container { position: relative; width: 230px; height: 230px; margin: 15px auto; filter: drop-shadow(0 0 15px rgba(233,30,99,0.3)); }
+        #wheelCanvas { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #f39c12; }
+        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 22px solid #ff3366; z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        
+        .action-btn { background: linear-gradient(135deg, #ff3366 0%, #c2185b 100%); color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 15px; box-shadow: 0 6px 20px rgba(255,51,102,0.4); width: 100%; transition: transform 0.1s; }
+        .action-btn:active { transform: scale(0.97); }
+
+        /* منطقة الألعاب الحية (طرنيب، تريكس، PvP) */
+        .live-arena { padding: 15px 5px; }
+        .arena-screen { background: radial-gradient(circle, #1f2937 0%, #111827 100%); border: 2px dashed rgba(243,156,18,0.3); border-radius: 14px; padding: 25px 15px; margin: 15px 0; min-height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; }
+        .arena-screen h3 { color: #f39c12; font-size: 17px; margin-bottom: 8px; }
+        .arena-screen p { color: #d1d5db; font-size: 12px; line-height: 1.6; }
+        
+        /* تأثيرات بصرية متحركة لنتائج الألعاب */
+        .result-popup { margin-top: 12px; font-weight: bold; font-size: 15px; padding: 8px; border-radius: 8px; transition: all 0.3s; }
+        .win-glow { color: #34d399; text-shadow: 0 0 10px rgba(52,211,153,0.5); }
+        .loss-glow { color: #f87171; text-shadow: 0 0 10px rgba(248,113,113,0.5); }
     </style>
 </head>
 <body>
@@ -54,14 +77,14 @@
     <div class="deposit-box">
         <div class="deposit-info">
             <h4>شحن رصيد الإيداع الحقيقي</h4>
-            <p>يتطلب اعتماد عملية الدفع المالية</p>
+            <p>يتطلب اعتماد عملية الدفع المالية الفورية</p>
         </div>
         <button class="deposit-btn" onclick="addDeposit()">إيداع مالي</button>
     </div>
 
-    <!-- القائمة الرئيسية للألعاب -->
+    <!-- القائمة الرئيسية -->
     <div id="mainMenu" style="width: 100%; max-width: 480px; display: flex; flex-direction: column; align-items: center;">
-        <div class="section-title">🎮 اختر لعبة للبدء:</div>
+        <div class="section-title">🎮 اختر لعبة للبدء الفوري:</div>
         
         <div class="games-grid">
             <div class="game-card" onclick="openGame('tarneeb')">
@@ -91,26 +114,33 @@
     <div id="wheelView" class="game-view">
         <button class="back-btn" onclick="closeGame()">← عودة للصالة</button>
         <div style="clear: both;"></div>
-        <h3 style="color: #f39c12; margin-bottom: 5px;">عجلة المضاعفات المدفوعة</h3>
-        <p style="font-size: 11px; color: #9ca3af; margin-bottom: 10px;">التدويرة تكلف 100 نقطة</p>
+        <h3 style="color: #f39c12; margin-bottom: 3px; font-size: 16px;">عجلة المضاعفات المدفوعة</h3>
+        <p style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">التدويرة تكلفة رهان: 100 نقطة</p>
         
         <div class="wheel-container">
             <div class="wheel-pointer"></div>
             <canvas id="wheelCanvas" width="300" height="300"></canvas>
         </div>
         
-        <button class="action-btn" onclick="spinWheel()">تدوير العجلة ( 100 🪙 )</button>
-        <div id="wheelResult" style="margin-top: 12px; font-weight: bold; font-size: 14px; color: #00d2d3;">جاهز للتحدي..</div>
+        <button class="action-btn" onclick="spinWheel()">تدوير العجلة الآن ( 100 🪙 )</button>
+        <div id="wheelResult" class="result-popup" style="color: #00d2d3;">جاهز لاختبار حظك.. اسحب العجلة!</div>
     </div>
 
-    <!-- شاشة طرنيب الجلسات -->
+    <!-- شاشة طرنيب الجلسات الحية -->
     <div id="tarneebView" class="game-view">
         <button class="back-btn" onclick="closeGame()">← عودة للصالة</button>
         <div style="clear: both;"></div>
-        <div class="play-area-box">
-            <h3>🎴 طرنيب الجلسات الحية</h3>
-            <p>اختر حكمك ونافس الخصوم الآن واجمع النقاط المضاعفة!</p>
-            <button class="action-btn" onclick="playCardGame('طرنيب', 200)">بدء الجلسة (رهان 200 🪙)</button>
+        <div class="live-arena">
+            <h3 style="color: #f39c12; margin-bottom: 5px;">🎴 طرنيب الجلسات الحية</h3>
+            <p style="font-size: 12px; color: #9ca3af; margin-bottom: 10px;">اختر حكمك ونافس الطاولة المباشرة</p>
+            
+            <div class="arena-screen">
+                <h3>طاولة اللعب الحية نشطة</h3>
+                <p id="tarneebStatusText">تم توزيع الأوراق بانتظام. اختر حجم الرهان وابدأ الجولة التنافسية!</p>
+            </div>
+            
+            <button class="action-btn" onclick="playLiveGame('طرنيب', 200)">بدء جولة طرنيب (رهان 200 🪙)</button>
+            <div id="tarneebResult" class="result-popup"></div>
         </div>
     </div>
 
@@ -118,10 +148,17 @@
     <div id="trixView" class="game-view">
         <button class="back-btn" onclick="closeGame()">← عودة للصالة</button>
         <div style="clear: both;"></div>
-        <div class="play-area-box">
-            <h3>👑 تريكس الممالك الكلاسيكية</h3>
-            <p>املأ الممالك الخمس وتجنب اللوتس والشيخ لتفوز بالجائزة الكبرى!</p>
-            <button class="action-btn" onclick="playCardGame('تريكس', 300)">دخول القاعة (رهان 300 🪙)</button>
+        <div class="live-arena">
+            <h3 style="color: #f39c12; margin-bottom: 5px;">👑 تريكس الممالك الكلاسيكية</h3>
+            <p style="font-size: 12px; color: #9ca3af; margin-bottom: 10px;">الممالك الخمس بانتظار ملك القاعة</p>
+            
+            <div class="arena-screen">
+                <h3>قاعة الممالك الملكية</h3>
+                <p>تجنب اللوتس والشيخ، واجمع أكبر عدد من الممالك لتسيطر على الصدارة.</p>
+            </div>
+            
+            <button class="action-btn" onclick="playLiveGame('تريكس', 300)">دخول قاعة الممالك (رهان 300 🪙)</button>
+            <div id="trixResult" class="result-popup"></div>
         </div>
     </div>
 
@@ -129,10 +166,17 @@
     <div id="pvpView" class="game-view">
         <button class="back-btn" onclick="closeGame()">← عودة للصالة</button>
         <div style="clear: both;"></div>
-        <div class="play-area-box">
-            <h3>⚔️ ساحة المعركة الثنائية PvP</h3>
-            <p>تحدي مباشر ضد لاعب حقيقي في الوقت الفعلي على الطاولة الذكية.</p>
-            <button class="action-btn" onclick="playCardGame('مبارزة', 500)">بحث عن خصم (رهان 500 🪙)</button>
+        <div class="live-arena">
+            <h3 style="color: #f39c12; margin-bottom: 5px;">⚔️ ساحة المعركة الثنائية PvP</h3>
+            <p style="font-size: 12px; color: #9ca3af; margin-bottom: 10px;">مبارزة مباشرة وحية ضد الخصوم</p>
+            
+            <div class="arena-screen">
+                <h3>رادار البحث عن الخصوم</h3>
+                <p id="pvpStatusText">جاري البحث عن لاعب بمستوى قريب لتأسيس طاولة التحدي الفوري...</p>
+            </div>
+            
+            <button class="action-btn" onclick="playLiveGame('مبارزة', 500)">بحث وتحدي فوري (رهان 500 🪙)</button>
+            <div id="pvpResult" class="result-popup"></div>
         </div>
     </div>
 
@@ -146,7 +190,7 @@
 
         function addDeposit() {
             updateBalance(500);
-            alert("تم محاكاة اعتماد الإيداع بنجاح! +500 نقطة رصيد حقيقي.");
+            alert("تم محاكاة إيداع الرصيد الحقيقي بنجاح! +500 نقطة مضافة.");
         }
 
         function openGame(gameId) {
@@ -170,18 +214,18 @@
             document.getElementById('mainMenu').style.display = 'flex';
         }
 
-        // إعداد عجلة الحظ
+        // إعداد وتصميم عجلة الحظ الكبرى
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
         const sectors = [
             {label: '600 🪙', color: '#e91e63'},
-            {label: 'حظاً أوفر', color: '#111827'},
-            {label: '1000 🪙', color: '#e91e63'},
-            {label: 'تخطي', color: '#1f2937'},
+            {label: 'حظاً أوفر', color: '#1f2937'},
+            {label: '1000 🪙', color: '#ff9800'},
+            {label: 'تخطي', color: '#111827'},
             {label: '400 🪙', color: '#00bcd4'},
             {label: '200 🪙', color: '#2196f3'},
-            {label: '2500 🪙', color: '#ff9800'},
-            {label: 'استرداد', color: '#9c27b0'}
+            {label: '2500 🪙', color: '#9c27b0'},
+            {label: 'استرداد', color: '#10b981'}
         ];
         
         let currentAngle = 0;
@@ -198,6 +242,8 @@
                 ctx.arc(150, 150, 140, ang, ang + arc);
                 ctx.lineTo(150, 150);
                 ctx.fill();
+                ctx.strokeStyle = '#070913';
+                ctx.lineWidth = 2;
                 ctx.stroke();
 
                 ctx.save();
@@ -215,17 +261,19 @@
         function spinWheel() {
             if (isSpinning) return;
             if (balance < 100) {
-                alert("رصيدك غير كافي للتدوير! قم بشحن رصيدك.");
+                alert("رصيد النقاط غير كافي لتدوير العجلة!");
                 return;
             }
             
             updateBalance(-100);
             isSpinning = true;
-            document.getElementById('wheelResult').innerText = "جاري تدوير العجلة...";
+            const resEl = document.getElementById('wheelResult');
+            resEl.className = "result-popup";
+            resEl.innerText = "⚡ جاري تدوير العجلة بحماس...";
 
-            let spinAngle = Math.random() * 2000 + 3000;
+            let spinAngle = Math.random() * 2000 + 4000;
             let start = null;
-            let duration = 3000;
+            let duration = 3500;
 
             function animate(timestamp) {
                 if (!start) start = timestamp;
@@ -241,7 +289,6 @@
                     currentAngle = currentRot % 360;
                     isSpinning = false;
                     
-                    // تحديد الجائزة عشوائياً بناءً على النتيجة
                     const winningIdx = Math.floor(Math.random() * sectors.length);
                     const prizeText = sectors[winningIdx].label;
                     
@@ -249,28 +296,45 @@
                     if(prizeText.includes('🪙')) {
                         reward = parseInt(prizeText);
                         updateBalance(reward);
-                        document.getElementById('wheelResult').innerText = `مبروك! ربحت ${reward} نقطة 🎉`;
+                        resEl.className = "result-popup win-glow";
+                        resEl.innerText = `🎉 مبروك! ربحت مضاعف بقيمة ${reward} نقطة!`;
+                    } else if(prizeText === 'استرداد') {
+                        updateBalance(100);
+                        resEl.className = "result-popup win-glow";
+                        resEl.innerText = `🔄 مبروك! تم استرداد قيمة التدويرة كاملة.`;
                     } else {
-                        document.getElementById('wheelResult').innerText = `حظاً أوفر في المرة القادمة!`;
+                        resEl.className = "result-popup loss-glow";
+                        resEl.innerText = `❌ حظاً أوفر في المرة القادمة!`;
                     }
                 }
             }
             requestAnimationFrame(animate);
         }
 
-        function playCardGame(gameName, cost) {
+        function playLiveGame(gameName, cost) {
             if (balance < cost) {
-                alert("رصيدك غير كافي للبدء، يلزم شحن رصيد إضافي.");
+                alert("رصيدك غير كافي لبدء هذه الجولة.");
                 return;
             }
             updateBalance(-cost);
-            let winAmount = cost * (Math.random() > 0.5 ? 2 : 0);
-            if(winAmount > 0) {
-                updateBalance(winAmount);
-                alert(`تهانينا! فزت في جولة ${gameName} وحصلت على ${winAmount} نقطة! 🏆`);
-            } else {
-                alert(`للأسف خسرت جولة ${gameName} (-${cost} نقطة). حاول مجدداً!`);
-            }
+            
+            let resId = gameName === 'طرنيب' ? 'tarneebResult' : (gameName === 'تريكس' ? 'trixResult' : 'pvpResult');
+            let resEl = document.getElementById(resId);
+            
+            resEl.className = "result-popup";
+            resEl.innerText = "⏳ جاري خوض التحدي وحساب النتائج حياً...";
+
+            setTimeout(() => {
+                let winAmount = cost * (Math.random() > 0.45 ? 2 : 0);
+                if(winAmount > 0) {
+                    updateBalance(winAmount);
+                    resEl.className = "result-popup win-glow";
+                    resEl.innerText = `🏆 فوز مبهر! حصدت ${winAmount} نقطة في جولة ${gameName}!`;
+                } else {
+                    resEl.className = "result-popup loss-glow";
+                    resEl.innerText = `💥 للأسف خسرت جولة ${gameName} (-${cost} نقطة). جرب تكتيكاً آخر!`;
+                }
+            }, 1000);
         }
     </script>
 </body>
