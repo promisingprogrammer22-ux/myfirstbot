@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الروليت الاحترافية</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle, #831843 0%, #4c0519 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        /* طاولة الروليت الفاخرة */
+        .roulette-table {
+            width: 100%;
+            max-width: 480px;
+            height: 75vh;
+            background: rgba(76, 5, 25, 0.6);
+            border: 4px solid #f43f5e;
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .wheel-box {
+            width: 150px;
+            height: 150px;
+            border: 6px dashed #f43f5e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+            animation: spinSlow 10s linear infinite;
+        }
+
+        @keyframes spinSlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .center-msg {
+            text-align: center;
+        }
+
+        .center-msg h2 {
+            color: #f43f5e;
+            font-size: 18px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+        }
+
+        .center-msg p {
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        /* لوحة التحكم السفلية */
+        .controls-panel {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .btn {
+            background: #f43f5e;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #e11d48;
+            box-shadow: 0 0 15px rgba(244, 63, 94, 0.6);
+        }
+
+        .back-link {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- طاولة الروليت -->
+    <div class="roulette-table">
+        <div style="font-size: 13px; font-weight: bold; color: #f43f5e;">طاولة الحظ الملكية</div>
+
+        <div class="wheel-box">
+            🎡
+        </div>
+
+        <div class="center-msg">
+            <h2>دورة الروليت الحماسية</h2>
+            <p id="rouletteStatus">اختر الرقم أو اللون واختبر حظك الآن...</p>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم -->
+    <div class="controls-panel">
+        <a href="games_platform.html" class="back-link">⬅ عودة للمنصة</a>
+        <button class="btn" onclick="spinRoulette()">تدوير العجلة 🎡</button>
+        <span style="font-size: 13px; color: #4ade80;" id="rouletteScore">الرصيد: 100$</span>
+    </div>
+
+    <script>
+        function spinRoulette() {
+            document.getElementById("rouletteStatus").innerText = "جاري تدوير العجلة بحماس... ترقب النتيجة!";
+            alert("تم إطلاق الروليت بنجاح! حظاً سعيداً في جولتك.");
+        }
+    </script>
+
+</body>
+</html>
