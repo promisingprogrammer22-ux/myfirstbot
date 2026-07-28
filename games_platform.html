@@ -232,13 +232,22 @@
 
     </div>
 
-    <script>
-        // دالة تفاعلية عند الضغط على أي لعبة للانتقال لعالم التحدي
-        function openGame(gameName) {
-            alert("أنت على وشك دخول طاولة: " + gameName + "\nجهز نفسك للتحدي والمنافسة القوية! 🚀");
-            // هنا يمكنك لاحقاً ربط كل لعبة بصفحتها الخاصة أو سكريبت اللعبة البرمجي الخاص بها
-        }
-    </script>
+    function openGame(gameName) {
+    // ربط اسم اللعبة بملفها HTML المناسب
+    const gameFiles = {
+        'tarneeb': 'tarneeb.html',
+        'trix': 'trix.html',
+        'chess': 'chess.html',
+        'basra': 'basra.html',
+        'solitaire': 'solitaire.html',
+        'roulette': 'roulette.html',
+        'rps': 'rps.html'
+    };
+if (gameFiles[gameName]) {
+        window.location.href = gameFiles[gameName];
+   } else {
+        alert("This game is under continuous update!");
+    }
 
 </body>
 </html>
