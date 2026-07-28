@@ -16,7 +16,7 @@ def send_welcome(message):
     
     # --- تعديل زر الألعاب ليفتح كمنصة ويب تفاعلية داخل التيليجرام ---
     # استبدل الرابط أدناه برابط موقع الألعاب الخاص بك (مثل رابط استضافة GitHub Pages للملف)
-    game_url = 'https://example.com/games_platform.html'
+    game_url = 'https://promisingprogrammer22-ux.github.io/myfirstbot/games_platform.html'
     btn_games = InlineKeyboardButton("منصة الألعاب 🎮", web_app=WebAppInfo(url=game_url))
     
     btn_withdraw = InlineKeyboardButton("سحب الأموال", callback_data="withdraw")

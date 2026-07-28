@@ -53,6 +53,47 @@
             font-size: 16px;
             font-weight: bold;
         }
+        /* نافذة اللعبة التفاعلية */
+        #gameModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #16213e;
+            border: 2px solid #00fff5;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+        }
+        .modal-content h3 {
+            color: #00fff5;
+            margin-bottom: 15px;
+        }
+        .btn-choice {
+            background: #00fff5;
+            color: #1a1a2e;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn {
+            background: #ff4757;
+            color: white;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -60,35 +101,89 @@
     <h1>🎮 منصة الألعاب الترفيهية</h1>
     <div class="grid" id="gamesGrid">
         <!-- الألعاب -->
-        <div class="card" onclick="alert('لعبة الروليت قادمة قريباً!')">
+        <div class="card" onclick="openGame('روليت')">
             <div class="icon">🎰</div>
             <div class="name">روليت</div>
         </div>
-        <div class="card" onclick="alert('لعبة طرنيب قادمة قريباً!')">
+        <div class="card" onclick="openGame('طرنيب')">
             <div class="icon">🃏</div>
             <div class="name">طرنيب</div>
         </div>
-        <div class="card" onclick="alert('لعبة تريكس قادمة قريباً!')">
+        <div class="card" onclick="openGame('تريكس')">
             <div class="icon">👑</div>
             <div class="name">تريكس</div>
         </div>
-        <div class="card" onclick="alert('لعبة سوليتير قادمة قريباً!')">
+        <div class="card" onclick="openGame('سوليتير')">
             <div class="icon">🎴</div>
             <div class="name">سوليتير</div>
         </div>
-        <div class="card" onclick="alert('لعبة بصره قادمة قريباً!')">
+        <div class="card" onclick="openGame('بصره')">
             <div class="icon">🎯</div>
             <div class="name">بصره</div>
         </div>
-        <div class="card" onclick="alert('لعبة الشطرنج قادمة قريباً!')">
+        <div class="card" onclick="openGame('شطرنج')">
             <div class="icon">♟️</div>
             <div class="name">شطرنج</div>
         </div>
-        <div class="card" onclick="alert('لعبة حجر ورقة مقص قادمة قريباً!')">
+        <div class="card" onclick="playRPS()">
             <div class="icon">✂️</div>
             <div class="name">حجر ورقة مقص</div>
         </div>
     </div>
+
+    <!-- نافذة تفاعلية للعب -->
+    <div id="gameModal">
+        <div class="modal-content" id="modalBody">
+            <h3 id="gameTitle">عنوان اللعبة</h3>
+            <p id="gameDesc">محتوى اللعبة هنا...</p>
+            <div id="gameArea"></div>
+            <button class="btn-choice close-btn" onclick="closeModal()">إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        function openGame(gameName) {
+            document.getElementById('gameModal').style.display = 'flex';
+            document.getElementById('gameTitle').innerText = gameName;
+            document.getElementById('gameDesc').innerText = "هذه اللعبة قيد التشغيل التفاعلي الكامل وقريباً ستتوفر بكامل مزاياها للعملاء!";
+            document.getElementById('gameArea').innerHTML = "";
+        }
+
+        function playRPS() {
+            document.getElementById('gameModal').style.display = 'flex';
+            document.getElementById('gameTitle').innerText = "حجر ورقة مقص";
+            document.getElementById('gameDesc').innerText = "اختر سلاحك واهزم البوت!";
+            document.getElementById('gameArea').innerHTML = `
+                <p style="margin: 15px 0;">اختر:</p>
+                <button class="btn-choice" onclick="rpsResult('حجر')">🪨 حجر</button>
+                <button class="btn-choice" onclick="rpsResult('ورقة')">📄 ورقة</button>
+                <button class="btn-choice" onclick="rpsResult('مقص')">✂️ مقص</button>
+                <p id="rpsResultText" style="margin-top: 15px; font-weight: bold; color: #00fff5;"></p>
+            `;
+        }
+
+        function rpsResult(playerChoice) {
+            const choices = ['حجر', 'ورقة', 'مقص'];
+            const botChoice = choices[Math.floor(Math.random() * choices.length)];
+            let res = "";
+            if (playerChoice === botChoice) {
+                res = `تعادل! اختيار البوت كان: ${botChoice}`;
+            } else if (
+                (playerChoice === 'حجر' && botChoice === 'مقص') ||
+                (playerChoice === 'ورقة' && botChoice === 'حجر') ||
+                (playerChoice === 'مقص' && botChoice === 'ورقة')
+            ) {
+                res = `لقد فزت! 🏆 اختيار البوت كان: ${botChoice}`;
+            } else {
+                res = `خسرت! 😢 اختيار البوت كان: ${botChoice}`;
+            }
+            document.getElementById('rpsResultText').innerText = res;
+        }
+
+        function closeModal() {
+            document.getElementById('gameModal').style.display = 'none';
+        }
+    </script>
 
 </body>
 </html>
