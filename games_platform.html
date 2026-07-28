@@ -232,21 +232,22 @@
 
     </div>
 
+    <script>
     function openGame(gameName) {
-    // ربط اسم اللعبة بملفها HTML المناسب
-    const gameFiles = {
-        'tarneeb': 'tarneeb.html',
-        'trix': 'trix.html',
-        'chess': 'chess.html',
-        'basra': 'basra.html',
-        'solitaire': 'solitaire.html',
-        'roulette': 'roulette.html',
-        'rps': 'rps.html'
-    };
-if (gameFiles[gameName]) {
-        window.location.href = gameFiles[gameName];
-    } else {
-        alert("This game is under continuous update!");
+        const gameFiles = {
+            'tarneeb': 'tarneeb.html',
+            'trix': 'trix.html',
+            'chess': 'chess.html',
+            'basra': 'basra.html',
+            'solitaire': 'solitaire.html',
+            'roulette': 'roulette.html',
+            'rps': 'rps.html'
+        };
+
+        if (gameFiles[gameName]) {
+            window.location.href = gameFiles[gameName];
+        } else {
+            alert("This game is under continuous update!");
+        }
     }
-}
 </script>
