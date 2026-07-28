@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة البصرة الاحترافية</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle, #7c2d12 0%, #451a03 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        /* طاولة البصرة التراثية العصرية */
+        .basra-table {
+            width: 100%;
+            max-width: 480px;
+            height: 75vh;
+            background: rgba(69, 26, 3, 0.5);
+            border: 4px solid #f97316;
+            border-radius: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            position: relative;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.7), 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .opponent-zone {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .center-title {
+            text-align: center;
+        }
+
+        .center-title h2 {
+            color: #f97316;
+            font-size: 18px;
+            text-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .center-title p {
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        /* أوراق اللاعب */
+        .player-hand {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            width: 45px;
+            height: 65px;
+            background: #ffffff;
+            color: #000000;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .card.red {
+            color: #dc2626;
+        }
+
+        /* لوحة التحكم السفلية */
+        .controls-panel {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .btn {
+            background: #f97316;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #ea580c;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
+        }
+
+        .back-link {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- طاولة البصرة -->
+    <div class="basra-table">
+        <div class="opponent-zone">الخصم (🎯 المنافس) - الطاولات: 0</div>
+
+        <div class="center-title">
+            <h2>🎯 طاولة البصرة التراثية</h2>
+            <p id="basraStatus">اطرح ورقك واجمع "البصرة" بذكاء...</p>
+        </div>
+
+        <div>
+            <div style="text-align: center; font-size: 12px; margin-bottom: 5px; color: #f97316;">أوراقك</div>
+            <div class="player-hand">
+                <div class="card red"><span>♦ 7</span><span>7</span></div>
+                <div class="card"><span>♠ J</span><span>J</span></div>
+                <div class="card red"><span>♥ 5</span><span>5</span></div>
+                <div class="card"><span>♣ K</span><span>K</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم -->
+    <div class="controls-panel">
+        <a href="games_platform.html" class="back-link">⬅ عودة للمنصة</a>
+        <button class="btn" onclick="startBasraGame()">بدء اللعب 🎯</button>
+        <span style="font-size: 13px; color: #4ade80;" id="basraScore">النقاط: 0</span>
+    </div>
+
+    <script>
+        function startBasraGame() {
+            document.getElementById("basraStatus").innerText = "بدأت الجولة! ابحث عن المطابقة واكسب البصرة.";
+            alert("أهلاً بك في البصرة! اجمع الأوراق واكسب التحدي.");
+        }
+    </script>
+
+</body>
+</html>
