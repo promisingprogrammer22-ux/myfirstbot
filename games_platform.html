@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الألعاب الذكية</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #00fff5;
+            font-size: 24px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #00fff5;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .card:hover {
+            background: rgba(0, 255, 245, 0.2);
+            transform: scale(1.05);
+        }
+        .icon {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+        .name {
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 منصة الألعاب الترفيهية</h1>
+    <div class="grid" id="gamesGrid">
+        <!-- الألعاب -->
+        <div class="card" onclick="alert('لعبة الروليت قادمة قريباً!')">
+            <div class="icon">🎰</div>
+            <div class="name">روليت</div>
+        </div>
+        <div class="card" onclick="alert('لعبة طرنيب قادمة قريباً!')">
+            <div class="icon">🃏</div>
+            <div class="name">طرنيب</div>
+        </div>
+        <div class="card" onclick="alert('لعبة تريكس قادمة قريباً!')">
+            <div class="icon">👑</div>
+            <div class="name">تريكس</div>
+        </div>
+        <div class="card" onclick="alert('لعبة سوليتير قادمة قريباً!')">
+            <div class="icon">🎴</div>
+            <div class="name">سوليتير</div>
+        </div>
+        <div class="card" onclick="alert('لعبة بصره قادمة قريباً!')">
+            <div class="icon">🎯</div>
+            <div class="name">بصره</div>
+        </div>
+        <div class="card" onclick="alert('لعبة الشطرنج قادمة قريباً!')">
+            <div class="icon">♟️</div>
+            <div class="name">شطرنج</div>
+        </div>
+        <div class="card" onclick="alert('لعبة حجر ورقة مقص قادمة قريباً!')">
+            <div class="icon">✂️</div>
+            <div class="name">حجر ورقة مقص</div>
+        </div>
+    </div>
+
+</body>
+</html>
