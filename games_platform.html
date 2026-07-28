@@ -3,217 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة الألعاب الاحترافية - Promising Platform</title>
+    <title>منصة الألعاب الاحترافية</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
         :root {
-            --bg-main: #090d16;
-            --card-bg: #111827;
+            --bg-deep: #05070b;
+            --bg-card: rgba(17, 24, 39, 0.75);
+            --border-neon: rgba(0, 240, 255, 0.4);
             --accent-cyan: #00f0ff;
             --accent-pink: #ff007f;
             --accent-gold: #ffd700;
             --text-main: #ffffff;
-            --text-muted: #9ca3af;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-main);
+            background: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.08) 0%, transparent 40%);
             color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Cairo', sans-serif;
             text-align: center;
             margin: 0;
-            padding: 12px;
-            -webkit-user-select: none;
+            padding: 16px;
+            min-height: 100vh;
         }
 
-        /* رأس الحساب الفاخر */
-        .wallet-card {
-            background: linear-gradient(135deg, #1f2937, #111827);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 15px;
+        /* رأس المحفظة الفاخر */
+        .wallet-header {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9));
+            border: 1px solid var(--border-neon);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
             max-width: 480px;
             margin-left: auto;
             margin-right: auto;
-            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 240, 255, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .user-tag {
-            font-size: 12px;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
+        .user-info {
+            text-align: right;
         }
-        .balance-amount {
-            font-size: 20px;
-            font-weight: 800;
+        .user-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .user-rank {
+            font-size: 11px;
             color: var(--accent-cyan);
-            margin-top: 4px;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+        }
+        .balance-badge {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--accent-cyan);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            transition: transform 0.2s;
+        }
+        .balance-badge.pulse {
+            transform: scale(1.1);
         }
 
-        /* شبكة الألعاب الاحترافية */
-        .platform-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 12px;
+        /* عنوان القسم */
+        .section-title {
+            font-size: 17px;
+            font-weight: 900;
+            margin-bottom: 16px;
             color: var(--text-main);
             letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
+
+        /* شبكة الألعاب الحديثة */
         .games-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 14px;
             max-width: 480px;
             margin: 0 auto;
         }
         .game-card {
-            background: var(--card-bg);
-            border: 2px solid rgba(0, 240, 255, 0.2);
-            border-radius: 14px;
-            padding: 20px 10px;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 20px 12px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: all 0.25s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            -webkit-tap-highlight-color: transparent;
+        }
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         .game-card:hover, .game-card:active {
             border-color: var(--accent-cyan);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 240, 255, 0.25);
-            background: #1a2234;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 240, 255, 0.2);
         }
-        .game-icon {
-            font-size: 36px;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+        .game-card:hover::before {
+            opacity: 1;
+        }
+        .game-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+        .game-card:hover .game-icon-wrapper {
+            transform: scale(1.1) rotate(5deg);
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--accent-cyan);
         }
         .game-name {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
+            color: var(--text-main);
+        }
+        .game-tag {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
         }
 
-        /* نافذة اللعب التفاعلية الداخلية */
+        /* نافذة اللعبة الداخلية المحسنة */
         #game-container {
             display: none;
-            background: var(--card-bg);
-            border: 2px solid var(--accent-pink);
-            border-radius: 16px;
+            background: var(--bg-card);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--accent-pink);
+            border-radius: 20px;
             padding: 20px;
             max-width: 480px;
             margin: 0 auto;
-            box-shadow: 0 0 25px rgba(255, 0, 127, 0.2);
-            animation: fadeIn 0.3s ease-in-out;
+            box-shadow: 0 15px 40px rgba(255, 0, 127, 0.25);
+            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .game-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+        }
+        .game-title-inner {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--accent-pink);
         }
         .back-btn {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
-            color: white;
-            border: none;
-            padding: 8px 16px;
+            background: rgba(255, 68, 68, 0.15);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            padding: 6px 14px;
             border-radius: 10px;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 12px;
             cursor: pointer;
-            float: right;
-            box-shadow: 0 3px 10px rgba(255, 68, 68, 0.3);
             transition: 0.2s;
         }
         .back-btn:active {
+            background: #ff4444;
+            color: white;
             transform: scale(0.95);
         }
-        .game-panel-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--accent-pink);
-            margin-bottom: 10px;
-            clear: both;
+
+        /* الأزرار التفاعلية داخل الألعاب */
+        .interactive-area {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 15px 0;
         }
-        .action-btn, .choice-btn {
+        .play-btn {
             background: linear-gradient(135deg, #1f2937, #111827);
             border: 2px solid var(--accent-cyan);
             color: white;
-            font-size: 16px;
-            font-weight: bold;
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
             padding: 12px 20px;
-            margin: 8px;
-            border-radius: 12px;
+            border-radius: 14px;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            flex: 1;
+            min-width: 110px;
         }
-        .action-btn:active, .choice-btn:active {
+        .play-btn:active {
             background: var(--accent-cyan);
-            color: var(--bg-main);
-            transform: scale(0.96);
+            color: var(--bg-deep);
+            transform: scale(0.95);
+            box-shadow: 0 0 20px var(--accent-cyan);
         }
+        .play-btn.primary {
+            border-color: var(--accent-pink);
+        }
+        .play-btn.primary:active {
+            background: var(--accent-pink);
+            color: white;
+            box-shadow: 0 0 20px var(--accent-pink);
+        }
+
         .result-box {
-            font-size: 16px;
-            margin-top: 15px;
-            font-weight: bold;
+            font-size: 15px;
+            margin-top: 20px;
+            font-weight: 700;
             line-height: 1.6;
-            padding: 10px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
         }
     </style>
 </head>
 <body>
 
-    <!-- صندوق الحساب الفاخر -->
-    <div class="wallet-card">
-        <div class="user-tag">🚀 Promising Developer | الحساب النشط</div>
-        <div class="balance-amount">الرصيد: <span id="user-score">1000</span> ل.س 🪙</div>
+    <!-- شريط الحساب الفاخر العلوي -->
+    <div class="wallet-header">
+        <div class="user-info">
+            <div class="user-name">👤 Promising VIP</div>
+            <div class="user-rank">الرتبة: محترف ألعاب</div>
+        </div>
+        <div class="balance-badge" id="balance-badge">
+            <span id="user-score">1000</span> ل.س 🪙
+        </div>
     </div>
 
-    <!-- قائمة المنصة الرئيسية -->
+    <!-- القائمة الرئيسية -->
     <div id="platform-menu">
-        <div class="platform-title">🎮 منصة الألعاب الاحترافية المعتمدة</div>
+        <div class="section-title">
+            <span>⚡</span> صالة الألعاب الاحترافية
+        </div>
         <div class="games-grid">
             <div class="game-card" onclick="openGame('rps')">
-                <div class="game-icon">✂️</div>
+                <div class="game-icon-wrapper">✂️</div>
                 <div class="game-name">حجر ورقة مقص</div>
+                <div class="game-tag">تحدي ذكاء اصطناعي</div>
             </div>
             <div class="game-card" onclick="openGame('roulette')">
-                <div class="game-icon">🎰</div>
+                <div class="game-icon-wrapper">🎰</div>
                 <div class="game-name">روليت الحظ</div>
+                <div class="game-tag">مضاعفة الجوائز</div>
             </div>
             <div class="game-card" onclick="openGame('solitaire')">
-                <div class="game-icon">🎴</div>
+                <div class="game-icon-wrapper">🎴</div>
                 <div class="game-name">سوليتير</div>
+                <div class="game-tag">ترتيب الأوراق</div>
             </div>
             <div class="game-card" onclick="openGame('chess')">
-                <div class="game-icon">♟️</div>
-                <div class="game-name">شطرنج</div>
+                <div class="game-icon-wrapper">♟️</div>
+                <div class="game-name">شطرنج التكتيك</div>
+                <div class="game-tag">ضربات سريعة</div>
             </div>
             <div class="game-card" onclick="openGame('tarneeb')">
-                <div class="game-icon">🃏</div>
-                <div class="game-name">طرنيب (حقيقية)</div>
+                <div class="game-icon-wrapper">🃏</div>
+                <div class="game-name">طرنيب الجلسات</div>
+                <div class="game-tag">طلب ورهان</div>
             </div>
             <div class="game-card" onclick="openGame('trix')">
-                <div class="game-icon">👑</div>
-                <div class="game-name">تريكس</div>
+                <div class="game-icon-wrapper">👑</div>
+                <div class="game-name">تريكس الملوك</div>
+                <div class="game-tag">الممالك الأربعة</div>
             </div>
             <div class="game-card" onclick="openGame('basra')">
-                <div class="game-icon">🎯</div>
-                <div class="game-name">بصره</div>
+                <div class="game-icon-wrapper">🎯</div>
+                <div class="game-name">بصره المصرية</div>
+                <div class="game-tag">جمع الورق</div>
             </div>
         </div>
     </div>
 
-    <!-- حاوية اللعبة الاحترافية -->
+    <!-- نافذة اللعبة الداخلية -->
     <div id="game-container">
-        <button class="back-btn" onclick="closeGame()">🔙 رجوع</button>
+        <div class="game-header-bar">
+            <div class="game-title-inner" id="game-panel-title">عنوان اللعبة</div>
+            <button class="back-btn" onclick="closeGame()">رجوع للمنصة ↩</button>
+        </div>
         <div id="game-content"></div>
     </div>
 
     <script>
-        // تهيئة بيئة تيليجرام الرسمية باحترافية
         let tg = window.Telegram.WebApp;
         try { tg.expand(); } catch(e) {}
 
@@ -221,7 +332,14 @@
 
         function modifyBalance(amount) {
             playerBalance += amount;
-            document.getElementById('user-score').innerText = playerBalance;
+            let badge = document.getElementById('balance-badge');
+            let scoreElem = document.getElementById('user-score');
+            
+            scoreElem.innerText = playerBalance;
+            
+            // تأثير نبض بصري عند تغير الرصيد
+            badge.classList.add('pulse');
+            setTimeout(() => badge.classList.remove('pulse'), 300);
         }
 
         function openGame(gameKey) {
@@ -229,68 +347,81 @@
             let container = document.getElementById('game-container');
             container.style.display = 'block';
             let content = document.getElementById('game-content');
+            let titleElem = document.getElementById('game-panel-title');
 
             switch(gameKey) {
                 case 'rps':
+                    titleElem.innerText = "✂️ تحدي حجر ورقة مقص";
                     content.innerHTML = `
-                        <div class="game-panel-title">✂️ تحدي حجر ورقة مقص</div>
-                        <p style="color:var(--text-muted); font-size:14px;">اختر سلاحك وتحدى الذكاء الاصطناعي:</p>
-                        <div>
-                            <button class="choice-btn" onclick="playRPS('حجر')">🪨 حجر</button>
-                            <button class="choice-btn" onclick="playRPS('ورقة')">📄 ورقة</button>
-                            <button class="choice-btn" onclick="playRPS('مقص')">✂️ مقص</button>
+                        <p style="color:var(--text-muted); font-size:13px;">اختر سلاحك وتحدى النظام:</p>
+                        <div class="interactive-area">
+                            <button class="play-btn" onclick="playRPS('حجر')">🪨 حجر</button>
+                            <button class="play-btn" onclick="playRPS('ورقة')">📄 ورقة</button>
+                            <button class="play-btn" onclick="playRPS('مقص')">✂️ مقص</button>
                         </div>
                         <div id="game-result" class="result-box">اختر حركتك للبدء..</div>
                     `;
                     break;
                 case 'roulette':
+                    titleElem.innerText = "🎰 روليت الحظ السريع";
                     content.innerHTML = `
-                        <div class="game-panel-title">🎰 روليت الحظ السريع</div>
-                        <p style="color:var(--text-muted); font-size:14px;">كل تدويرة تكلف 50 ل.س ومضاعفاتها مضمونة!</p>
-                        <button class="action-btn" onclick="spinRoulette()">🎲 تدوير العجلة الآن</button>
+                        <p style="color:var(--text-muted); font-size:13px;">تكلفة التدويرة 50 ل.س | اربح مضاعفات خيالية!</p>
+                        <div class="interactive-area">
+                            <button class="play-btn primary" onclick="spinRoulette()">🎲 تدوير العجلة الآن</button>
+                        </div>
                         <div id="game-result" class="result-box">اضغط لاختبار حظك..</div>
                     `;
                     break;
                 case 'solitaire':
+                    titleElem.innerText = "🎴 سوليتير الترتيب الذكي";
                     content.innerHTML = `
-                        <div class="game-panel-title">🎴 سوليتير الترتيب الذكي</div>
-                        <p style="color:var(--text-muted); font-size:14px;">اسحب ورقة لاكتشاف رابحك اليومي:</p>
-                        <button class="action-btn" onclick="playSolitaire()">🃏 سحب ورقة جديدة</button>
-                        <div id="game-result" class="result-box">في انتظار السحب...</div>
+                        <p style="color:var(--text-muted); font-size:13px;">اسحب ورقة من الكومة لاكتشاف الجائزة:</p>
+                        <div class="interactive-area">
+                            <button class="play-btn" onclick="playSolitaire()">🃏 سحب ورقة ذهبية</button>
+                        </div>
+                        <div id="game-result" class="result-box">جاهز للسحب..</div>
                     `;
                     break;
                 case 'chess':
+                    titleElem.innerText = "♟️ شطرنج التكتيك السريع";
                     content.innerHTML = `
-                        <div class="game-panel-title">♟️ تحدي الشطرنج السريع</div>
-                        <p style="color:var(--text-muted); font-size:14px;">نفذ حركة افتتاحية صحيحة لكسب المكافأة:</p>
-                        <button class="action-btn" onclick="playChess()">🎯 نقل الحصان (Nf3)</button>
-                        <div id="game-result" class="result-box">قم بتنفيذ الحركة الآن..</div>
+                        <p style="color:var(--text-muted); font-size:13px;">نفذ نقلة افتتاحية صحيحة لكسب المكافأة:</p>
+                        <div class="interactive-area">
+                            <button class="play-btn" onclick="playChess()">🎯 نقل الحصان (Nf3)</button>
+                        </div>
+                        <div id="game-result" class="result-box">نفذ النقلة الآن..</div>
                     `;
                     break;
                 case 'tarneeb':
+                    titleElem.innerText = "🃏 طرنيب الجلسات";
                     content.innerHTML = `
-                        <div class="game-panel-title">🃏 طرنيب الجلسات</div>
-                        <p style="color:var(--text-muted); font-size:14px;">حدد طلبك واربح التحدي:</p>
-                        <button class="action-btn" onclick="playTarneeb(7)">♠️ اطلب 7</button>
-                        <button class="action-btn" onclick="playTarneeb(9)">♥️ اطلب 9</button>
-                        <div id="game-result" class="result-box">اختر عدد الطرنيب..</div>
+                        <p style="color:var(--text-muted); font-size:13px;">اختر طلبك وحقق الفوز في الجولة:</p>
+                        <div class="interactive-area">
+                            <button class="play-btn" onclick="playTarneeb(7)">♠️ اطلب 7</button>
+                            <button class="play-btn" onclick="playTarneeb(9)">♥️ اطلب 9</button>
+                        </div>
+                        <div id="game-result" class="result-box">حدد طلبك للبدء..</div>
                     `;
                     break;
                 case 'trix':
+                    titleElem.innerText = "👑 تريكس الملوك";
                     content.innerHTML = `
-                        <div class="game-panel-title">👑 تريكس الملوك</div>
-                        <p style="color:var(--text-muted); font-size:14px;">اختر مملكة اللعب المفضلة لديك:</p>
-                        <button class="action-btn" onclick="alert('تم تفعيل مملكة القلوب بنجاح! ❤️'); modifyBalance(100);">❤️ قلوب</button>
-                        <button class="action-btn" onclick="alert('تم تفعيل مملكة الديناري بنجاح! ♦️'); modifyBalance(100);">♦️ ديناري</button>
-                        <div id="game-result" class="result-box" style="color:var(--accent-cyan);">المملكة جاهزة للمنافسة!</div>
+                        <p style="color:var(--text-muted); font-size:13px;">اختر المملكة المفضلة لفتح العوائد:</p>
+                        <div class="interactive-area">
+                            <button class="play-btn" onclick="modifyBalance(100); document.getElementById('game-result').innerHTML='<span style=\'color:var(--accent-cyan);\'>❤️ تم تفعيل مملكة القلوب (+100 ل.س)</span>';">❤️ قلوب</button>
+                            <button class="play-btn" onclick="modifyBalance(100); document.getElementById('game-result').innerHTML='<span style=\'color:var(--accent-cyan);\'>♦️ تم تفعيل مملكة الديناري (+100 ل.س)</span>';">♦️ ديناري</button>
+                        </div>
+                        <div id="game-result" class="result-box">اختر المملكة..</div>
                     `;
                     break;
                 case 'basra':
+                    titleElem.innerText = "🎯 بصره المصرية";
                     content.innerHTML = `
-                        <div class="game-panel-title">🎯 بصره المصرية</div>
-                        <p style="color:var(--text-muted); font-size:14px;">اجمع الورق واقفل الطاولة:</p>
-                        <button class="action-btn" onclick="modifyBalance(150); document.getElementById('game-result').innerText='💥 بصره صحيحة! +150 نقطة';">💥 لم الطاولة (بصره)</button>
-                        <div id="game-result" class="result-box">اضغط عند اكتمال الطاولة..</div>
+                        <p style="color:var(--text-muted); font-size:13px;">اجمع الورق من على الطاولة بقوة:</p>
+                        <div class="interactive-area">
+                            <button class="play-btn primary" onclick="modifyBalance(150); document.getElementById('game-result').innerHTML='<span style=\'color:#34d399;\'>💥 بصره صحيحة! تم إضافة (+150 ل.س)</span>';">💥 لم الطاولة (بصره)</button>
+                        </div>
+                        <div id="game-result" class="result-box">اضغط عند اكتمال اللقطة..</div>
                     `;
                     break;
             }
@@ -301,21 +432,20 @@
             document.getElementById('platform-menu').style.display = 'block';
         }
 
-        // خوارزميات الألعاب التفاعلية المحدثة
         function playRPS(playerChoice) {
             const choices = ['حجر', 'ورقة', 'مقص'];
             const botChoice = choices[Math.floor(Math.random() * choices.length)];
             let resText = "", color = "#fff";
 
             if (playerChoice === botChoice) {
-                resText = `🤝 تعادل! الذكاء الاصطناعي اختار (${botChoice})`;
+                resText = `🤝 تعادل! البوت اختار (${botChoice})`;
                 color = "#fbbf24";
             } else if (
                 (playerChoice === 'حجر' && botChoice === 'مقص') ||
                 (playerChoice === 'ورقة' && botChoice === 'حجر') ||
                 (playerChoice === 'مقص' && botChoice === 'ورقة')
             ) {
-                resText = `🎉 مبروك فزت بالجولة! (+100 ل.س) [البوت: ${botChoice}]`;
+                resText = `🎉 كفو فزت بالجولة! (+100 ل.س) [البوت: ${botChoice}]`;
                 color = "#34d399";
                 modifyBalance(100);
             } else {
@@ -328,15 +458,15 @@
 
         function spinRoulette() {
             if (playerBalance < 50) {
-                alert("عذراً، رصيدك غير كافٍ للتدوير!");
+                alert("رصيدك لا يكفي للتدوير!");
                 return;
             }
             modifyBalance(-50);
             const rewards = [
-                {text: "🎉 ربحت جائزة كبرى! (+400 ل.س)", val: 400},
-                {text: "💎 ضعف رصيدك الحالي! (+200 ل.س)", val: 200},
-                {text: "🤝 استرداد قيمة التدويرة (50 ل.س)", val: 50},
-                {text: "❌ حظاً أوفر في المرة القادمة", val: 0}
+                {text: "🎉 كبرى! ربحت (+400 ل.س)", val: 400},
+                {text: "💎 مضاعفة رائعة (+200 ل.س)", val: 200},
+                {text: "🤝 استرداد الرهان (50 ل.س)", val: 50},
+                {text: "❌ حظاً أوفر المرة القادمة", val: 0}
             ];
             let prize = rewards[Math.floor(Math.random() * rewards.length)];
             modifyBalance(prize.val);
@@ -363,7 +493,7 @@
             if (success) {
                 let prize = bid * 35;
                 modifyBalance(prize);
-                document.getElementById('game-result').innerHTML = `<span style="color:#34d399;">♠️ كفو! نجح طلب الـ ${bid} وأضفنا (+${prize} ل.س)</span>`;
+                document.getElementById('game-result').innerHTML = `<span style="color:#34d399;">♠️ وحش! نجح طلب الـ ${bid} وأضفنا (+${prize} ل.س)</span>`;
             } else {
                 modifyBalance(-100);
                 document.getElementById('game-result').innerHTML = `<span style="color:#f87171;">❌ أكلت "شيبة"! خسرنا الرهان (-100 ل.س)</span>`;
