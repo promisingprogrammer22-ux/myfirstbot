@@ -5,249 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة الألعاب الاحترافية</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         body {
-            background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0f172a 100%);
+            background-color: #0d1117;
             color: #ffffff;
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .game-card {
+            background: #161b22;
+            border: 2px solid #00ffff;
+            border-radius: 12px;
+            padding: 15px;
+            text-decoration: none;
+            color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
-            overflow-x: hidden;
+            transition: 0.3s;
         }
-
-        /* شريط معلومات اللاعب العلوي */
-        .player-hud {
-            width: 100%;
-            max-width: 480px;
-            background: rgba(22, 27, 34, 0.8);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        .game-card:hover {
+            background: #21262d;
+            transform: scale(1.05);
         }
-
-        .player-info h4 {
-            font-size: 14px;
-            color: #00f3ff;
-            margin-bottom: 2px;
+        .game-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
         }
-
-        .player-info span {
+        .game-name {
             font-size: 16px;
             font-weight: bold;
-        }
-
-        .header-title {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .header-title h1 {
-            font-size: 24px;
-            color: #00f3ff;
-            text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        /* شبكة الألعاب الحديثة */
-        .games-grid {
-            width: 100%;
-            max-width: 480px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            padding-bottom: 30px;
-        }
-
-        .game-card {
-            background: rgba(22, 27, 34, 0.9);
-            border: 2px solid rgba(0, 243, 255, 0.4);
-            border-radius: 18px;
-            padding: 20px 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-            text-decoration: none;
-        }
-
-        .game-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.1), transparent);
-            transition: 0.5s;
-        }
-
-        .game-card:hover::before {
-            left: 100%;
-        }
-
-        .game-card:hover {
-            transform: translateY(-5px);
-            border-color: #00f3ff;
-            box-shadow: 0 0 25px rgba(0, 243, 255, 0.4);
-            background: rgba(30, 41, 59, 0.95);
-        }
-
-        .game-card:active {
-            transform: scale(0.96);
-        }
-
-        .game-icon {
-            font-size: 40px;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
-        }
-
-        .game-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: #ffffff;
-            text-align: center;
-        }
-
-        /* زر خاص لعرض الحجر ورقة مقص بلعمود الكامل لتناسق الشكل */
-        .game-card.full-width {
-            grid-column: span 2;
-            flex-direction: row;
-            gap: 15px;
-            padding: 15px;
-        }
-
-        .game-card.full-width .game-icon {
-            margin-bottom: 0;
-        }
-
-        /* تأثير وميض خفيف للمنصة */
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
-            50% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.5); }
-            100% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
-        }
-
-        .highlight-badge {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: #ffaa00;
-            color: #000;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 6px;
         }
     </style>
 </head>
 <body>
 
-    <!-- شريط معلومات اللاعب -->
-    <div class="player-hud">
-        <div class="player-info">
-            <h4>الحساب النشط</h4>
-            <span id="playerUsername">Promising User</span>
-        </div>
-        <div class="player-info" style="text-align: left;">
-            <h4>الرصيد الافتراضي</h4>
-            <span id="playerBalance" style="color: #00ff88;">0 ل.س</span>
-        </div>
-    </div>
+    <h2>🎮 منصة الألعاب الاحترافية</h2>
 
-    <!-- عنوان المنصة -->
-    <div class="header-title">
-        <h1>🎮 منصة الألعاب الاحترافية</h1>
-    </div>
-
-    <!-- شبكة الألعاب والتحديات -->
     <div class="games-grid">
-        
-        <!-- روليت -->
-        <a href="#" class="game-card" onclick="openGame('روليت')">
-            <div class="highlight-badge">حماس</div>
+        <a href="#" class="game-card" onclick="openGame('tarneeb')">
+            <div class="game-icon">🃏</div>
+            <div class="game-name">طرنيب</div>
+        </a>
+
+        <a href="#" class="game-card" onclick="openGame('roulette')">
             <div class="game-icon">🎰</div>
             <div class="game-name">روليت</div>
         </a>
 
-        <!-- طرنيب -->
-        <a href="#" class="game-card" onclick="openGame('طرنيب حقيقية')">
-            <div class="highlight-badge">محبوبة</div>
-            <div class="game-icon">🃏</div>
-            <div class="game-name">طرنيب (حقيقية)</div>
-        </a>
-
-        <!-- سوليتير -->
-        <a href="#" class="game-card" onclick="openGame('سوليتير')">
-            <div class="game-icon">🎴</div>
-            <div class="game-name">سوليتير</div>
-        </a>
-
-        <!-- تريكس -->
-        <a href="#" class="game-card" onclick="openGame('تريكس')">
+        <a href="#" class="game-card" onclick="openGame('trix')">
             <div class="game-icon">👑</div>
             <div class="game-name">تريكس</div>
         </a>
 
-        <!-- شطرنج -->
-        <a href="#" class="game-card" onclick="openGame('شطرنج')">
-            <div class="highlight-badge">ذكاء</div>
-            <div class="game-icon">♟️</div>
-            <div class="game-name">شطرنج</div>
+        <a href="#" class="game-card" onclick="openGame('solitaire')">
+            <div class="game-icon">🎴</div>
+            <div class="game-name">سوليتير</div>
         </a>
 
-        <!-- بصره -->
-        <a href="#" class="game-card" onclick="openGame('بصره')">
+        <a href="#" class="game-card" onclick="openGame('basra')">
             <div class="game-icon">🎯</div>
             <div class="game-name">بصره</div>
         </a>
 
-        <!-- حجر ورقة مقص (بعرض كامل مميز) -->
-        <a href="#" class="game-card full-width" onclick="openGame('حجر ورقة مقص')">
-            <div class="game-icon">✂️</div>
-            <div class="game-name">حجر ورقة مقص (تحدي مباشر سريح)</div>
+        <a href="#" class="game-card" onclick="openGame('chess')">
+            <div class="game-icon">♟️</div>
+            <div class="game-name">شطرنج</div>
         </a>
 
+        <a href="#" class="game-card" onclick="openGame('rps')">
+            <div class="game-icon">✂️</div>
+            <div class="game-name">حجر ورقة مقص</div>
+        </a>
     </div>
 
     <script>
-    function openGame(gameName) {
-        const gameFiles = {
-            'tarneeb': 'tarneeb.html',
-            'trix': 'trix.html',
-            'chess': 'chess.html',
-            'basra': 'basra.html',
-            'solitaire': 'solitaire.html',
-            'roulette': 'roulette.html',
-            'rps': 'rps.html'
-        };
+        function openGame(gameName) {
+            const gameFiles = {
+                'tarneeb': 'tarneeb.html',
+                'trix': 'trix.html',
+                'chess': 'chess.html',
+                'basra': 'basra.html',
+                'solitaire': 'solitaire.html',
+                'roulette': 'roulette.html',
+                'rps': 'rps.html'
+            };
 
-        if (gameFiles[gameName]) {
-            window.location.href = gameFiles[gameName];
-        } else {
-            alert("This game is under continuous update!");
+            if (gameFiles[gameName]) {
+                window.location.href = gameFiles[gameName];
+            } else {
+                alert("This game is under continuous update!");
+            }
         }
-    }
-</script>
+    </script>
+
+</body>
+</html>
