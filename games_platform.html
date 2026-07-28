@@ -91,16 +91,11 @@
             cursor: pointer;
             width: 100%;
         }
-        .btn-mode {
-            background: #ff4757;
-            color: white;
-        }
         .close-btn {
             background: #57606f;
             color: white;
             margin-top: 15px;
         }
-        /* تصميم كروت اللعب للطرنيب */
         .cards-container {
             display: flex;
             flex-wrap: wrap;
@@ -112,8 +107,8 @@
             background: white;
             color: #1a1a2e;
             border-radius: 8px;
-            width: 50px;
-            height: 70px;
+            width: 55px;
+            height: 75px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -128,12 +123,13 @@
             background: #f1f2f6;
         }
         .table-area {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.4);
             border: 1px dashed #00fff5;
             border-radius: 10px;
-            padding: 15px;
+            padding: 12px;
             margin: 10px 0;
-            min-height: 80px;
+            min-height: 70px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -141,31 +137,31 @@
 
     <h1>🎮 منصة الألعاب الاحترافية</h1>
     <div class="grid" id="gamesGrid">
-        <div class="card" onclick="openGameMenu('طرنيب', '🃏')">
+        <div class="card" onclick="startTarneebGame()">
             <div class="icon">🃏</div>
             <div class="name">طرنيب (حقيقية)</div>
         </div>
-        <div class="card" onclick="openGameMenu('تريكس', '👑')">
-            <div class="icon">👑</div>
-            <div class="name">تريكس</div>
-        </div>
-        <div class="card" onclick="openGameMenu('روليت', '🎰')">
+        <div class="card" onclick="playSimpleGame('روليت', '🎰', 'تدوير العجلة للحصول على جائزة فورية!')">
             <div class="icon">🎰</div>
             <div class="name">روليت</div>
         </div>
-        <div class="card" onclick="openGameMenu('سوليتير', '🎴')">
+        <div class="card" onclick="playSimpleGame('تريكس', '👑', 'تجميع الأكلات وبدء جولة التريكس التكتيكية!')">
+            <div class="icon">👑</div>
+            <div class="name">تريكس</div>
+        </div>
+        <div class="card" onclick="playSimpleGame('سوليتير', '🎴', 'ترتيب الأوراق وسحب الورقة المناسبة!')">
             <div class="icon">🎴</div>
             <div class="name">سوليتير</div>
         </div>
-        <div class="card" onclick="openGameMenu('بصره', '🎯')">
+        <div class="card" onclick="playSimpleGame('بصره', '🎯', 'رمي الورقة ومطابقة الطاولة لجمع النقاط!')">
             <div class="icon">🎯</div>
             <div class="name">بصره</div>
         </div>
-        <div class="card" onclick="openGameMenu('شطرنج', '♟️')">
+        <div class="card" onclick="playSimpleGame('شطرنج', '♟️', 'نقلة سريعة ذكية ضد حاسوب البوت!')">
             <div class="icon">♟️</div>
             <div class="name">شطرنج</div>
         </div>
-        <div class="card" onclick="openGameMenu('حجر ورقة مقص', '✂️')">
+        <div class="card" onclick="openRPS()">
             <div class="icon">✂️</div>
             <div class="name">حجر ورقة مقص</div>
         </div>
@@ -181,44 +177,31 @@
     </div>
 
     <script>
-        let currentGame = "";
-
-        function openGameMenu(gameName, icon) {
-            currentGame = gameName;
-            document.getElementById('gameModal').style.display = 'flex';
-            document.getElementById('gameTitle').innerText = `${icon} ${gameName}`;
-            
-            if(gameName === 'طرنيب') {
-                document.getElementById('gameDesc').innerText = "لعبة طرنيب التذكية: اطلب الطرنيب والعب أوراقك بذكاء لهزم الخصوم!";
-                document.getElementById('gameArea').innerHTML = `
-                    <button class="btn-choice" onclick="startTarneebGame()">بدء جولة طرنيب جديدة</button>
-                `;
-            } else {
-                document.getElementById('gameDesc').innerText = "اختر نمط اللعب:";
-                document.getElementById('gameArea').innerHTML = `
-                    <button class="btn-choice" onclick="startGenericSolo('${gameName}')">🤖 اللعب الفردي ضد البوت</button>
-                    <button class="btn-choice btn-mode" onclick="generatePartnerLink()">🔗 تحدي صديق عبر رابط</button>
-                    <p id="subRes" style="margin-top:10px; color:#00fff5; font-weight:bold;"></p>
-                `;
-            }
-        }
-
-        // محرك لعبة الطرنيب الحقيقية المصغرة
+        // محرك لعبة الطرنيب الحقيقية بالبطاقات
         function startTarneebGame() {
-            document.getElementById('gameDesc').innerText = "اختر ورقة للعبها على الطاولة:";
+            document.getElementById('gameModal').style.display = 'flex';
+            document.getElementById('gameTitle').innerText = "🃏 طرنيب (لعب حقيقي)";
+            document.getElementById('gameDesc').innerText = "اختر ورقة من يدك لرميها على الطاولة ضد البوت:";
+            
             const playerHand = [
-                {name: 'قص سبيت ♠', val: 14},
-                {name: 'ملك كلف ♣', val: 13},
-                {name: '10 هارت ♥', val: 10},
-                {name: '7 دمنه ♦', val: 7},
-                {name: '5 سبيت ♠', val: 5}
+                {name: 'قص ♠', val: 14},
+                {name: 'ملك ♣', val: 13},
+                {name: 'بنت ♥', val: 12},
+                {name: '10 ♦', val: 10},
+                {name: '7 ♠', val: 7}
             ];
 
-            let cardsHTML = `<div class="table-area">طاولة اللعب: <span id="tableCard" style="color:#ff4757;">في انتظار لعبتك...</span></div><p>أوراقك في اليد:</p><div class="cards-container">`;
-            playerHand.forEach((card, index) => {
-                cardsHTML += `<div class="playing-card" onclick="playTarneebCard('${card.name}', ${card.val})"><span>${card.name.split(' ')[0]}</span><span style="font-size:12px;">${card.name.split(' ')[1]}</span></div>`;
+            let cardsHTML = `
+                <div class="table-area">حالة الطاولة:<br><span id="tableCard" style="color:#00fff5;">في انتظار اختيارك للورقة...</span></div>
+                <p style="margin: 8px 0; font-size: 13px;">أوراقك المتاحة:</p>
+                <div class="cards-container">
+            `;
+            
+            playerHand.forEach((card) => {
+                cardsHTML += `<div class="playing-card" onclick="playTarneebCard('${card.name}', ${card.val})"><span style="font-size:18px;">${card.name.split(' ')[0]}</span><span style="font-size:12px; color:#555;">${card.name.split(' ')[1]}</span></div>`;
             });
-            cardsHTML += `</div><p id="tarneebResult" style="margin-top:10px; color:#00fff5; font-weight:bold;"></p>`;
+            
+            cardsHTML += `</div><p id="tarneebResult" style="margin-top:10px; color:#ff4757; font-weight:bold;"></p>`;
             document.getElementById('gameArea').innerHTML = cardsHTML;
         }
 
@@ -226,19 +209,62 @@
             const botCards = ['قص هارت ♥', 'ملك سبيت ♠', '10 كلف ♣', '9 دمنه ♦'];
             const botPlayed = botCards[Math.floor(Math.random() * botCards.length)];
             
-            document.getElementById('tableCard').innerText = `البوت لعب: ${botPlayed} | أنت لعبت: ${cardName}`;
+            document.getElementById('tableCardinnerHTML').innerText = "";
+            document.getElementById('tableCard').innerHTML = `أنت لعبت: <b>${cardName}</b><br>البوت رد بـ: <b>${botPlayed}</b>`;
             
-            let roundRes = (val > 8) ? "أنت فزت بهذه الجولة وأخذت الأكل! 🏆" : "البوت غطى عليك، خسرت الأكل! 😢";
+            let roundRes = (val >= 10) ? "🎉 فزت بالجولة وأخذت الأكل لصالحك!" : "😢 البوت غطى عليك، خسرت الجولة!";
             document.getElementById('tarneebResult').innerText = roundRes;
         }
 
-        function startGenericSolo(name) {
-            document.getElementById('subRes').innerText = `جاري تشغيل لعبة ${name} الفردية... تفاعل الآن!`;
+        function playSimpleGame(name, icon, desc) {
+            document.getElementById('gameModal').style.display = 'flex';
+            document.getElementById('gameTitle').innerText = `${icon} ${name}`;
+            document.getElementById('gameDesc').innerText = desc;
+            document.getElementById('gameArea').innerHTML = `
+                <button class="btn-choice" onclick="runAction('${name}')">بدء جولة تفاعلية سريعة</button>
+                <p id="simpleRes" style="margin-top:15px; color:#00fff5; font-weight:bold;"></p>
+            `;
         }
 
-        function generatePartnerLink() {
-            const uniqueLink = `https://t.me/your_bot_username?start=game_${Math.floor(Math.random() * 100000)}`;
-            document.getElementById('subRes').innerHTML = `رابط التحدي:<br><input type="text" value="${uniqueLink}" readonly style="width:100%; padding:5px; margin-top:5px; text-align:center;"><br><span style="color:#2ed573;">تم الإنشاء! أرسله لصديقك.</span>`;
+        function runAction(name) {
+            const results = [
+                `أنت بطل ${name}! حققت فوزاً مذهلاً 🏆`,
+                `جولة ممتعة في ${name}! انتهت بالتعادل 🤝`,
+                `محاولة رائعة في ${name}، حاول مرة أخرى لتفوز! 🚀`
+            ];
+            document.getElementById('simpleRes').innerText = results[Math.floor(Math.random() * results.length)];
+        }
+
+        function openRPS() {
+            document.getElementById('gameModal').style.display = 'flex';
+            document.getElementById('gameTitle').innerText = "✂️ حجر ورقة مقص";
+            document.getElementById('gameDesc').innerText = "اختر سلاحك وتحدى البوت:";
+            document.getElementById('gameArea').innerHTML = `
+                <div style="margin: 15px 0;">
+                    <button class="btn-choice" onclick="rpsResult('حجر')">🪨 حجر</button>
+                    <button class="btn-choice" onclick="rpsResult('ورقة')">📄 ورقة</button>
+                    <button class="btn-choice" onclick="rpsResult('مقص')">✂️ مقص</button>
+                </div>
+                <p id="rpsResultText" style="margin-top: 15px; font-weight: bold; color: #00fff5;"></p>
+            `;
+        }
+
+        function rpsResult(playerChoice) {
+            const choices = ['حجر', 'ورقة', 'مقص'];
+            const botChoice = choices[Math.floor(Math.random() * choices.length)];
+            let res = "";
+            if (playerChoice === botChoice) {
+                res = `تعادل! اختيار البوت: ${botChoice}`;
+            } else if (
+                (playerChoice === 'حجر' && botChoice === 'مقص') ||
+                (playerChoice === 'ورقة' && botChoice === 'حجر') ||
+                (playerChoice === 'مقص' && botChoice === 'ورقة')
+            ) {
+                res = `أنت الفائز! 🏆 اختيار البوت: ${botChoice}`;
+            } else {
+                res = `خسرت أمام البوت! 😢 اختيار البوت: ${botChoice}`;
+            }
+            document.getElementById('rpsResultText').innerText = res;
         }
 
         function closeModal() {
