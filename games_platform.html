@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة الألعاب الاحترافية</title>
+    <title>منصة الترفيه الاحترافية - VIP Hub</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
 
         :root {
-            --bg-deep: #05070b;
-            --bg-card: rgba(17, 24, 39, 0.75);
-            --border-neon: rgba(0, 240, 255, 0.4);
-            --accent-cyan: #00f0ff;
-            --accent-pink: #ff007f;
-            --accent-gold: #ffd700;
-            --text-main: #ffffff;
-            --text-muted: #94a3b8;
+            --bg-base: #030712;
+            --panel-bg: rgba(15, 23, 42, 0.88);
+            --neon-cyan: #00f0ff;
+            --neon-pink: #ff007f;
+            --neon-gold: #fbbf24;
+            --text-main: #f8fafc;
         }
 
         * {
@@ -26,479 +24,366 @@
         }
 
         body {
-            background: var(--bg-deep);
+            background-color: var(--bg-base);
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.08) 0%, transparent 40%);
+                radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 50% 100%, rgba(255, 0, 127, 0.12) 0%, transparent 50%);
             color: var(--text-main);
             font-family: 'Cairo', sans-serif;
-            text-align: center;
             margin: 0;
-            padding: 16px;
+            padding: 12px;
+            text-align: center;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* رأس المحفظة الفاخر */
-        .wallet-header {
-            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(17, 24, 39, 0.9));
-            border: 1px solid var(--border-neon);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 20px;
-            max-width: 480px;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 240, 255, 0.15);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .user-info {
-            text-align: right;
-        }
-        .user-name {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-        .user-rank {
-            font-size: 11px;
-            color: var(--accent-cyan);
-        }
-        .balance-badge {
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid var(--accent-cyan);
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 900;
-            color: var(--accent-cyan);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-            transition: transform 0.2s;
-        }
-        .balance-badge.pulse {
-            transform: scale(1.1);
-        }
-
-        /* عنوان القسم */
-        .section-title {
-            font-size: 17px;
-            font-weight: 900;
-            margin-bottom: 16px;
-            color: var(--text-main);
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        /* شبكة الألعاب الحديثة */
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-        .game-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 18px;
-            padding: 20px 12px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .game-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .game-card:hover, .game-card:active {
-            border-color: var(--accent-cyan);
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0, 240, 255, 0.2);
-        }
-        .game-card:hover::before {
-            opacity: 1;
-        }
-        .game-icon-wrapper {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.05);
+        /* رأس الحساب الحي */
+        .hud-header {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 240, 255, 0.3);
             border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.3s;
-        }
-        .game-card:hover .game-icon-wrapper {
-            transform: scale(1.1) rotate(5deg);
-            background: rgba(0, 240, 255, 0.1);
-            border-color: var(--accent-cyan);
-        }
-        .game-name {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-        .game-tag {
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        /* نافذة اللعبة الداخلية المحسنة */
-        #game-container {
-            display: none;
-            background: var(--bg-card);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--accent-pink);
-            border-radius: 20px;
-            padding: 20px;
-            max-width: 480px;
-            margin: 0 auto;
-            box-shadow: 0 15px 40px rgba(255, 0, 127, 0.25);
-            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .game-header-bar {
+            padding: 12px 16px;
+            max-width: 420px;
+            margin: 0 auto 14px auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         }
-        .game-title-inner {
+        .hud-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+        }
+        .hud-balance {
             font-size: 16px;
             font-weight: 900;
-            color: var(--accent-pink);
+            color: var(--neon-gold);
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+            transition: transform 0.2s;
         }
-        .back-btn {
-            background: rgba(255, 68, 68, 0.15);
-            color: #ff4444;
-            border: 1px solid #ff4444;
-            padding: 6px 14px;
-            border-radius: 10px;
-            font-weight: 700;
+        .hud-balance.pop {
+            transform: scale(1.2);
+        }
+
+        /* لوحة التحكم والإيداع السريع */
+        .deposit-panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 14px;
+            padding: 10px 14px;
+            max-width: 420px;
+            margin: 0 auto 14px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .deposit-info {
             font-size: 12px;
+            color: #cbd5e1;
+            text-align: right;
+        }
+        .deposit-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+            padding: 8px 16px;
+            border-radius: 10px;
             cursor: pointer;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
             transition: 0.2s;
         }
-        .back-btn:active {
-            background: #ff4444;
-            color: white;
+        .deposit-btn:active {
             transform: scale(0.95);
         }
 
-        /* الأزرار التفاعلية داخل الألعاب */
-        .interactive-area {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 15px 0;
+        /* الحاوية الرئيسية للعجلة التفاعلية */
+        .arcade-container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 0, 127, 0.4);
+            border-radius: 24px;
+            padding: 18px 10px;
+            max-width: 420px;
+            margin: 0 auto;
+            box-shadow: 0 15px 40px rgba(255, 0, 127, 0.2);
+            position: relative;
         }
-        .play-btn {
-            background: linear-gradient(135deg, #1f2937, #111827);
-            border: 2px solid var(--accent-cyan);
+
+        .wheel-wrapper {
+            position: relative;
+            width: 270px;
+            height: 270px;
+            margin: 10px auto 18px auto;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.2));
+        }
+
+        /* مؤشر العجلة العلوي */
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 24px solid var(--neon-pink);
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8));
+            z-index: 10;
+        }
+
+        /* زر الدوران الأسطوري */
+        .spin-btn {
+            background: linear-gradient(135deg, var(--neon-pink), #cc0066);
             color: white;
+            border: none;
             font-family: 'Cairo', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            padding: 12px 20px;
-            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 900;
+            padding: 12px 36px;
+            border-radius: 50px;
             cursor: pointer;
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.6);
             transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            flex: 1;
-            min-width: 110px;
+            letter-spacing: 0.5px;
         }
-        .play-btn:active {
-            background: var(--accent-cyan);
-            color: var(--bg-deep);
+        .spin-btn:active {
             transform: scale(0.95);
-            box-shadow: 0 0 20px var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
         }
-        .play-btn.primary {
-            border-color: var(--accent-pink);
-        }
-        .play-btn.primary:active {
-            background: var(--accent-pink);
-            color: white;
-            box-shadow: 0 0 20px var(--accent-pink);
+        .spin-btn:disabled {
+            background: #334155;
+            color: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
-        .result-box {
-            font-size: 15px;
-            margin-top: 20px;
+        .result-display {
+            margin-top: 14px;
+            font-size: 14px;
             font-weight: 700;
-            line-height: 1.6;
-            padding: 14px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 14px;
+            min-height: 30px;
+            color: var(--neon-cyan);
         }
     </style>
 </head>
 <body>
 
-    <!-- شريط الحساب الفاخر العلوي -->
-    <div class="wallet-header">
-        <div class="user-info">
-            <div class="user-name">👤 Promising VIP</div>
-            <div class="user-rank">الرتبة: محترف ألعاب</div>
-        </div>
-        <div class="balance-badge" id="balance-badge">
-            <span id="user-score">1000</span> ل.س 🪙
-        </div>
+    <!-- شريط معلومات الرصيد الحي -->
+    <div class="hud-header">
+        <div class="hud-title">⚡ رصيد العضوية VIP</div>
+        <div class="hud-balance" id="balance-box">1000 🪙</div>
     </div>
 
-    <!-- القائمة الرئيسية -->
-    <div id="platform-menu">
-        <div class="section-title">
-            <span>⚡</span> صالة الألعاب الاحترافية
+    <!-- لوحة الإيداع السريع لفتح تدويرات العجلة -->
+    <div class="deposit-panel">
+        <div class="deposit-info">
+            <strong>شحن رصيد الإيداع</strong><br>
+            <span>أضف 500 نقطة للرصيد الآن</span>
         </div>
-        <div class="games-grid">
-            <div class="game-card" onclick="openGame('rps')">
-                <div class="game-icon-wrapper">✂️</div>
-                <div class="game-name">حجر ورقة مقص</div>
-                <div class="game-tag">تحدي ذكاء اصطناعي</div>
-            </div>
-            <div class="game-card" onclick="openGame('roulette')">
-                <div class="game-icon-wrapper">🎰</div>
-                <div class="game-name">روليت الحظ</div>
-                <div class="game-tag">مضاعفة الجوائز</div>
-            </div>
-            <div class="game-card" onclick="openGame('solitaire')">
-                <div class="game-icon-wrapper">🎴</div>
-                <div class="game-name">سوليتير</div>
-                <div class="game-tag">ترتيب الأوراق</div>
-            </div>
-            <div class="game-card" onclick="openGame('chess')">
-                <div class="game-icon-wrapper">♟️</div>
-                <div class="game-name">شطرنج التكتيك</div>
-                <div class="game-tag">ضربات سريعة</div>
-            </div>
-            <div class="game-card" onclick="openGame('tarneeb')">
-                <div class="game-icon-wrapper">🃏</div>
-                <div class="game-name">طرنيب الجلسات</div>
-                <div class="game-tag">طلب ورهان</div>
-            </div>
-            <div class="game-card" onclick="openGame('trix')">
-                <div class="game-icon-wrapper">👑</div>
-                <div class="game-name">تريكس الملوك</div>
-                <div class="game-tag">الممالك الأربعة</div>
-            </div>
-            <div class="game-card" onclick="openGame('basra')">
-                <div class="game-icon-wrapper">🎯</div>
-                <div class="game-name">بصره المصرية</div>
-                <div class="game-tag">جمع الورق</div>
-            </div>
-        </div>
+        <button class="deposit-btn" onclick="makeDeposit()">إيداع فوري 💳</button>
     </div>
 
-    <!-- نافذة اللعبة الداخلية -->
-    <div id="game-container">
-        <div class="game-header-bar">
-            <div class="game-title-inner" id="game-panel-title">عنوان اللعبة</div>
-            <button class="back-btn" onclick="closeGame()">رجوع للمنصة ↩</button>
+    <!-- لوحة الألعاب الحية -->
+    <div class="arcade-container">
+        <div style="font-size:16px; font-weight:900; margin-bottom:4px; color:var(--text-main);">عجلة المضاعفات المدفوعة</div>
+        <div style="font-size:11px; color:#94a3b8; margin-bottom:12px;">التدويرة الواحدة تكلف <strong style="color:var(--neon-gold)">100 نقطة إيداع</strong></div>
+
+        <div class="wheel-wrapper">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
         </div>
-        <div id="game-content"></div>
+
+        <button class="spin-btn" id="spinBtn" onclick="startSpinning()">تدوير العجلة (100 🪙) 🎲</button>
+        <div class="result-display" id="resultText">قم بالإيداع وادخل ساحة التحدي..</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         try { tg.expand(); } catch(e) {}
 
-        let playerBalance = 1000;
+        let balance = 1000;
+        let isSpinning = false;
+        let currentAngle = 0;
 
-        function modifyBalance(amount) {
-            playerBalance += amount;
-            let badge = document.getElementById('balance-badge');
-            let scoreElem = document.getElementById('user-score');
-            
-            scoreElem.innerText = playerBalance;
-            
-            // تأثير نبض بصري عند تغير الرصيد
-            badge.classList.add('pulse');
-            setTimeout(() => badge.classList.remove('pulse'), 300);
+        const sectors = [
+            { label: "1000 🪙", color: "#ff007f", value: 1000 },
+            { label: "تخطي", color: "#1e293b", value: 0 },
+            { label: "400 🪙", color: "#00f0ff", value: 400 },
+            { label: "200 🪙", color: "#3b82f6", value: 200 },
+            { label: "2500 🪙", color: "#fbbf24", value: 2500 }, // الجائزة الكبرى الضخمة للإيداع
+            { label: "استرداد", color: "#8b5cf6", value: 100 },
+            { label: "600 🪙", color: "#ec4899", value: 600 },
+            { label: "حظاً أوفر", color: "#0f172a", value: 0 }
+        ];
+
+        const canvas = document.getElementById("wheelCanvas");
+        const ctx = canvas.getContext("2d");
+        const arcSize = (2 * Math.PI) / sectors.length;
+
+        function drawWheel(angle = 0) {
+            let center = canvas.width / 2;
+            let radius = center - 10;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(center, center);
+            ctx.rotate(angle);
+
+            sectors.forEach((sec, i) => {
+                let startAngle = i * arcSize;
+                let endAngle = (i + 1) * arcSize;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = sec.color;
+                ctx.fill();
+                ctx.strokeStyle = "#030712";
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.rotate(startAngle + arcSize / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 26px 'Cairo', sans-serif";
+                ctx.fillText(sec.label, radius - 35, 10);
+                ctx.restore();
+            });
+
+            ctx.restore();
+
+            ctx.beginPath();
+            ctx.arc(center, center, 45, 0, 2 * Math.PI);
+            ctx.fillStyle = "#0f172a";
+            ctx.fill();
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "#fbbf24";
+            ctx.stroke();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 18px 'Cairo', sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("VIP", center, center);
         }
 
-        function openGame(gameKey) {
-            document.getElementById('platform-menu').style.display = 'none';
-            let container = document.getElementById('game-container');
-            container.style.display = 'block';
-            let content = document.getElementById('game-content');
-            let titleElem = document.getElementById('game-panel-title');
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
 
-            switch(gameKey) {
-                case 'rps':
-                    titleElem.innerText = "✂️ تحدي حجر ورقة مقص";
-                    content.innerHTML = `
-                        <p style="color:var(--text-muted); font-size:13px;">اختر سلاحك وتحدى النظام:</p>
-                        <div class="interactive-area">
-                            <button class="play-btn" onclick="playRPS('حجر')">🪨 حجر</button>
-                            <button class="play-btn" onclick="playRPS('ورقة')">📄 ورقة</button>
-                            <button class="play-btn" onclick="playRPS('مقص')">✂️ مقص</button>
-                        </div>
-                        <div id="game-result" class="result-box">اختر حركتك للبدء..</div>
-                    `;
-                    break;
-                case 'roulette':
-                    titleElem.innerText = "🎰 روليت الحظ السريع";
-                    content.innerHTML = `
-                        <p style="color:var(--text-muted); font-size:13px;">تكلفة التدويرة 50 ل.س | اربح مضاعفات خيالية!</p>
-                        <div class="interactive-area">
-                            <button class="play-btn primary" onclick="spinRoulette()">🎲 تدوير العجلة الآن</button>
-                        </div>
-                        <div id="game-result" class="result-box">اضغط لاختبار حظك..</div>
-                    `;
-                    break;
-                case 'solitaire':
-                    titleElem.innerText = "🎴 سوليتير الترتيب الذكي";
-                    content.innerHTML = `
-                        <p style="color:var(--text-muted); font-size:13px;">اسحب ورقة من الكومة لاكتشاف الجائزة:</p>
-                        <div class="interactive-area">
-                            <button class="play-btn" onclick="playSolitaire()">🃏 سحب ورقة ذهبية</button>
-                        </div>
-                        <div id="game-result" class="result-box">جاهز للسحب..</div>
-                    `;
-                    break;
-                case 'chess':
-                    titleElem.innerText = "♟️ شطرنج التكتيك السريع";
-                    content.innerHTML = `
-                        <p style="color:var(--text-muted); font-size:13px;">نفذ نقلة افتتاحية صحيحة لكسب المكافأة:</p>
-                        <div class="interactive-area">
-                            <button class="play-btn" onclick="playChess()">🎯 نقل الحصان (Nf3)</button>
-                        </div>
-                        <div id="game-result" class="result-box">نفذ النقلة الآن..</div>
-                    `;
-                    break;
-                case 'tarneeb':
-                    titleElem.innerText = "🃏 طرنيب الجلسات";
-                    content.innerHTML = `
-                        <p style="color:var(--text-muted); font-size:13px;">اختر طلبك وحقق الفوز في الجولة:</p>
-                        <div class="interactive-area">
-                            <button class="play-btn" onclick="playTarneeb(7)">♠️ اطلب 7</button>
-                            <button class="play-btn" onclick="playTarneeb(9)">♥️ اطلب 9</button>
-                        </div>
-                        <div id="game-result" class="result-box">حدد طلبك للبدء..</div>
-                    `;
-                    break;
-                case 'trix':
-                    titleElem.innerText = "👑 تريكس الملوك";
-                    content.innerHTML = `
-                        <p style="color:var(--text-muted); font-size:13px;">اختر المملكة المفضلة لفتح العوائد:</p>
-                        <div class="interactive-area">
-                            <button class="play-btn" onclick="modifyBalance(100); document.getElementById('game-result').innerHTML='<span style=\'color:var(--accent-cyan);\'>❤️ تم تفعيل مملكة القلوب (+100 ل.س)</span>';">❤️ قلوب</button>
-                            <button class="play-btn" onclick="modifyBalance(100); document.getElementById('game-result').innerHTML='<span style=\'color:var(--accent-cyan);\'>♦️ تم تفعيل مملكة الديناري (+100 ل.س)</span>';">♦️ ديناري</button>
-                        </div>
-                        <div id="game-result" class="result-box">اختر المملكة..</div>
-                    `;
-                    break;
-                case 'basra':
-                    titleElem.innerText = "🎯 بصره المصرية";
-                    content.innerHTML = `
-                        <p style="color:var(--text-muted); font-size:13px;">اجمع الورق من على الطاولة بقوة:</p>
-                        <div class="interactive-area">
-                            <button class="play-btn primary" onclick="modifyBalance(150); document.getElementById('game-result').innerHTML='<span style=\'color:#34d399;\'>💥 بصره صحيحة! تم إضافة (+150 ل.س)</span>';">💥 لم الطاولة (بصره)</button>
-                        </div>
-                        <div id="game-result" class="result-box">اضغط عند اكتمال اللقطة..</div>
-                    `;
-                    break;
+            if (type === 'tick') {
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.05);
+            } else if (type === 'win') {
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
             }
         }
 
-        function closeGame() {
-            document.getElementById('game-container').style.display = 'none';
-            document.getElementById('platform-menu').style.display = 'block';
+        function updateBalance(amount) {
+            balance += amount;
+            let box = document.getElementById("balance-box");
+            box.innerText = balance + " 🪙";
+            box.classList.add("pop");
+            setTimeout(() => box.classList.remove("pop"), 200);
         }
 
-        function playRPS(playerChoice) {
-            const choices = ['حجر', 'ورقة', 'مقص'];
-            const botChoice = choices[Math.floor(Math.random() * choices.length)];
-            let resText = "", color = "#fff";
-
-            if (playerChoice === botChoice) {
-                resText = `🤝 تعادل! البوت اختار (${botChoice})`;
-                color = "#fbbf24";
-            } else if (
-                (playerChoice === 'حجر' && botChoice === 'مقص') ||
-                (playerChoice === 'ورقة' && botChoice === 'حجر') ||
-                (playerChoice === 'مقص' && botChoice === 'ورقة')
-            ) {
-                resText = `🎉 كفو فزت بالجولة! (+100 ل.س) [البوت: ${botChoice}]`;
-                color = "#34d399";
-                modifyBalance(100);
-            } else {
-                resText = `❌ خسرت الجولة! (-50 ل.س) [البوت: ${botChoice}]`;
-                color = "#f87171";
-                modifyBalance(-50);
-            }
-            document.getElementById('game-result').innerHTML = `<span style="color:${color};">${resText}</span>`;
+        // محاكاة نظام الإيداع المالي الحقيقي للمنصة
+        function makeDeposit() {
+            updateBalance(500);
+            let resBox = document.getElementById("resultText");
+            resBox.innerHTML = `<span style="color:var(--neon-gold);">✅ تم إيداع 500 نقطة بنجاح في رصيدك!</span>`;
         }
 
-        function spinRoulette() {
-            if (playerBalance < 50) {
-                alert("رصيدك لا يكفي للتدوير!");
+        function startSpinning() {
+            if (isSpinning) return;
+            const spinCost = 100;
+
+            if (balance < spinCost) {
+                alert("رصيد الإيداع غير كافٍ! يرجى شحن الرصيد أولاً.");
                 return;
             }
-            modifyBalance(-50);
-            const rewards = [
-                {text: "🎉 كبرى! ربحت (+400 ل.س)", val: 400},
-                {text: "💎 مضاعفة رائعة (+200 ل.س)", val: 200},
-                {text: "🤝 استرداد الرهان (50 ل.س)", val: 50},
-                {text: "❌ حظاً أوفر المرة القادمة", val: 0}
-            ];
-            let prize = rewards[Math.floor(Math.random() * rewards.length)];
-            modifyBalance(prize.val);
-            document.getElementById('game-result').innerHTML = `<span style="color:var(--accent-cyan);">${prize.text}</span>`;
-        }
 
-        function playSolitaire() {
-            let isWin = Math.random() > 0.4;
-            if (isWin) {
-                modifyBalance(90);
-                document.getElementById('game-result').innerHTML = `<span style="color:#34d399;">🎉 ورقة ذهبية رابحة! (+90 ل.س)</span>`;
-            } else {
-                document.getElementById('game-result').innerHTML = `<span style="color:#f87171;">❌ ورقة عادية، حاول مجدداً.</span>`;
+            updateBalance(-spinCost);
+            isSpinning = true;
+            document.getElementById("spinBtn").disabled = true;
+            document.getElementById("resultText").innerText = "العجلة تدور بانتظار الجائزة الكبرى...";
+
+            let extraSpins = (Math.floor(Math.random() * 4) + 5) * (2 * Math.PI);
+            let randomSectorIndex = Math.floor(Math.random() * sectors.length);
+            let targetAngle = currentAngle + extraSpins + (randomSectorIndex * arcSize);
+
+            let startTime = null;
+            let duration = 4000;
+            let lastTickAngle = currentAngle;
+
+            function animateSpin(timestamp) {
+                if (!startTime) startTime = timestamp;
+                let progress = (timestamp - startTime) / duration;
+
+                if (progress < 1) {
+                    let easeProgress = 1 - Math.pow(1 - progress, 3);
+                    let currentPosition = currentAngle + (targetAngle - currentAngle) * easeProgress;
+                    
+                    drawWheel(currentPosition);
+
+                    if (Math.abs(currentPosition - lastTickAngle) > arcSize / 2) {
+                        playSound('tick');
+                        lastTickAngle = currentPosition;
+                    }
+
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    currentAngle = targetAngle % (2 * Math.PI);
+                    drawWheel(currentAngle);
+                    isSpinning = false;
+                    document.getElementById("spinBtn").disabled = false;
+
+                    let normalizedAngle = (2 * Math.PI - (currentAngle % (2 * Math.PI))) % (2 * Math.PI);
+                    let winningIndex = Math.floor(normalizedAngle / arcSize) % sectors.length;
+                    let prize = sectors[winningIndex];
+
+                    let resBox = document.getElementById("resultText");
+                    if (prize.value > 0) {
+                        playSound('win');
+                        updateBalance(prize.value);
+                        resBox.innerHTML = `<span style="color:var(--neon-gold);">🎉 مبروك! ربحت جائزة إيداع بقيمة ${prize.label}!</span>`;
+                    } else {
+                        resBox.innerHTML = `<span style="color:#f87171;">❌ حظاً أوفر، جرب التدوير مرة أخرى!</span>`;
+                    }
+                }
             }
+
+            requestAnimationFrame(animateSpin);
         }
 
-        function playChess() {
-            modifyBalance(120);
-            document.getElementById('game-result').innerHTML = `<span style="color:#34d399;">✨ تكتيك عبقري! تفوقت بالافتتاحية (+120 ل.س)</span>`;
-        }
-
-        function playTarneeb(bid) {
-            let success = Math.random() > 0.5;
-            if (success) {
-                let prize = bid * 35;
-                modifyBalance(prize);
-                document.getElementById('game-result').innerHTML = `<span style="color:#34d399;">♠️ وحش! نجح طلب الـ ${bid} وأضفنا (+${prize} ل.س)</span>`;
-            } else {
-                modifyBalance(-100);
-                document.getElementById('game-result').innerHTML = `<span style="color:#f87171;">❌ أكلت "شيبة"! خسرنا الرهان (-100 ل.س)</span>`;
-            }
-        }
+        drawWheel(0);
     </script>
 </body>
 </html>
