@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة الترفيه الاحترافية - Master VIP Hub</title>
+    <title>منصة الألعاب الاحترافية - Main Lobby</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
 
         :root {
             --bg-base: #030712;
-            --panel-bg: rgba(15, 23, 42, 0.9);
+            --panel-bg: rgba(15, 23, 42, 0.92);
             --neon-cyan: #00f0ff;
             --neon-pink: #ff007f;
             --neon-gold: #fbbf24;
             --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
         * {
@@ -26,18 +27,17 @@
         body {
             background-color: var(--bg-base);
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.12) 0%, transparent 50%),
-                radial-gradient(circle at 50% 100%, rgba(255, 0, 127, 0.12) 0%, transparent 50%);
+                radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 100%, rgba(255, 0, 127, 0.1) 0%, transparent 50%);
             color: var(--text-main);
             font-family: 'Cairo', sans-serif;
             margin: 0;
             padding: 12px;
             text-align: center;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* رأس الحساب الحي */
+        /* رأس الحساب */
         .hud-header {
             background: var(--panel-bg);
             backdrop-filter: blur(12px);
@@ -62,27 +62,23 @@
             font-weight: 900;
             color: var(--neon-gold);
             text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
-            transition: transform 0.2s;
-        }
-        .hud-balance.pop {
-            transform: scale(1.2);
         }
 
-        /* لوحة الإيداع السريع */
+        /* لوحة الإيداع المالي الحقيقي (بوابة دفع / تحويل) */
         .deposit-panel {
             background: var(--panel-bg);
-            border: 1px solid rgba(251, 191, 36, 0.3);
+            border: 1px solid rgba(251, 191, 36, 0.4);
             border-radius: 14px;
-            padding: 10px 14px;
+            padding: 12px 16px;
             max-width: 420px;
-            margin: 0 auto 12px auto;
+            margin: 0 auto 16px auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .deposit-info {
             font-size: 12px;
-            color: #cbd5e1;
+            color: var(--text-muted);
             text-align: right;
         }
         .deposit-btn {
@@ -100,75 +96,98 @@
         }
         .deposit-btn:active { transform: scale(0.95); }
 
-        /* لوحة التحكم الخفية للمبرمج (Admin Panel) */
-        .admin-panel {
+        /* الشاشات الرئيسية والقسمية */
+        .view-section {
             display: none;
-            background: rgba(15, 23, 42, 0.95);
-            border: 2px dashed var(--neon-cyan);
-            border-radius: 16px;
-            padding: 15px;
             max-width: 420px;
-            margin: 0 auto 12px auto;
-            text-align: right;
+            margin: 0 auto;
         }
-        .admin-title {
-            font-size: 14px;
-            font-weight: 900;
-            color: var(--neon-cyan);
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .admin-input {
-            width: 100%;
-            background: #030712;
-            border: 1px solid #334155;
-            color: white;
-            padding: 8px;
-            border-radius: 8px;
-            font-family: 'Cairo';
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-        .admin-action-btn {
-            background: var(--neon-cyan);
-            color: #030712;
-            font-weight: 900;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
+        .view-section.active {
+            display: block;
         }
 
-        /* الحاوية الرئيسية للعجلة */
+        /* شبكة الألعاب المتعددة في اللوبي */
+        .section-header {
+            font-size: 15px;
+            font-weight: 900;
+            margin-bottom: 14px;
+            color: var(--text-main);
+            text-align: right;
+            padding-right: 4px;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .game-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 18px 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.25s;
+        }
+        .game-card:hover {
+            border-color: var(--neon-cyan);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 240, 255, 0.15);
+        }
+        .game-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .game-name {
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--text-main);
+        }
+        .game-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* حاوية العجلة واللعبة الداخلية */
         .arcade-container {
             background: var(--panel-bg);
             backdrop-filter: blur(16px);
             border: 2px solid rgba(255, 0, 127, 0.4);
             border-radius: 24px;
             padding: 16px 10px;
-            max-width: 420px;
-            margin: 0 auto;
             box-shadow: 0 15px 40px rgba(255, 0, 127, 0.2);
             position: relative;
+        }
+        .back-lobby-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-main);
+            font-family: 'Cairo';
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            float: right;
+            margin-bottom: 10px;
         }
 
         .wheel-wrapper {
             position: relative;
-            width: 260px;
-            height: 260px;
+            width: 250px;
+            height: 250px;
             margin: 10px auto 16px auto;
+            clear: both;
         }
-
         canvas {
             display: block;
             width: 100%;
             height: 100%;
             filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.2));
         }
-
         .wheel-pointer {
             position: absolute;
             top: -10px;
@@ -176,10 +195,9 @@
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 24px solid var(--neon-pink);
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.8));
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 20px solid var(--neon-pink);
             z-index: 10;
         }
 
@@ -194,60 +212,108 @@
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 0 25px rgba(255, 0, 127, 0.6);
-            transition: all 0.2s;
         }
         .spin-btn:active { transform: scale(0.95); }
-        .spin-btn:disabled { background: #334155; color: #94a3b8; box-shadow: none; cursor: not-allowed; }
+        .spin-btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; }
 
         .result-display {
             margin-top: 12px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            min-height: 28px;
+            min-height: 25px;
             color: var(--neon-cyan);
+        }
+
+        /* لوحة التحكم الخفية للمبرمج */
+        .admin-panel {
+            display: none;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px dashed var(--neon-cyan);
+            border-radius: 16px;
+            padding: 15px;
+            max-width: 420px;
+            margin: 0 auto 12px auto;
+            text-align: right;
+        }
+        .admin-input {
+            width: 100%;
+            background: #030712;
+            border: 1px solid #334155;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            font-family: 'Cairo';
+            margin-bottom: 8px;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
 
-    <!-- رأس الحساب الحي مع مفتاح سري للوحة التحكم -->
+    <!-- رأس الحساب -->
     <div class="hud-header">
-        <div class="hud-title" onclick="toggleAdminPanel()">⚡ لوحة الإدارة [⚙️]</div>
+        <div class="hud-title" onclick="toggleAdminPanel()">⚡ صالة VIP [⚙️]</div>
         <div class="hud-balance" id="balance-box">1000 🪙</div>
     </div>
 
-    <!-- لوحة التحكم الإدارية الخاصة بك (تفتح بالضغط على عنوان الرأس) -->
+    <!-- لوحة التحكم الإدارية السرية -->
     <div class="admin-panel" id="adminPanel">
-        <div class="admin-title">
-            <span>🛠️ لوحة تحكم المبرمج الخبير</span>
-            <span style="cursor:pointer;" onclick="toggleAdminPanel()">✕</span>
-        </div>
-        <div style="font-size:11px; color:#94a3b8; margin-bottom:6px;">التحكم اليدوي المباشر برصيد الحساب:</div>
-        <input type="number" id="customAmount" class="admin-input" placeholder="أدخل قيمة الرصيد الجديد...">
-        <button class="admin-action-btn" onclick="adminSetBalance()">تحديث الرصيد الفوري</button>
+        <div style="font-size:13px; font-weight:900; color:var(--neon-cyan); margin-bottom:6px;">🛠️ لوحة تحكم المشرف</div>
+        <input type="number" id="customAmount" class="admin-input" placeholder="تعديل الرصيد يدوياً...">
+        <button style="background:var(--neon-cyan); border:none; padding:6px 12px; border-radius:8px; font-weight:900; cursor:pointer;" onclick="adminSetBalance()">تحديث الرصيد</button>
     </div>
 
-    <!-- لوحة الإيداع الفوري -->
+    <!-- لوحة الإيداع الحقيقي (بوابة الدفع) -->
     <div class="deposit-panel">
         <div class="deposit-info">
-            <strong>شحن رصيد الإيداع</strong><br>
-            <span>أضف 500 نقطة للبدء</span>
+            <strong>شحن رصيد الإيداع الحقيقي</strong><br>
+            <span>يتطلب اعتماد عملية الدفع المالية</span>
         </div>
-        <button class="deposit-btn" onclick="makeDeposit()">إيداع فوري 💳</button>
+        <button class="deposit-btn" onclick="openRealDeposit()">إيداع مالي 💳</button>
     </div>
 
-    <!-- صالة العجلة الحية -->
-    <div class="arcade-container">
-        <div style="font-size:15px; font-weight:900; margin-bottom:4px; color:var(--text-main);">عجلة المضاعفات المدفوعة</div>
-        <div style="font-size:11px; color:#94a3b8; margin-bottom:12px;">تكلفة التدوير: <strong style="color:var(--neon-gold)">100 نقطة إيداع</strong></div>
-
-        <div class="wheel-wrapper">
-            <div class="wheel-pointer"></div>
-            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+    <!-- الشاشة الأولى: صالة الألعاب (Lobby) -->
+    <div id="lobbyView" class="view-section active">
+        <div class="section-header">🎮 اختر لعبة للبدء:</div>
+        <div class="games-grid">
+            <div class="game-card" onclick="openGame('wheel')">
+                <div class="game-icon">🎰</div>
+                <div class="game-name">عجلة الحظ</div>
+                <div class="game-desc">مضاعفات مدفوعة كبرى</div>
+            </div>
+            <div class="game-card" onclick="alert('قريباً: لعبة الورق والطرنيب الحية')">
+                <div class="game-icon">🃏</div>
+                <div class="game-name">طرنيب الجلسات</div>
+                <div class="game-desc">تحدي جماعي ذكي</div>
+            </div>
+            <div class="game-card" onclick="alert('قريباً: ساحة التحدي الثنائية PVP')">
+                <div class="game-icon">⚔️</div>
+                <div class="game-name">ساحة المعركة</div>
+                <div class="game-desc">تحدي اللاعبين مباشرة</div>
+            </div>
+            <div class="game-card" onclick="alert('قريباً: تريكس الملوك')">
+                <div class="game-icon">👑</div>
+                <div class="game-name">تريكس الممالك</div>
+                <div class="game-desc">لعبة الملوك الكلاسيكية</div>
+            </div>
         </div>
+    </div>
 
-        <button class="spin-btn" id="spinBtn" onclick="startSpinning()">تدوير العجلة (100 🪙) 🎲</button>
-        <div class="result-display" id="resultText">جاهز للتحدي..</div>
+    <!-- الشاشة الثانية: لعبة عجلة الحظ التفاعلية -->
+    <div id="wheelView" class="view-section">
+        <div class="arcade-container">
+            <button class="back-lobby-btn" onclick="backToLobby()">⬅ عودة للصالة</button>
+            <div style="font-size:15px; font-weight:900; margin-bottom:4px; color:var(--text-main); clear:both;">عجلة المضاعفات المدفوعة</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">التدويرة تكلف <strong style="color:var(--neon-gold)">100 نقطة إيداع حقيقي</strong></div>
+
+            <div class="wheel-wrapper">
+                <div class="wheel-pointer"></div>
+                <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            </div>
+
+            <button class="spin-btn" id="spinBtn" onclick="startSpinning()">تدوير العجلة (100 🪙) 🎲</button>
+            <div class="result-display" id="resultText">جاهز للتحدي..</div>
+        </div>
     </div>
 
     <script>
@@ -349,13 +415,32 @@
 
         function updateBalance(amount) {
             balance += amount;
-            let box = document.getElementById("balance-box");
-            box.innerText = balance + " 🪙";
-            box.classList.add("pop");
-            setTimeout(() => box.classList.remove("pop"), 200);
+            document.getElementById("balance-box").innerText = balance + " 🪙";
         }
 
-        // وظائف لوحة التحكم الإدارية الخاصة بك
+        // التنقل بين الشاشات (اللوبي والعجلة)
+        function openGame(gameKey) {
+            if (gameKey === 'wheel') {
+                document.getElementById('lobbyView').classList.remove('active');
+                document.getElementById('wheelView').classList.add('active');
+                drawWheel(currentAngle);
+            }
+        }
+
+        function backToLobby() {
+            document.getElementById('wheelView').classList.remove('active');
+            document.getElementById('lobbyView').classList.add('active');
+        }
+
+        // نظام الإيداع الحقيقي (يوجه اللاعب لعملية دفع أو إرسال طلب للمشرف عبر البوت)
+        function openRealDeposit() {
+            let amount = prompt("أدخل مبلغ الإيداع المراد تحويله (بالدولار أو العملة المحلية):", "10");
+            if (amount) {
+                // هنا يمكن ربطها برابط الدفع الحقيقي أو إرسال طلب للبوت عبر WebApp Data
+                alert("تم توجيه طلب الإيداع بقيمة " + amount + " بنجاح. يرجى إتمام التحويل المالي ليتم اعتماد الرصيد في رصيد العضوية VIP.");
+            }
+        }
+
         function toggleAdminPanel() {
             let panel = document.getElementById("adminPanel");
             panel.style.display = panel.style.display === "block" ? "none" : "block";
@@ -370,17 +455,12 @@
             }
         }
 
-        function makeDeposit() {
-            updateBalance(500);
-            document.getElementById("resultText").innerHTML = `<span style="color:var(--neon-gold);">✅ تم إيداع 500 نقطة بنجاح!</span>`;
-        }
-
         function startSpinning() {
             if (isSpinning) return;
             const spinCost = 100;
 
             if (balance < spinCost) {
-                alert("رصيدك لا يكفي للتدوير! قم بالإيداع أولاً.");
+                alert("رصيد الإيداع الحقيقي غير كافٍ! يرجى شحن الرصيد عبر بوابة الإيداع المالي أولاً.");
                 return;
             }
 
@@ -436,8 +516,6 @@
 
             requestAnimationFrame(animateSpin);
         }
-
-        drawWheel(0);
     </script>
 </body>
 </html>
