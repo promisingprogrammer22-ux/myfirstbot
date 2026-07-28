@@ -3,56 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقعي الشخصي - بوت تليجرام</title>
+    <title>منصة الألعاب الاحترافية - بوت تليجرام</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e272e, #485460);
+            background: linear-gradient(135deg, #0f172a, #1e293b);
             color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            text-align: center;
+            padding: 20px;
             margin: 0;
         }
-        .profile-card {
-            background: #ffffff;
-            color: #2f3640;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 350px;
-            width: 90%;
-        }
         h1 {
-            color: #0088cc;
-            margin-bottom: 10px;
+            color: #38bdf8;
+            margin-bottom: 5px;
         }
         p {
-            color: #718093;
-            font-size: 16px;
-            line-height: 1.6;
+            color: #94a3b8;
         }
-        .btn {
-            display: inline-block;
-            background-color: #0088cc;
-            color: white;
-            padding: 10px 20px;
-            margin-top: 15px;
+        .user-setup, .score-board, .leaderboard-container {
+            background-color: #1e293b;
+            border: 2px solid #38bdf8;
+            border-radius: 12px;
+            padding: 15px;
+            max-width: 320px;
+            margin: 15px auto;
+            color: #38bdf8;
+        }
+        .game-container {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 400px;
+            margin: 20px auto;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+        .choices button, .game-container button, .user-setup button {
+            background-color: #38bdf8;
+            border: none;
+            color: #0f172a;
+            font-size: 16px;
+            padding: 10px 18px;
+            margin: 6px;
             border-radius: 8px;
-            text-decoration: none;
+            cursor: pointer;
             font-weight: bold;
+            transition: 0.2s;
+        }
+        .choices button:hover, .game-container button:hover, .user-setup button:hover {
+            background-color: #0ea5e9;
+            transform: scale(1.05);
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background-color: #0f172a;
+            color: #fff;
+            width: 70%;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .result {
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+        .dice-display {
+            font-size: 40px;
+            margin: 10px 0;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 220px;
+            margin: 15px auto;
+        }
+        .cell {
+            background-color: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            height: 60px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cell:hover {
+            background-color: #1e293b;
+            border-color: #38bdf8;
+        }
+        ol {
+            padding-right: 20px;
+            text-align: right;
+            margin: 10px 0 0 0;
+            color: #94a3b8;
+        }
+        li {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #fff;
         }
     </style>
 </head>
 <body>
 
-    <div class="profile-card">
-        <h1>أهلاً بك!</h1>
-        <p>هذا هو موقعي التجريبي الأول المرتبط ببوت تليجرام بنجاح تام.</p>
-        <a href="#" class="btn">تواصل معنا</a>
+    <h1>منصة الألعاب الترفيهية</h1>
+    <p>استمتع بتحدي الألعاب داخل بوتك على التليجرام!</p>
+
+    <!-- تسجيل اسم اللاعب -->
+    <div class="user-setup" id="setupSection">
+        <p>أدخل اسمك المستعار للبدء:</p>
+        <input type="text" id="playerNameInput" placeholder="اسم اللاعب...">
+        <br>
+        <button onclick="savePlayerName()">حفظ والبدء</button>
     </div>
+
+    <!-- لوحة النقاط الشخصية -->
+    <div class="score-board" id="scoreSection" style="display: none;">
+        👤 اللاعب: <span id="displayName" style="color:#fff;"></span> | 🏆 النقاط: <span id="totalScore">0</span>
+    </div>
+
+    <!-- لوحة الصدارة (Leaderboard) -->
+    <div class="leaderboard-container" id="leaderboardSection" style="display: none;">
+        <h3>📊 لوحة الصدارة (أفضل اللاعبين)</h3>
+        <ol id="leaderboardList">
+            <!-- يتم تعبئتها تلقائياً عبر البرمجة -->
+        </ol>
+    </div>
+
+    <!-- الألعاب الأربعة -->
+    <div class="game-container">
+        <h2>🪨 الحجر، الورق، المقص</h2>
+        <p>اختر حركتك:</p>
+        <div class="choices">
+            <button onclick="playRPS('حجر')">حجر</button>
+            <button onclick="playRPS('ورق')">ورق</button>
+            <button onclick="playRPS('مقص')">مقص</button>
+        </div>
+        <div class="result" id="rpsResult">اختر لنبدأ التحدي!</div>
+    </div>
+
+    <div class="game-container">
+        <h2>🔢 تخمين الرقم السرّي</h2>
+        <p>خمّن رقماً بين 1 و 10:</p>
+        <input type="number" id="userGuess" min="1" max="10" placeholder="أدخل رقمك هنا">
+        <br>
+        <button onclick="checkGuess()">تحقق من الرقم</button>
+        <div class="result" id="guessResult">حاول تخمين الرقم الصحيح!</div>
+    </div>
+
+    <div class="game-container">
+        <h2>🎲 حظ النرد السريع</h2>
+        <p>اضغط للرمي واكتشف حظك (الهدف ظهور رقم 6):</p>
+        <div class="dice-display" id="diceIcon">🎲</div>
+        <button onclick="rollDice()">ارمِ النرد</button>
+        <div class="result" id="diceResult">جاهز لاختبار الحظ؟</div>
+    </div>
+
+    <div class="game-container">
+        <h2>❌ إكس - أو ⭕</h2>
+        <p>العب مع صديقك على نفس الشاشة:</p>
+        <div class="board" id="board">
+            <div class="cell" onclick="makeMove(0)"></div>
+            <div class="cell" onclick="makeMove(1)"></div>
+            <div class="cell" onclick="makeMove(2)"></div>
+            <div class="cell" onclick="makeMove(3)"></div>
+            <div class="cell" onclick="makeMove(4)"></div>
+            <div class="cell" onclick="makeMove(5)"></div>
+            <div class="cell" onclick="makeMove(6)"></div>
+            <div class="cell" onclick="makeMove(7)"></div>
+            <div class="cell" onclick="makeMove(8)"></div>
+        </div>
+        <button onclick="resetTicTacToe()">إعادة اللعبة</button>
+        <div class="result" id="tttResult">دور اللاعب: X</div>
+    </div>
+
+    <script>
+        let playerName = "";
+        let score = 0;
+
+        // التحقق مما إذا كان اللاعب مسجلاً مسبقاً
+        window.onload = function() {
+            const savedName = localStorage.getItem("gamePlayerName");
+            const savedScore = localStorage.getItem("gamePlayerScore");
+            if (savedName) {
+                playerName = savedName;
+                score = savedScore ? parseInt(savedScore) : 0;
+                document.getElementById("setupSection").style.display = "none";
+                document.getElementById("scoreSection").style.display = "block";
+                document.getElementById("leaderboardSection").style.display = "block";
+                document.getElementById("displayName").innerText = playerName;
+                document.getElementById("totalScore").innerText = score;
+                updateLeaderboard(playerName, score);
+            }
+        };
+
+        function savePlayerName() {
+            const inputVal = document.getElementById("playerNameInput").value.trim();
+            if (!inputVal) {
+                alert("الرجاء إدخال اسم صحيح!");
+                return;
+            }
+            playerName = inputVal;
+            score = 0;
+            localStorage.setItem("gamePlayerName", playerName);
+            localStorage.setItem("gamePlayerScore", score);
+
+            document.getElementById("setupSection").style.display = "none";
+            document.getElementById("scoreSection").style.display = "block";
+            document.getElementById("leaderboardSection").style.display = "block";
+            document.getElementById("displayName").innerText = playerName;
+            document.getElementById("totalScore").innerText = score;
+            updateLeaderboard(playerName, score);
+        }
+
+        function addScore(points) {
+            score += points;
+            document.getElementById('totalScore').innerText = score;
+            localStorage.setItem("gamePlayerScore", score);
+            updateLeaderboard(playerName, score);
+        }
+
+        // تحديث وعرض قائمة الصدارة الوهمية مع اللاعب الحالي
+        function updateLeaderboard(currentName, currentScore) {
+            let list = document.getElementById("leaderboardList");
+            
+            // قائمة أمثلة للاعبين تنافسيين مع اللاعب الحالي
+            let players = [
+                { name: "أحمد المبدع", score: 120 },
+                { name: "سارة المحترفة", score: 95 },
+                { name: "فارس التحدي", score: 60 }
+            ];
+
+            // إضافة أو تحديث اللاعب الحالي في القائمة
+            let existing = players.find(p => p.name === currentName);
+            if (existing) {
+                existing.score = currentScore;
+            } else {
+                players.push({ name: currentName, score: currentScore });
+            }
+
+            // ترتيب اللاعبين من الأعلى للأدنى
+            players.sort((a, b) => b.score - a.score);
+
+            // عرض القائمة في الـ HTML
+            list.innerHTML = "";
+            players.forEach(p => {
+                let li = document.createElement("li");
+                li.innerText = `${p.name} — ${p.score} نقطة`;
+                list.appendChild(li);
+            });
+        }
+
+        // كود اللعبة الأولى
+        function playRPS(userChoice) {
+            if (!playerName) { alert("الرجاء إدخال اسمك أولاً في الأعلى!"); return; }
+            const choices = ['حجر', 'ورق', 'مقص'];
+            const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            let result = '';
+
+            if (userChoice === computerChoice) {
+                result = `تعادل! البوت اختار (${computerChoice})`;
+            } else if (
+                (userChoice === 'حجر' && computerChoice === 'مقص') ||
+                (userChoice === 'ورق' && computerChoice === 'حجر') ||
+                (userChoice === 'مقص' && computerChoice === 'ورق')
+            ) {
+                result = `🎉 مبروك فزت! البوت اختار (${computerChoice})`;
+                addScore(10);
+            } else {
+                result = `❌ حظاً أوفر، البوت فاز! اختار (${computerChoice})`;
+            }
+            document.getElementById('rpsResult').innerText = result;
+        }
+
+        // كود اللعبة الثانية
+        const secretNumber = Math.floor(Math.random() * 10) + 1;
+
+        function checkGuess() {
+            if (!playerName) { alert("الرجاء إدخال اسمك أولاً في الأعلى!"); return; }
+            const userNum = Number(document.getElementById('userGuess').value);
+            const guessResult = document.getElementById('guessResult');
+
+            if (!userNum) {
+                guessResult.innerText = "⚠️ الرجاء إدخال رقم صحيح أولاً!";
+                return;
+            }
+
+            if (userNum === secretNumber) {
+                guessResult.innerText = `🎉 كفو! لقد أصبت الرقم السري (${secretNumber}) بنجاح!`;
+                addScore(20);
+            } else if (userNum > secretNumber) {
+                guessResult.innerText = "📉 رقمك أكبر من الرقم السري، جرب رقماً أصغر.";
+            } else {
+                guessResult.innerText = "📈 رقمك أصغر من الرقم السري، جرب رقماً أكبر.";
+            }
+        }
+
+        // كود اللعبة الثالثة
+        function rollDice() {
+            if (!playerName) { alert("الرجاء إدخال اسمك أولاً في الأعلى!"); return; }
+            const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            const randomNum = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('diceIcon').innerText = diceFaces[randomNum - 1];
+            
+            const diceResult = document.getElementById('diceResult');
+            if (randomNum === 6) {
+                diceResult.innerText = `🔥 مذهل! ظهر الرقم 6، لقد ربحت الكأس الذهبي! 🏆`;
+                addScore(30);
+            } else {
+                diceResult.innerText = `🎲 ظهر الرقم (${randomNum}). حاول مرة أخرى للحصول على 6!`;
+            }
+        }
+
+        // كود اللعبة الرابعة
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+
+        function makeMove(index) {
+            if (!playerName) { alert("الرجاء إدخال اسمك أولاً في الأعلى!"); return; }
+            if (board[index] === '' && gameActive) {
+                board[index] = currentPlayer;
+                document.getElementsByClassName('cell')[index].innerText = currentPlayer;
+                checkWinner();
+            }
+        }
+
+        function checkWinner() {
+            const winConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            let roundWon = false;
+            for (let condition of winConditions) {
+                let a = board[condition[0]];
+                let b = board[condition[1]];
+                let c = board[condition[2]];
+
+                if (a === '' || b === '' || c === '') continue;
+                if (a === b && b === c) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                document.getElementById('tttResult').innerText = `🏆 الفائز هو اللاعب: ${currentPlayer}!`;
+                addScore(15);
+                gameActive = false;
+                return;
+            }
+
+            if (!board.includes('')) {
+                document.getElementById('tttResult').innerText = `🤝 تعادل! لا توجد خانات فارغة.`;
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            document.getElementById('tttResult').innerText = `دور اللاعب: ${currentPlayer}`;
+        }
+
+        function resetTicTacToe() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            document.getElementById('tttResult').innerText = `دور اللاعب: X`;
+            let cells = document.getElementsByClassName('cell');
+            for (let cell of cells) {
+                cell.innerText = '';
+            }
+        }
+    </script>
 
 </body>
 </html>
