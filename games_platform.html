@@ -239,10 +239,18 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        let userName = 'alaa';
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            userName = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name || 'alaa';
+        // التقاط الاسم القادم من الرابط (المرسل عبر البوت) أو الاعتماد على تيليجرام أو القيمة الافتراضية
+        const urlParams = new URLSearchParams(window.location.search);
+        let userName = urlParams.get('name');
+
+        if (!userName) {
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                userName = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name || 'alaa';
+            } else {
+                userName = 'alaa';
+            }
         }
+        
         document.getElementById('name-bottom').textContent = userName;
 
         let sfxEnabled = true;

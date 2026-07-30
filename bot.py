@@ -88,14 +88,13 @@ def update_setting(key, value):
 # لوحات المفاتيح المدمجة (Inline Keyboards)
 # ==========================================
 def get_main_menu(user_id):
-    # جلب اسم الحساب المسجل من قاعدة البيانات لتمريره للعبة تماماً كما طلبت
+    # جلب اسم الحساب المسجل من قاعدة البيانات لتمريره للعبة وضمان التطابق التام
     conn = sqlite3.connect('bot_database.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("SELECT username FROM users WHERE telegram_id = ?", (user_id,))
     row = cursor.fetchone()
     conn.close()
     
-    # الاعتماد الكلي على اسم الحساب المسجل بالبوت، أو "Alaa" كقيمة افتراضية
     db_username = row[0] if row and row[0] else "Alaa"
     web_app_url = f"{BASE_URL}/games_platform.html?name={db_username}"
 
