@@ -10,7 +10,7 @@ import io
 # ==========================================
 TOKEN = '8805488820:AAE4jM7p19R-c3MlZ5t2zcjDTOgJhVlsP-U'
 ADMIN_ID = 8576260469
-BASE_URL = "https://purple-paths-bet.loca.lt"
+BASE_URL = "https://yellow-eggs-type.loca.lt"
 
 bot = telebot.TeleBot(TOKEN)
 
