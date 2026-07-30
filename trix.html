@@ -3,178 +3,617 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة التريكس الملكية</title>
+    <title>تريكس الملوك الشاملة - Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body {
-            background: radial-gradient(circle, #1e1b4b 0%, #0f172a 100%);
-            color: #ffffff;
+            background: radial-gradient(circle, #042f2e 0%, #021a18 100%);
+            color: #f8fafc;
             min-height: 100vh;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 15px;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
-        /* طاولة التريكس الفاخرة */
-        .trix-table {
+        body::before {
+            content: '';
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            z-index: 0;
+            animation: pulseGlow 5s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: translateX(-50%) scale(1); opacity: 0.4; }
+            100% { transform: translateX(-50%) scale(1.25); opacity: 0.8; }
+        }
+
+        .header {
             width: 100%;
             max-width: 480px;
-            height: 75vh;
-            background: rgba(30, 27, 75, 0.5);
-            border: 4px solid #c084fc;
-            border-radius: 150px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: space-between;
-            padding: 20px;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 8px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            font-size: 11px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+            z-index: 10;
             position: relative;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.7), 0 10px 30px rgba(0,0,0,0.5);
         }
+        .header-btn { background: #3b82f6; color: #fff; border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 10px; transition: transform 0.2s; }
+        .header-btn:hover { transform: scale(1.05); }
+        .back-btn { background: #ef4444; color: #fff; border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 10px; }
 
-        .opponent-zone {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px 15px;
+        .table-arena {
+            width: 100%;
+            max-width: 480px;
+            height: 320px;
+            background: radial-gradient(ellipse at center, rgba(6, 78, 59, 0.8) 0%, rgba(2, 44, 34, 0.95) 100%);
+            border: 3px solid #f59e0b;
             border-radius: 20px;
-            border: 1px solid rgba(192, 132, 252, 0.3);
-            font-size: 14px;
-            font-weight: bold;
+            position: relative;
+            margin: 6px 0;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.7), inset 0 0 35px rgba(0,0,0,0.5);
+            z-index: 10;
         }
 
-        .center-title {
+        .player-info-badge {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #f59e0b;
+            border-radius: 10px;
+            padding: 4px 8px;
             text-align: center;
+            font-size: 11px;
+            color: #fde047;
+            min-width: 95px;
+            z-index: 5;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
+        .badge-top { top: 2px; left: 50%; transform: translateX(-50%); border-top: none; border-radius: 0 0 10px 10px; }
+        .badge-bottom { bottom: 2px; left: 50%; transform: translateX(-50%); border-bottom: none; border-radius: 10px 10px 0 0; }
+        .badge-left { left: 2px; top: 50%; transform: translateY(-50%); border-left: none; border-radius: 0 10px 10px 0; }
+        .badge-right { right: 2px; top: 50%; transform: translateY(-50%); border-right: none; border-radius: 10px 0 0 10px; }
 
-        .center-title h2 {
-            color: #c084fc;
-            font-size: 18px;
-            text-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
-            margin-bottom: 5px;
-        }
+        .info-subtext { font-size: 9px; color: #cbd5e1; display: block; margin-top: 2px; }
 
-        .center-title p {
-            font-size: 13px;
-            color: #cbd5e1;
-        }
-
-        /* أوراق اللاعب */
-        .player-hand {
+        .play-slot {
+            position: absolute;
+            width: 44px;
+            height: 62px;
+            border: 1.5px dashed rgba(245, 158, 11, 0.4);
+            border-radius: 8px;
             display: flex;
-            gap: 5px;
+            align-items: center;
             justify-content: center;
-            margin-top: 10px;
-            flex-wrap: wrap;
         }
+        .slot-top { top: 55px; left: 50%; transform: translateX(-50%); }
+        .slot-bottom { bottom: 55px; left: 50%; transform: translateX(-50%); }
+        .slot-left { left: 80px; top: 50%; transform: translateY(-50%); }
+        .slot-right { right: 80px; top: 50%; transform: translateY(-50%); }
 
         .card {
-            width: 45px;
-            height: 65px;
             background: #ffffff;
             color: #000000;
+            width: 44px;
+            height: 62px;
             border-radius: 6px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 4px;
+            padding: 3px;
             font-weight: bold;
             font-size: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.5);
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
+            user-select: none;
         }
+        .card:hover:not(.disabled) { transform: translateY(-6px) scale(1.05); box-shadow: 0 8px 18px rgba(245, 158, 11, 0.4); }
+        .card.red { color: #dc2626; }
+        .card.disabled { opacity: 0.35; cursor: not-allowed; filter: grayscale(80%); }
 
-        .card:hover {
-            transform: translateY(-10px);
-        }
-
-        .card.red {
-            color: #dc2626;
-        }
-
-        /* لوحة التحكم السفلية */
-        .controls-panel {
+        .player-hand-area {
             width: 100%;
             max-width: 480px;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 12px;
-            border-radius: 15px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #f59e0b;
+            border-radius: 16px;
+            padding: 10px;
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
             align-items: center;
-            border: 1px solid rgba(192, 132, 252, 0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            z-index: 10;
+        }
+        .cards-container {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            width: 100%;
+            justify-content: center;
+            padding-bottom: 4px;
         }
 
-        .btn {
-            background: #c084fc;
-            color: #000;
-            border: none;
-            padding: 8px 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center; z-index: 100;
         }
+        .modal-content {
+            background: #1e293b; border: 2px solid #f59e0b; border-radius: 18px;
+            padding: 18px; width: 92%; max-width: 390px; text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+        .modal-content h2 { color: #f59e0b; margin-bottom: 10px; font-size: 18px; }
+        .modal-btn {
+            background: #f59e0b; color: #0f172a; border: none; padding: 10px 14px;
+            border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 8px; width: 100%;
+            transition: background 0.2s, transform 0.1s; font-size: 12px;
+        }
+        .modal-btn:hover { background: #d97706; transform: scale(1.02); }
 
-        .btn:hover {
-            background: #a855f7;
-            box-shadow: 0 0 15px rgba(192, 132, 252, 0.6);
-        }
-
-        .back-link {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 12px;
-        }
-
-        .back-link:hover {
-            color: #fff;
-        }
+        .score-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11px; }
+        .score-table th, .score-table td { border: 1px solid #475569; padding: 5px; text-align: center; color: #fff; }
+        .score-table th { background: #0f172a; color: #f59e0b; }
     </style>
 </head>
 <body>
 
-    <!-- طاولة التريكس -->
-    <div class="trix-table">
-        <div class="opponent-zone">مملكة الخصم 👑 - المجموع: 0</div>
+    <div class="header">
+        <div>👑 الملك: <span id="current-king-label" style="color:#fde047; font-weight:bold;">اللاعب</span></div>
+        <button class="header-btn" id="sfx-toggle-btn" onclick="toggleSfx()">🔊 الصوت</button>
+        <button class="header-btn" onclick="openScoreboardModal()">📊 النتائج</button>
+        <button class="back-btn" onclick="window.location.href='games_platform.html'">خروج</button>
+    </div>
 
-        <div class="center-title">
-            <h2>👑 طاولة التريكس الملكية</h2>
-            <p id="trixStatus">اختر مملكتك المفضلة وابدأ الجولة...</p>
-        </div>
+    <div class="table-arena">
+        <div class="player-info-badge badge-top" id="badge-top">نانسي<span class="info-subtext">نقاط: 0 | أكلات: 0</span></div>
+        <div class="player-info-badge badge-left" id="badge-left">عمار<span class="info-subtext">نقاط: 0 | أكلات: 0</span></div>
+        <div class="player-info-badge badge-right" id="badge-right">جورج<span class="info-subtext">نقاط: 0 | أكلات: 0</span></div>
+        <div class="player-info-badge badge-bottom" id="badge-bottom"><span id="name-bottom">alaa</span><span class="info-subtext">نقاط: 0 | أكلات: 0</span></div>
 
-        <div>
-            <div style="text-align: center; font-size: 12px; margin-bottom: 5px; color: #c084fc;">أوراقك</div>
-            <div class="player-hand">
-                <div class="card red"><span>♥ K</span><span>K</span></div>
-                <div class="card"><span>♠ Q</span><span>Q</span></div>
-                <div class="card red"><span>♦ J</span><span>J</span></div>
-                <div class="card"><span>♣ 10</span><span>10</span></div>
-            </div>
+        <div class="play-slot slot-top" id="slot-top"></div>
+        <div class="play-slot slot-left" id="slot-left"></div>
+        <div class="play-slot slot-right" id="slot-right"></div>
+        <div class="play-slot slot-bottom" id="slot-bottom"></div>
+    </div>
+
+    <div class="player-hand-area">
+        <div style="font-size: 12px; color: #fde047; margin-bottom: 6px; font-weight:bold;" id="game-status-text">اختر نمط اللعبة القادم</div>
+        <div id="dealer-action-area" style="margin-bottom: 6px;"></div>
+        <div class="cards-container" id="player-hand"></div>
+    </div>
+
+    <!-- نافذة اختيار النمط (مفرودة أو كومبلكس) للملك -->
+    <div id="mode-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>👑 اختيار نظام المملكة</h2>
+            <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 12px;">اختر طريقة اللعب التي تفضلها:</p>
+            <button class="modal-btn" onclick="selectGameMode('complex')">🔥 تريكس كومبلكس (سريع وحماسي)</button>
+            <button class="modal-btn" style="background:#3b82f6; color:#fff;" onclick="selectGameMode('mofrouda')">🃏 العاب مفرودة (اختر العقد بنفسك)</button>
         </div>
     </div>
 
-    <!-- لوحة التحكم -->
-    <div class="controls-panel">
-        <a href="games_platform.html" class="back-link">⬅ عودة للمنصة</a>
-        <button class="btn" onclick="startTrixGame()">بدء المملكة 👑</button>
-        <span style="font-size: 13px; color: #4ade80;" id="trixScore">مملكتك: نشطة</span>
+    <!-- نافذة اختيار العقد في اللعبة المفرودة -->
+    <div id="contract-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h2>📋 اختر العقد المطلوب</h2>
+            <button class="modal-btn" onclick="startContract('sheikh')">👑 شيخ الكبة (75-)</button>
+            <button class="modal-btn" onclick="startContract('queens')">👧 البنات الأربعة (100-)</button>
+            <button class="modal-btn" onclick="startContract('diamonds')">🔶 الديناري (130-)</button>
+            <button class="modal-btn" onclick="startContract('collections')">🃏 اللطوش (195-)</button>
+            <button class="modal-btn" style="background:#3b82f6; color:#fff;" onclick="startContract('trix')">📈 تريكس الترتيب (موجب)</button>
+        </div>
+    </div>
+
+    <!-- نافذة التدبيل -->
+    <div id="doubling-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h2>⚡ ميزة التدبيل (Double)</h2>
+            <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;" id="doubling-text">هل تريد تدبيل الكروت لمضاعفة النقاط؟</p>
+            <div id="doubled-cards-container" style="display:flex; justify-content:center; gap:6px; margin: 10px 0;"></div>
+            <button class="modal-btn" onclick="confirmDoubling(true)">نعم، تدبيل ومضاعفة المخاطر</button>
+            <button class="modal-btn" style="background:#64748b; color:#fff;" onclick="confirmDoubling(false)">تخطي</button>
+        </div>
+    </div>
+
+    <!-- لوحة النتائج -->
+    <div id="scoreboard-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2>📊 لوحة نتائج المعركة</h2>
+            <table class="score-table">
+                <thead>
+                    <tr><th>اللاعب</th><th>النقاط</th><th>الحالة</th></tr>
+                </thead>
+                <tbody id="scoreboard-body"></tbody>
+            </table>
+            <button class="modal-btn" onclick="closeScoreboardModal()">استمرار اللعب</button>
+        </div>
     </div>
 
     <script>
-        function startTrixGame() {
-            document.getElementById("trixStatus").innerText = "تم اختيار المملكة بنجاح! التحدي اشتعل.";
-            alert("أهلاً بك في مملكة التريكس الملكية! استعد للمنافسة القوية.");
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let userName = urlParams.get('name') || (tg.initDataUnsafe && tg.initDataUnsafe.user ? (tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name) : 'alaa');
+        document.getElementById('name-bottom').textContent = userName;
+
+        let sfxEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function toggleSfx() {
+            sfxEnabled = !sfxEnabled;
+            let btn = document.getElementById('sfx-toggle-btn');
+            btn.textContent = sfxEnabled ? '🔊 الصوت' : '🔇 صامت';
+            btn.style.background = sfxEnabled ? '#3b82f6' : '#64748b';
+        }
+
+        function playSound(type) {
+            if (!sfxEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            let now = audioCtx.currentTime;
+
+            if (type === 'deal') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(280, now);
+                osc.frequency.exponentialRampToValueAtTime(70, now + 0.08);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.001, now + 0.08);
+                osc.start(now); osc.stop(now + 0.08);
+            } else if (type === 'play') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(450, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.07);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.001, now + 0.07);
+                osc.start(now); osc.stop(now + 0.07);
+            } else if (type === 'win') {
+                [523.25, 659.25, 783.99].forEach((f, i) => {
+                    let o = audioCtx.createOscillator();
+                    let g = audioCtx.createGain();
+                    o.connect(g); g.connect(audioCtx.destination);
+                    o.frequency.setValueAtTime(f, now + i*0.06);
+                    g.gain.setValueAtTime(0.1, now + i*0.06);
+                    g.gain.linearRampToValueAtTime(0.001, now + i*0.06 + 0.1);
+                    o.start(now + i*0.06); o.stop(now + i*0.06 + 0.1);
+                });
+            }
+        }
+
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        const valuesRank = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
+
+        let playersOrder = ['player', 'right', 'top', 'left'];
+        let playerNames = { player: userName, right: 'جورج', top: 'نانسي', left: 'عمار' };
+        let scores = { player: 0, right: 0, top: 0, left: 0 };
+        let tricksCount = { player: 0, right: 0, top: 0, left: 0 };
+        
+        let currentKingIndex = 0;
+        let gameMode = 'complex'; // complex or mofrouda
+        let currentContract = 'complex'; // complex, sheikh, queens, diamonds, collections, trix
+        let deck = [];
+        let hands = { player: [], right: [], top: [], left: [] };
+        let currentTrickTable = {};
+        let leadSuit = null;
+        let currentTurnIndex = 0;
+        let cardsPlayedInTrick = 0;
+        let isDoubled = false;
+
+        function selectGameMode(mode) {
+            gameMode = mode;
+            document.getElementById('mode-modal').style.display = 'none';
+            if (mode === 'mofrouda') {
+                document.getElementById('contract-modal').style.display = 'flex';
+            } else {
+                currentContract = 'complex';
+                initRound();
+            }
+        }
+
+        function startContract(contract) {
+            currentContract = contract;
+            document.getElementById('contract-modal').style.display = 'none';
+            initRound();
+        }
+
+        function initRound() {
+            document.getElementById('current-king-label').textContent = playerNames[playersOrder[currentKingIndex]];
+            let modeDesc = gameMode === 'complex' ? 'تريكس كومبلكس' : `عقد مفرود (${currentContract})`;
+            document.getElementById('game-status-text').textContent = `الملك (${playerNames[playersOrder[currentKingIndex]]}) اختار: ${modeDesc}`;
+            document.getElementById('dealer-action-area').innerHTML = `<button class="modal-btn" style="margin:0; padding:8px 14px;" onclick="dealCards()">🎴 توزيع الأوراق الملكية</button>`;
+            
+            hands = { player: [], right: [], top: [], left: [] };
+            tricksCount = { player: 0, right: 0, top: 0, left: 0 };
+            currentTrickTable = {};
+            cardsPlayedInTrick = 0;
+            leadSuit = null;
+            
+            renderPlayerHand();
+            updateLabels();
+        }
+
+        function dealCards() {
+            playSound('deal');
+            deck = [];
+            for(let s of suits) {
+                for(let v of values) {
+                    deck.push({ suit: s, val: v, rank: valuesRank[v] });
+                }
+            }
+            deck.sort(() => Math.random() - 0.5);
+
+            hands.player = deck.slice(0, 13);
+            hands.right = deck.slice(13, 26);
+            hands.top = deck.slice(26, 39);
+            hands.left = deck.slice(39, 52);
+
+            for(let k in hands) sortHand(hands[k]);
+
+            document.getElementById('dealer-action-area').innerHTML = '';
+            renderPlayerHand();
+
+            if (currentContract === 'complex' || currentContract === 'sheikh' || currentContract === 'queens') {
+                checkDoublingOpportunity();
+            } else {
+                startPlayPhase();
+            }
+        }
+
+        function sortHand(hand) {
+            hand.sort((a, b) => {
+                if(a.suit !== b.suit) return suits.indexOf(a.suit) - suits.indexOf(b.suit);
+                return b.rank - a.rank;
+            });
+        }
+
+        function checkDoublingOpportunity() {
+            let targetCardCheck = (currentContract === 'sheikh') ? c => (c.suit === '♥' && c.rank === 13) :
+                                  (currentContract === 'queens') ? c => (c.rank === 12) :
+                                  c => (c.suit === '♥' && c.rank === 13) || c.rank === 12;
+
+            let hasTarget = hands.player.some(targetCardCheck);
+            if (hasTarget) {
+                let container = document.getElementById('doubled-cards-container');
+                container.innerHTML = '';
+                hands.player.filter(targetCardCheck).forEach(c => {
+                    let el = document.createElement('div');
+                    el.className = `card ${c.suit === '♥' || c.suit === '♦' ? 'red' : ''}`;
+                    el.style.width = '34px'; el.style.height = '48px'; el.style.fontSize = '10px';
+                    el.innerHTML = `<span>${c.val}</span><span style="text-align:center;">${c.suit}</span>`;
+                    container.appendChild(el);
+                });
+                document.getElementById('doubling-modal').style.display = 'flex';
+            } else {
+                isDoubled = false;
+                startPlayPhase();
+            }
+        }
+
+        function confirmDoubling(status) {
+            isDoubled = status;
+            document.getElementById('doubling-modal').style.display = 'none';
+            startPlayPhase();
+        }
+
+        function startPlayPhase() {
+            currentTurnIndex = (currentKingIndex + 1) % 4;
+            leadSuit = null;
+            cardsPlayedInTrick = 0;
+            document.getElementById('game-status-text').textContent = `بدأت الجولة! البداية عند: (${playerNames[playersOrder[currentTurnIndex]]})`;
+            renderPlayerHand();
+            checkTurn();
+        }
+
+        function renderPlayerHand() {
+            let container = document.getElementById('player-hand');
+            container.innerHTML = '';
+            
+            let hasLeadSuit = leadSuit ? hands.player.some(c => c.suit === leadSuit) : false;
+
+            hands.player.forEach((card, index) => {
+                let isRed = (card.suit === '♥' || card.suit === '♦');
+                let el = document.createElement('div');
+                let isDisabled = false;
+
+                if (cardsPlayedInTrick > 0 && leadSuit && hasLeadSuit && card.suit !== leadSuit) {
+                    isDisabled = true;
+                }
+
+                el.className = `card ${isRed ? 'red' : ''} ${isDisabled ? 'disabled' : ''}`;
+                el.innerHTML = `<span>${card.val}</span><span style="font-size:14px; text-align:center;">${card.suit}</span><span style="text-align:left;">${card.val}</span>`;
+
+                if (!isDisabled) {
+                    el.onclick = () => playerPlayCard(index);
+                } else {
+                    el.onclick = () => alert(`قانون اللعبة: يجب عليك الالتزام بنوع (${leadSuit}) إن وجد.`);
+                }
+                container.appendChild(el);
+            });
+        }
+
+        function playerPlayCard(index) {
+            if (playersOrder[currentTurnIndex] !== 'player') {
+                alert('عذراً، ليس دورك الآن!');
+                return;
+            }
+            let card = hands.player.splice(index, 1)[0];
+            executeCardPlay('player', card);
+        }
+
+        function executeCardPlay(playerKey, card) {
+            playSound('play');
+            if (cardsPlayedInTrick === 0) leadSuit = card.suit;
+            currentTrickTable[playerKey] = card;
+            cardsPlayedInTrick++;
+
+            renderPlayerHand();
+            updateTableUI();
+
+            if (cardsPlayedInTrick < 4) {
+                currentTurnIndex = (currentTurnIndex + 1) % 4;
+                checkTurn();
+            } else {
+                setTimeout(evaluateTrickWinner, 1000);
+            }
+        }
+
+        function checkTurn() {
+            let activePlayer = playersOrder[currentTurnIndex];
+            if (activePlayer === 'player') {
+                document.getElementById('game-status-text').textContent = cardsPlayedInTrick === 0 ? "دورك لاختتاح اللطشة." : `دورك: الالتزام بنوع (${leadSuit})`;
+            } else {
+                document.getElementById('game-status-text').textContent = `اللاعب (${playerNames[activePlayer]}) يفكر بالحركة...`;
+                setTimeout(() => aiPlayTurn(activePlayer), 750);
+            }
+        }
+
+        function aiPlayTurn(aiKey) {
+            let aiHand = hands[aiKey];
+            if (!aiHand || aiHand.length === 0) return;
+            let validCards = leadSuit ? (aiHand.some(c => c.suit === leadSuit) ? aiHand.filter(c => c.suit === leadSuit) : aiHand) : aiHand;
+            let chosenCard = validCards[Math.floor(Math.random() * validCards.length)];
+            aiHand.splice(aiHand.indexOf(chosenCard), 1);
+            executeCardPlay(aiKey, chosenCard);
+        }
+
+        function evaluateTrickWinner() {
+            playSound('win');
+            let winningPlayer = playersOrder[0];
+            let highestRank = -1;
+            let winningSuit = leadSuit;
+
+            for (let key in currentTrickTable) {
+                let c = currentTrickTable[key];
+                if (c.suit === winningSuit && c.rank > highestRank) {
+                    highestRank = c.rank;
+                    winningPlayer = key;
+                }
+            }
+
+            tricksCount[winningPlayer]++;
+            
+            // محرك النقاط الحسابي المتكامل بناءً على نوع اللعبة أو الكومبلكس
+            let trickPenalty = 0;
+            if (currentContract === 'complex') {
+                trickPenalty = 15;
+                for(let key in currentTrickTable) {
+                    let c = currentTrickTable[key];
+                    if(c.suit === '♥' && c.rank === 13) trickPenalty += (isDoubled ? 150 : 75);
+                    if(c.rank === 12) trickPenalty += (isDoubled ? 50 : 25);
+                    if(c.suit === '♦') trickPenalty += 10;
+                }
+            } else if (currentContract === 'sheikh') {
+                for(let key in currentTrickTable) {
+                    let c = currentTrickTable[key];
+                    if(c.suit === '♥' && c.rank === 13) trickPenalty += (isDoubled ? 150 : 75);
+                }
+            } else if (currentContract === 'queens') {
+                for(let key in currentTrickTable) {
+                    let c = currentTrickTable[key];
+                    if(c.rank === 12) trickPenalty += (isDoubled ? 50 : 25);
+                }
+            } else if (currentContract === 'diamonds') {
+                for(let key in currentTrickTable) {
+                    let c = currentTrickTable[key];
+                    if(c.suit === '♦') trickPenalty += 10;
+                }
+            } else if (currentContract === 'collections') {
+                trickPenalty = 15;
+            }
+
+            if (trickPenalty > 0) {
+                scores[winningPlayer] -= trickPenalty;
+            }
+
+            document.getElementById('game-status-text').textContent = `فاز باللطشة (${playerNames[winningPlayer]}) ${trickPenalty > 0 ? '(' + (-trickPenalty) + ' نقطة)' : ''}`;
+
+            setTimeout(() => {
+                currentTrickTable = {};
+                cardsPlayedInTrick = 0;
+                leadSuit = null;
+                currentTurnIndex = playersOrder.indexOf(winningPlayer);
+                updateTableUI();
+                updateLabels();
+                renderPlayerHand();
+
+                if (hands.player.length === 0) {
+                    endRoundSequence();
+                } else {
+                    checkTurn();
+                }
+            }, 1200);
+        }
+
+        function updateTableUI() {
+            document.getElementById('slot-top').innerHTML = renderCardSlot(currentTrickTable.top);
+            document.getElementById('slot-left').innerHTML = renderCardSlot(currentTrickTable.left);
+            document.getElementById('slot-right').innerHTML = renderCardSlot(currentTrickTable.right);
+            document.getElementById('slot-bottom').innerHTML = renderCardSlot(currentTrickTable.player);
+        }
+
+        function renderCardSlot(card) {
+            if (!card) return ``;
+            let isRed = (card.suit === '♥' || card.suit === '♦');
+            return `<div class="card ${isRed ? 'red' : ''}" style="width:100%; height:100%; font-size:11px; padding:2px;"><span>${card.val}</span><span style="text-align:center; font-size:12px;">${card.suit}</span><span>${card.val}</span></div>`;
+        }
+
+        function updateLabels() {
+            document.getElementById('badge-top').innerHTML = `نانسي<span class="info-subtext">نقاط: ${scores.top} | أكلات: ${tricksCount.top}</span>`;
+            document.getElementById('badge-left').innerHTML = `عمار<span class="info-subtext">نقاط: ${scores.left} | أكلات: ${tricksCount.left}</span>`;
+            document.getElementById('badge-right').innerHTML = `جورج<span class="info-subtext">نقاط: ${scores.right} | أكلات: ${tricksCount.right}</span>`;
+            document.getElementById('badge-bottom').innerHTML = `${userName}<span class="info-subtext">نقاط: ${scores.player} | أكلات: ${tricksCount.player}</span>`;
+        }
+
+        function endRoundSequence() {
+            openScoreboardModal();
+            currentKingIndex = (currentKingIndex + 1) % 4;
+        }
+
+        function openScoreboardModal() {
+            let bodyHTML = '';
+            playersOrder.forEach(k => {
+                bodyHTML += `<tr><td><b>${playerNames[k]}</b></td><td style="color:${scores[k] < 0 ? '#ef4444' : '#10b981'}"><b>${scores[k]}</b></td><td>نشط</td></tr>`;
+            });
+            document.getElementById('scoreboard-body').innerHTML = bodyHTML;
+            document.getElementById('scoreboard-modal').style.display = 'files' || 'flex';
+            document.getElementById('scoreboard-modal').style.display = 'flex';
+        }
+
+        function closeScoreboardModal() {
+            document.getElementById('scoreboard-modal').style.display = 'none';
+            if (gameMode === 'mofrouda') {
+                document.getElementById('contract-modal').style.display = 'flex';
+            } else {
+                document.getElementById('mode-modal').style.display = 'flex';
+            }
         }
     </script>
-
 </body>
 </html>
