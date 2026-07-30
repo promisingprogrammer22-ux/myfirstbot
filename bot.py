@@ -10,7 +10,7 @@ import io
 # ==========================================
 TOKEN = '8805488820:AAE4jM7p19R-c3MlZ5t2zcjDTOgJhVlsP-U'
 ADMIN_ID = 8576260469
-WEB_APP_URL = "https://purple-paths-bet.loca.lt/games_platform.html"
+BASE_URL = "https://purple-paths-bet.loca.lt"
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -88,8 +88,18 @@ def update_setting(key, value):
 # لوحات المفاتيح المدمجة (Inline Keyboards)
 # ==========================================
 def get_main_menu(user_id):
+    # جلب اسم المستخدم من قاعدة البيانات لتمريره للعبة وضمان الخصوصية
+    conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute("SELECT username FROM users WHERE telegram_id = ?", (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    username = row[0] if row and row[0] else "لاعب"
+    web_app_url = f"{BASE_URL}/games_platform.html?name={username}"
+
     markup = InlineKeyboardMarkup(row_width=2)
-    markup.row(InlineKeyboardButton(text="🎮 منصة الألعاب", web_app=WebAppInfo(url=WEB_APP_URL)))
+    markup.row(InlineKeyboardButton(text="🎮 منصة الألعاب", web_app=WebAppInfo(url=web_app_url)))
     markup.row(
         InlineKeyboardButton("💸 سحب من البوت", callback_data="btn_withdraw"),
         InlineKeyboardButton("💰 شحن البوت", callback_data="btn_deposit")
