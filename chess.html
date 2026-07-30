@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شطرنج الملوك الاحترافي</title>
+    <title>شطرنج الملوك النظامي</title>
     <style>
         body {
             background: radial-gradient(circle, #0f172a, #020617);
@@ -17,31 +17,31 @@
             min-height: 100vh;
             overflow: hidden;
         }
-        h2 { color: #38bdf8; margin: 5px; font-size: 1.4rem; }
-        .status { margin-bottom: 10px; font-size: 1rem; color: #fbbf24; font-weight: bold; background: rgba(0,0,0,0.4); padding: 5px 15px; border-radius: 8px;}
+        h2 { color: #38bdf8; margin: 5px; font-size: 1.3rem; }
+        .status { margin-bottom: 8px; font-size: 0.95rem; color: #fbbf24; font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 8px;}
         .board {
             display: grid;
-            grid-template-columns: repeat(8, 48px);
-            grid-template-rows: repeat(8, 48px);
+            grid-template-columns: repeat(8, 44px);
+            grid-template-rows: repeat(8, 44px);
             border: 4px solid #475569;
             border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         .square {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 34px;
+            font-size: 30px;
             cursor: pointer;
             user-select: none;
-            transition: background 0.2s;
+            transition: background 0.15s;
+            position: relative;
         }
-        .light { background-color: #f1f5f9; }
+        .light { background-color: #e2e8f0; }
         .dark { background-color: #334155; }
         
-        /* تباين ووضوح القطع البيضاء والسوداء */
         .piece-white {
             color: #ffffff;
             text-shadow: 0 0 3px #000, 0 1px 2px #000;
@@ -54,11 +54,13 @@
         }
 
         .selected { background-color: #38bdf8 !important; }
-        .checked { background-color: #ef4444 !important; animation: pulse 0.5s infinite alternate; }
-
-        @keyframes pulse {
-            from { background-color: #ef4444; }
-            to { background-color: #b91c1c; }
+        .valid-move::after {
+            content: '';
+            width: 14px;
+            height: 14px;
+            background-color: rgba(16, 185, 129, 0.7);
+            border-radius: 50%;
+            position: absolute;
         }
 
         .modal {
@@ -98,25 +100,24 @@
 </head>
 <body>
 
-    <h2>♟️ شطرنج الملوك الاحترافي</h2>
+    <h2>♟️ شطرنج الملوك النظامي</h2>
     <div class="status" id="gameStatus">دورك للعب (القطع البيضاء)</div>
     
     <div class="board" id="chessboard"></div>
 
-    <button class="btn" style="background:#ef4444; margin-top:15px;" onclick="window.location.href='games_platform.html'">العودة للمنصة</button>
+    <button class="btn" style="background:#ef4444; margin-top:12px;" onclick="window.location.href='games_platform.html'">العودة للمنصة</button>
 
-    <!-- نافذة نهاية اللعبة والفوز -->
+    <!-- نافذة نهاية الجولة -->
     <div class="modal" id="winModal">
         <div class="modal-content">
-            <h3 id="winTitle">🏆 مبروك الانتصار!</h3>
-            <p id="winMessage" style="color: #cbd5e1;">لقد حاصرت ملك الخصم وأثبت جدارتك بامتياز.</p>
+            <h3 id="winTitle">🏆 انتصار باهر!</h3>
+            <p id="winMessage" style="color: #cbd5e1;"></p>
             <button class="btn" onclick="resetGame()">لعب من جديد</button>
             <button class="btn" style="background:#64748b; margin-top:8px;" onclick="window.location.href='games_platform.html'">المنصة</button>
         </div>
     </div>
 
     <script>
-        // مولد المؤثرات الصوتية التفاعلية (بدون ملفات خارجية)
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (audioCtx.state === 'suspended') { audioCtx.resume(); }
@@ -126,22 +127,22 @@
             gain.connect(audioCtx.destination);
             
             if (type === 'move') {
-                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(350, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.1);
                 gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.1);
             } else if (type === 'capture') {
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+                osc.frequency.setValueAtTime(550, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.2);
                 gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
                 osc.start(); osc.stop(audioCtx.currentTime + 0.2);
             } else if (type === 'win') {
                 let now = audioCtx.currentTime;
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.setValueAtTime(659.25, now + 0.15); // E5
-                osc.frequency.setValueAtTime(783.99, now + 0.3); // G5
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.15);
+                osc.frequency.setValueAtTime(783.99, now + 0.3);
                 gain.gain.setValueAtTime(0.2, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
                 osc.start(); osc.stop(now + 0.6);
@@ -151,7 +152,6 @@
         const boardElement = document.getElementById('chessboard');
         const statusElement = document.getElementById('gameStatus');
         
-        // رموز قطع الشطرنج الرسمية
         const pieces = {
             'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙',
             'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟'
@@ -168,13 +168,88 @@
             ['R','N','B','Q','K','B','N','R']
         ];
 
-        let turn = 'w'; // w = اللاعب الأبيض, b = البوت الأسود
+        let turn = 'w'; // w = أبيض, b = أسود
         let selectedSquare = null;
+        let validMoves = [];
+
+        function isWhite(p) { return p && p === p.toUpperCase(); }
+        function isBlack(p) { return p && p === p.toLowerCase(); }
+
+        // حساب الحركات القانونية لكل قطعة بدقة تامة
+        function getValidMoves(r, c) {
+            let p = board[r][c];
+            if (!p) return [];
+            let moves = [];
+            let white = isWhite(p);
+
+            let addStepMoves = (directions) => {
+                for (let d of directions) {
+                    let nr = r + d[0], nc = c + d[1];
+                    while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                        let target = board[nr][nc];
+                        if (!target) {
+                            moves.push({r: nr, c: nc});
+                        } else {
+                            if (white !== isWhite(target)) moves.push({r: nr, c: nc});
+                            break;
+                        }
+                        nr += d[0]; nc += d[1];
+                    }
+                }
+            };
+
+            if (p.toLowerCase() === 'p') {
+                let dir = white ? -1 : 1;
+                let startRow = white ? 6 : 1;
+                // تقدم للأمام
+                let fr = r + dir;
+                if (fr >= 0 && fr < 8 && !board[fr][c]) {
+                    moves.push({r: fr, c: c});
+                    if (r === startRow && !board[fr + dir][c]) {
+                        moves.push({r: fr + dir, c: c});
+                    }
+                }
+                // أكل قطري فقط
+                for (let dc of [-1, 1]) {
+                    let cr = r + dir, cc = c + dc;
+                    if (cr >= 0 && cr < 8 && cc >= 0 && cc < 8) {
+                        let target = board[cr][cc];
+                        if (target && white !== isWhite(target)) {
+                            moves.push({r: cr, c: cc});
+                        }
+                    }
+                }
+            } else if (p.toLowerCase() === 'n') {
+                let knights = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+                for (let k of knights) {
+                    let nr = r + k[0], nc = c + k[1];
+                    if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                        let target = board[nr][nc];
+                        if (!target || white !== isWhite(target)) moves.push({r: nr, c: nc});
+                    }
+                }
+            } else if (p.toLowerCase() === 'b') {
+                addStepMoves([[-1,-1],[-1,1],[1,-1],[1,1]]);
+            } else if (p.toLowerCase() === 'r') {
+                addStepMoves([[-1,0],[1,0],[0,-1],[0,1]]);
+            } else if (p.toLowerCase() === 'q') {
+                addStepMoves([[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]]);
+            } else if (p.toLowerCase() === 'k') {
+                let kingDirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+                for (let kd of kingDirs) {
+                    let nr = r + kd[0], nc = c + kd[1];
+                    if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                        let target = board[nr][nc];
+                        if (!target || white !== isWhite(target)) moves.push({r: nr, c: nc});
+                    }
+                }
+            }
+            return moves;
+        }
 
         function renderBoard() {
             boardElement.innerHTML = '';
-            let whiteKingAlive = false;
-            let blackKingAlive = false;
+            let whiteKing = false, blackKing = false;
 
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
@@ -185,9 +260,13 @@
                         square.classList.add('selected');
                     }
 
+                    if (validMoves.some(m => m.r === r && m.c === c)) {
+                        square.classList.add('valid-move');
+                    }
+
                     const p = board[r][c];
-                    if (p === 'K') whiteKingAlive = true;
-                    if (p === 'k') blackKingAlive = true;
+                    if (p === 'K') whiteKing = true;
+                    if (p === 'k') blackKing = true;
 
                     if (p) {
                         const span = document.createElement('span');
@@ -201,99 +280,75 @@
                 }
             }
 
-            // فحص انتهاء اللعبة فوراً في حال تم أسر أحد الملكين
-            if (!blackKingAlive) {
-                endGame('🏆 مبروك الفوز!', 'لقد قمت بالقضاء على الملك الأسود وحققت انتصاراً ساحقاً!');
-            } else if (!whiteKingAlive) {
-                endGame('❌ خسرت الجولة!', 'تمكن البوت من الإيقاع بملكك الأبيض. حاول مجدداً!');
+            // فحص انتهاء اللعبة فوري عند غياب أحد الملكين
+            if (!blackKing) {
+                endGame('🏆 مبروك الفوز الساحق!', 'لقد قمت بحصار وأسر الملك الأسود بكل اقتدار.');
+            } else if (!whiteKing) {
+                endGame('❌ خسرت المعركة!', 'تمكن البوت من اقتناص ملكك الأبيض. حظ أوفر في المرة القادمة.');
             }
-        }
-
-        function isWhite(p) {
-            return p && p === p.toUpperCase();
         }
 
         function handleSquareClick(r, c) {
-            if (turn !== 'w') return; // منع اللعب أثناء دور البوت
+            if (turn !== 'w') return;
 
-            const p = board[r][c];
+            let p = board[r][c];
             if (selectedSquare) {
-                if (selectedSquare.r === r && selectedSquare.c === c) {
-                    selectedSquare = null; // إلغاء التحديد عند النقر نفس المربع
-                } else if (p && isWhite(p)) {
-                    selectedSquare = {r, c}; // تغيير القطعة المختارة
-                } else {
-                    // تنفيذ الحركة أو الأكل
+                let foundMove = validMoves.find(m => m.r === r && m.c === c);
+                if (foundMove) {
                     let targetPiece = board[r][c];
                     board[r][c] = board[selectedSquare.r][selectedSquare.c];
                     board[selectedSquare.r][selectedSquare.c] = '';
-                    
-                    if (targetPiece) {
-                        playSound('capture');
-                    } else {
-                        playSound('move');
-                    }
+
+                    if (targetPiece) playSound('capture');
+                    else playSound('move');
 
                     selectedSquare = null;
+                    validMoves = [];
                     turn = 'b';
                     renderBoard();
-                    
-                    statusElement.textContent = "🤖 البوت الذكي يفكر في الحركة القادمة...";
-                    setTimeout(botMove, 1200);
+
+                    statusElement.textContent = "🤖 البوت الذكي يدرس وضعية الدفاع والهجوم...";
+                    setTimeout(botMove, 1000);
+                    return;
                 }
+            }
+
+            if (p && isWhite(p)) {
+                selectedSquare = {r, c};
+                validMoves = getValidMoves(r, c);
                 renderBoard();
             } else {
-                if (p && isWhite(p)) {
-                    selectedSquare = {r, c};
-                    renderBoard();
-                }
+                selectedSquare = null;
+                validMoves = [];
+                renderBoard();
             }
         }
 
-        // ذكاء اصطناعي محسن وتنافسي للبوت
+        // ذكاء اصطناعي يتحرك بقوانين الشطرنج الصحيحة
         function botMove() {
-            let blackPieces = [];
+            let allBlackMoves = [];
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
-                    if (board[r][c] && !isWhite(board[r][c])) {
-                        blackPieces.push({r, c});
+                    if (board[r][c] && isBlack(board[r][c])) {
+                        let moves = getValidMoves(r, c);
+                        for (let m of moves) {
+                            allBlackMoves.push({from: {r, c}, to: m});
+                        }
                     }
                 }
             }
 
-            if (blackPieces.length > 0) {
-                let moved = false;
-                // محاولة ذكية لاستهداف قطع اللاعب أو الحركة للأمام
-                blackPieces.sort(() => Math.random() - 0.5); // عشوائية ذكية
-                
-                for (let bp of blackPieces) {
-                    let forwardMoves = [
-                        {r: bp.r + 1, c: bp.c}, 
-                        {r: bp.r + 1, c: bp.c + 1}, 
-                        {r: bp.r + 1, c: bp.c - 1}
-                    ];
-                    
-                    let validMoves = forwardMoves.filter(m => m.r >= 0 && m.r < 8 && m.c >= 0 && m.c < 8 && (board[m.r][m.c] === '' || isWhite(board[m.r][m.c])));
-                    
-                    if (validMoves.length > 0) {
-                        // إعطاء أولوية لأكل القطع البيضاء إن وجدت
-                        let attackMove = validMoves.find(m => isWhite(board[m.r][m.c]));
-                        let target = attackMove || validMoves[0];
-                        
-                        let targetPiece = board[target.r][target.c];
-                        board[target.r][target.c] = board[bp.r][bp.c];
-                        board[bp.r][bp.c] = '';
+            if (allBlackMoves.length > 0) {
+                // إعطاء الأولوية لأكل القطع البيضاء إن وجدت لتعزيز التنافسية
+                let attackMoves = allBlackMoves.filter(am => isWhite(board[am.to.r][am.to.c]));
+                let chosen = attackMoves.length > 0 ? attackMoves[Math.floor(Math.random() * attackMoves.length)] : allBlackMoves[Math.floor(Math.random() * allBlackMoves.length)];
 
-                        if (targetPiece) {
-                            playSound('capture');
-                        } else {
-                            playSound('move');
-                        }
-                        
-                        moved = true;
-                        break;
-                    }
-                }
+                let targetPiece = board[chosen.to.r][chosen.to.c];
+                board[chosen.to.r][chosen.to.c] = board[chosen.from.r][chosen.from.c];
+                board[chosen.from.r][chosen.from.c] = '';
+
+                if (targetPiece) playSound('capture');
+                else playSound('move');
             }
 
             turn = 'w';
@@ -321,6 +376,7 @@
             ];
             turn = 'w';
             selectedSquare = null;
+            validMoves = [];
             document.getElementById('winModal').style.display = 'none';
             statusElement.textContent = "دورك للعب (القطع البيضاء)";
             renderBoard();
