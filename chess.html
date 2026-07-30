@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شطرنج الملوك - ضد البوت</title>
+    <title>شطرنج الملوك الاحترافي</title>
     <style>
         body {
             background: radial-gradient(circle, #0f172a, #020617);
@@ -15,32 +15,74 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            overflow: hidden;
         }
-        h2 { color: #38bdf8; margin-bottom: 5px; }
-        .status { margin-bottom: 15px; font-size: 1.1rem; color: #fbbf24; }
+        h2 { color: #38bdf8; margin: 5px; font-size: 1.4rem; }
+        .status { margin-bottom: 10px; font-size: 1rem; color: #fbbf24; font-weight: bold; background: rgba(0,0,0,0.4); padding: 5px 15px; border-radius: 8px;}
         .board {
             display: grid;
-            grid-template-columns: repeat(8, 50px);
-            grid-template-rows: repeat(8, 50px);
-            border: 4px solid #334155;
+            grid-template-columns: repeat(8, 48px);
+            grid-template-rows: repeat(8, 48px);
+            border: 4px solid #475569;
             border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
         .square {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
+            font-size: 34px;
             cursor: pointer;
             user-select: none;
+            transition: background 0.2s;
         }
-        .light { background-color: #e2e8f0; color: #000; }
-        .dark { background-color: #475569; color: #000; }
+        .light { background-color: #f1f5f9; }
+        .dark { background-color: #334155; }
+        
+        /* تباين ووضوح القطع البيضاء والسوداء */
+        .piece-white {
+            color: #ffffff;
+            text-shadow: 0 0 3px #000, 0 1px 2px #000;
+            font-weight: bold;
+        }
+        .piece-black {
+            color: #0f172a;
+            text-shadow: 0 0 2px #fff, 0 1px 2px #fff;
+            font-weight: bold;
+        }
+
         .selected { background-color: #38bdf8 !important; }
-        .back-btn {
-            margin-top: 20px;
+        .checked { background-color: #ef4444 !important; animation: pulse 0.5s infinite alternate; }
+
+        @keyframes pulse {
+            from { background-color: #ef4444; }
+            to { background-color: #b91c1c; }
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #facc15;
+            max-width: 300px;
+        }
+        .modal-content h3 { color: #facc15; margin-top: 0; }
+        
+        .btn {
+            margin-top: 15px;
             background: #3b82f6;
             color: white;
             border: none;
@@ -48,23 +90,68 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 1rem;
+            font-weight: bold;
             transition: 0.3s;
         }
-        .back-btn:hover { background: #2563eb; }
+        .btn:hover { background: #2563eb; transform: scale(1.05); }
     </style>
 </head>
 <body>
 
-    <h2>♟️ شطرنج الملوك</h2>
+    <h2>♟️ شطرنج الملوك الاحترافي</h2>
     <div class="status" id="gameStatus">دورك للعب (القطع البيضاء)</div>
+    
     <div class="board" id="chessboard"></div>
-    <button class="back-btn" onclick="window.location.href='games_platform.html'">العودة للمنصة</button>
+
+    <button class="btn" style="background:#ef4444; margin-top:15px;" onclick="window.location.href='games_platform.html'">العودة للمنصة</button>
+
+    <!-- نافذة نهاية اللعبة والفوز -->
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <h3 id="winTitle">🏆 مبروك الانتصار!</h3>
+            <p id="winMessage" style="color: #cbd5e1;">لقد حاصرت ملك الخصم وأثبت جدارتك بامتياز.</p>
+            <button class="btn" onclick="resetGame()">لعب من جديد</button>
+            <button class="btn" style="background:#64748b; margin-top:8px;" onclick="window.location.href='games_platform.html'">المنصة</button>
+        </div>
+    </div>
 
     <script>
+        // مولد المؤثرات الصوتية التفاعلية (بدون ملفات خارجية)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (type === 'move') {
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'capture') {
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            } else if (type === 'win') {
+                let now = audioCtx.currentTime;
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.15); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.3); // G5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                osc.start(); osc.stop(now + 0.6);
+            }
+        }
+
         const boardElement = document.getElementById('chessboard');
         const statusElement = document.getElementById('gameStatus');
-
-        // رموز القطع
+        
+        // رموز قطع الشطرنج الرسمية
         const pieces = {
             'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙',
             'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟'
@@ -81,24 +168,49 @@
             ['R','N','B','Q','K','B','N','R']
         ];
 
-        let turn = 'w'; // w = player, b = bot
+        let turn = 'w'; // w = اللاعب الأبيض, b = البوت الأسود
         let selectedSquare = null;
 
         function renderBoard() {
             boardElement.innerHTML = '';
+            let whiteKingAlive = false;
+            let blackKingAlive = false;
+
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
                     const square = document.createElement('div');
                     square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                    
                     if (selectedSquare && selectedSquare.r === r && selectedSquare.c === c) {
                         square.classList.add('selected');
                     }
+
                     const p = board[r][c];
-                    square.textContent = p ? pieces[p] : '';
+                    if (p === 'K') whiteKingAlive = true;
+                    if (p === 'k') blackKingAlive = true;
+
+                    if (p) {
+                        const span = document.createElement('span');
+                        span.className = isWhite(p) ? 'piece-white' : 'piece-black';
+                        span.textContent = pieces[p];
+                        square.appendChild(span);
+                    }
+
                     square.onclick = () => handleSquareClick(r, c);
                     boardElement.appendChild(square);
                 }
             }
+
+            // فحص انتهاء اللعبة فوراً في حال تم أسر أحد الملكين
+            if (!blackKingAlive) {
+                endGame('🏆 مبروك الفوز!', 'لقد قمت بالقضاء على الملك الأسود وحققت انتصاراً ساحقاً!');
+            } else if (!whiteKingAlive) {
+                endGame('❌ خسرت الجولة!', 'تمكن البوت من الإيقاع بملكك الأبيض. حاول مجدداً!');
+            }
+        }
+
+        function isWhite(p) {
+            return p && p === p.toUpperCase();
         }
 
         function handleSquareClick(r, c) {
@@ -106,18 +218,28 @@
 
             const p = board[r][c];
             if (selectedSquare) {
-                // محاولة تحريك القطعة
-                if (isWhite(p)) {
-                    selectedSquare = {r, c};
+                if (selectedSquare.r === r && selectedSquare.c === c) {
+                    selectedSquare = null; // إلغاء التحديد عند النقر نفس المربع
+                } else if (p && isWhite(p)) {
+                    selectedSquare = {r, c}; // تغيير القطعة المختارة
                 } else {
-                    // حركة بسيطة للبوت
+                    // تنفيذ الحركة أو الأكل
+                    let targetPiece = board[r][c];
                     board[r][c] = board[selectedSquare.r][selectedSquare.c];
                     board[selectedSquare.r][selectedSquare.c] = '';
+                    
+                    if (targetPiece) {
+                        playSound('capture');
+                    } else {
+                        playSound('move');
+                    }
+
                     selectedSquare = null;
                     turn = 'b';
                     renderBoard();
-                    statusElement.textContent = "دور البوت يفكر...";
-                    setTimeout(botMove, 1000);
+                    
+                    statusElement.textContent = "🤖 البوت الذكي يفكر في الحركة القادمة...";
+                    setTimeout(botMove, 1200);
                 }
                 renderBoard();
             } else {
@@ -128,12 +250,8 @@
             }
         }
 
-        function isWhite(p) {
-            return p && p === p.toUpperCase();
-        }
-
+        // ذكاء اصطناعي محسن وتنافسي للبوت
         function botMove() {
-            // بحث عن قطع البوت السوداء وحركة عشوائية ذكية
             let blackPieces = [];
             for (let r = 0; r < 8; r++) {
                 for (let c = 0; c < 8; c++) {
@@ -145,28 +263,67 @@
 
             if (blackPieces.length > 0) {
                 let moved = false;
-                // محاولة تحريك عشوائية صحيحة للبوت
-                while(!moved && blackPieces.length > 0) {
-                    let randIdx = Math.floor(Math.random() * blackPieces.length);
-                    let bp = blackPieces[randIdx];
-                    let moves = [{r: bp.r + 1, c: bp.c}, {r: bp.r + 1, c: bp.c + 1}, {r: bp.r + 1, c: bp.c - 1}];
-                    let validMoves = moves.filter(m => m.r >= 0 && m.r < 8 && m.c >= 0 && m.c < 8 && isWhite(board[m.r][m.c]));
-                    if(validMoves.length === 0) {
-                        validMoves = [{r: bp.r + 1, c: bp.c}].filter(m => m.r < 8 && board[m.r][bp.c] === '');
-                    }
-                    if(validMoves.length > 0) {
-                        let target = validMoves[Math.floor(Math.random() * validMoves.length)];
+                // محاولة ذكية لاستهداف قطع اللاعب أو الحركة للأمام
+                blackPieces.sort(() => Math.random() - 0.5); // عشوائية ذكية
+                
+                for (let bp of blackPieces) {
+                    let forwardMoves = [
+                        {r: bp.r + 1, c: bp.c}, 
+                        {r: bp.r + 1, c: bp.c + 1}, 
+                        {r: bp.r + 1, c: bp.c - 1}
+                    ];
+                    
+                    let validMoves = forwardMoves.filter(m => m.r >= 0 && m.r < 8 && m.c >= 0 && m.c < 8 && (board[m.r][m.c] === '' || isWhite(board[m.r][m.c])));
+                    
+                    if (validMoves.length > 0) {
+                        // إعطاء أولوية لأكل القطع البيضاء إن وجدت
+                        let attackMove = validMoves.find(m => isWhite(board[m.r][m.c]));
+                        let target = attackMove || validMoves[0];
+                        
+                        let targetPiece = board[target.r][target.c];
                         board[target.r][target.c] = board[bp.r][bp.c];
                         board[bp.r][bp.c] = '';
+
+                        if (targetPiece) {
+                            playSound('capture');
+                        } else {
+                            playSound('move');
+                        }
+                        
                         moved = true;
-                    } else {
-                        blackPieces.splice(randIdx, 1);
+                        break;
                     }
                 }
             }
+
             turn = 'w';
             renderBoard();
             statusElement.textContent = "دورك للعب (القطع البيضاء)";
+        }
+
+        function endGame(title, message) {
+            document.getElementById('winTitle').textContent = title;
+            document.getElementById('winMessage').textContent = message;
+            document.getElementById('winModal').style.display = 'flex';
+            playSound('win');
+        }
+
+        function resetGame() {
+            board = [
+                ['r','n','b','q','k','b','n','r'],
+                ['p','p','p','p','p','p','p','p'],
+                ['','','','','','','',''],
+                ['','','','','','','',''],
+                ['','','','','','','',''],
+                ['','','','','','','',''],
+                ['P','P','P','P','P','P','P','P'],
+                ['R','N','B','Q','K','B','N','R']
+            ];
+            turn = 'w';
+            selectedSquare = null;
+            document.getElementById('winModal').style.display = 'none';
+            statusElement.textContent = "دورك للعب (القطع البيضاء)";
+            renderBoard();
         }
 
         renderBoard();
