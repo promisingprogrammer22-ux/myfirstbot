@@ -239,11 +239,10 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // قراءة الاسم المخصص من رابط الـ Web App القادم من البوت مباشرة
+        // قراءة الاسم من رابط الـ URL القادم من البوت (مثل ?name=Alaa) وبديله Telegram WebApp أو alaa
         const urlParams = new URLSearchParams(window.location.search);
         let userName = urlParams.get('name');
 
-        // إذا لم يكن موجوداً في الرابط، يتم اللجوء لبيانات تليجرام أو القيمة الافتراضية
         if (!userName) {
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 userName = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name || 'alaa';
@@ -273,6 +272,7 @@
             btn.style.background = sfxEnabled ? '#3b82f6' : '#64748b';
         }
 
+        // المؤثرات الصوتية للأوراق واللطشات وفوز المعركة
         function playSound(type) {
             if (!sfxEnabled) return;
             initAudio();
