@@ -142,7 +142,7 @@
             transition: background 0.2s;
         }
         .modal-btn:hover { background: #d97706; }
-        select { padding: 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #475569; width: 100%; margin-top: 5px; font-size: 14px; }
+        select, input[type="text"] { padding: 8px; border-radius: 6px; background: #0f172a; color: #fff; border: 1px solid #475569; width: 100%; margin-top: 5px; font-size: 14px; }
 
         .score-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
         .score-table th, .score-table td { border: 1px solid #475569; padding: 6px; text-align: center; color: #fff; }
@@ -156,6 +156,7 @@
         <div><span id="score-label">مجموع فريقك</span>: <span id="total-score" style="color:#fde047; font-weight:bold;">0</span> / 41</div>
         <button class="header-btn" id="sfx-toggle-btn" onclick="toggleSfx()">🔊 الأصوات</button>
         <button class="header-btn" onclick="openScoreboardModal()">📊 النتائج</button>
+        <button class="header-btn" style="background:#10b981;" onclick="openNameModal()">✏️ الاسم</button>
         <button class="back-btn" onclick="window.location.href='games_platform.html'">خروج</button>
     </div>
 
@@ -175,6 +176,16 @@
         <div style="font-size: 13px; color: #94a3b8; margin-bottom: 8px; font-weight:bold;" id="game-status-text">اختر نمط اللعب لبدء التحدي</div>
         <div id="dealer-action-area" style="margin-bottom: 8px;"></div>
         <div class="cards-container" id="player-hand"></div>
+    </div>
+
+    <!-- نافذة تعديل الاسم -->
+    <div id="name-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h2>✏️ تغيير اسم اللاعب</h2>
+            <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">أدخل اسمك الجديد الذي سيظهر في اللعبة:</p>
+            <input type="text" id="new-name-input" placeholder="اكتب اسمك هنا..." maxlength="15">
+            <button class="modal-btn" onclick="savePlayerName()">حفظ الاسم واستمرار</button>
+        </div>
     </div>
 
     <div id="mode-modal" class="modal-overlay">
@@ -239,7 +250,7 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // قراءة الاسم من رابط الـ URL القادم من البوت (مثل ?name=Alaa) وبديله Telegram WebApp أو alaa
+        // قراءة الاسم من رابط الـ URL القادم من البوت أو Telegram WebApp
         const urlParams = new URLSearchParams(window.location.search);
         let userName = urlParams.get('name');
 
@@ -252,6 +263,23 @@
         }
         
         document.getElementById('name-bottom').textContent = userName;
+
+        // دوال التحكم بتغيير الاسم يدوياً داخل اللعبة
+        function openNameModal() {
+            document.getElementById('new-name-input').value = userName;
+            document.getElementById('name-modal').style.display = 'flex';
+        }
+
+        function savePlayerName() {
+            let inputVal = document.getElementById('new-name-input').value.trim();
+            if (inputVal) {
+                userName = inputVal;
+                document.getElementById('name-bottom').textContent = userName;
+                playerNames.player = userName;
+                updateLabels();
+            }
+            document.getElementById('name-modal').style.display = 'none';
+        }
 
         let sfxEnabled = true;
         let audioCtx = null;
@@ -272,7 +300,6 @@
             btn.style.background = sfxEnabled ? '#3b82f6' : '#64748b';
         }
 
-        // المؤثرات الصوتية للأوراق واللطشات وفوز المعركة
         function playSound(type) {
             if (!sfxEnabled) return;
             initAudio();

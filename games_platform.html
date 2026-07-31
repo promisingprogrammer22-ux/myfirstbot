@@ -128,8 +128,8 @@
         document.getElementById('user-display-name').textContent = userName;
 
         function openGame(pageUrl) {
-            // توجيه المستخدم لصفحة اللعبة مع إرفاق اسم المستخدم في الرابط
-            window.location.href = `${pageUrl}?name=${encodeURIComponent(userName)}`;
+            // الانتقال لصفحة اللعبة مع الحفاظ على نطاق السيرفر الحالي واسم المستخدم
+            window.location.href = pageUrl + `?name=` + encodeURIComponent(userName);
         }
     </script>
 </body>

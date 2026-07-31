@@ -1,3 +1,5 @@
+"""Blank Python project entry point."""
+
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 import sqlite3
@@ -12,9 +14,9 @@ import threading
 # ==========================================
 TOKEN = '8805488820:AAE4jM7p19R-c3MlZ5t2zcjDTOgJhVlsP-U'
 ADMIN_ID = 8576260469
-BASE_URL = "https://small-feet-shine.loca.lt"
+BASE_URL = "https://mygamebot2026.loca.lt"
 
-# معرفات القنوات الخاصة بالإشعارات (يمكنك استبدالها بالآي دي الرقمي الذي سيظهره لك البوت)
+# معرفات القنوات الخاصة بالإشعارات (استبدلها بالآي دي الرقمي الصحيح أو اسم المستخدم العام)
 NEW_USERS_CHANNEL_ID = "@your_new_users_channel"         # قناة انضمام المستخدمين الجدد
 DEPOSIT_WITHDRAW_CHANNEL_ID = "@your_deposits_channel"  # قناة الإيداعات والسحوبات
 
@@ -97,11 +99,6 @@ def get_bot_treasury():
     return float(val) if val else 0.0
 
 def update_bot_treasury(amount, operation='add'):
-    """
-    تحديث رصيد خزنة البوت:
-    - add: إضافة مبلغ للخزنة (عند سحب المستخدم، أو خسارة الرهان)
-    - sub: خصم مبلغ من الخزنة (عند إيداع رصيد للمستخدم، أو دفع أرباح الفوز)
-    """
     conn = sqlite3.connect('bot_database.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("SELECT value FROM settings WHERE key = 'bot_treasury'")
@@ -142,17 +139,14 @@ def api_user_info():
 
 @flask_app.route('/api/game_result', methods=['POST'])
 def api_game_result():
-    """
-    إدارة جولات اللعب والرهانات:
-    - خصم الرهان من محفظة المستخدم.
-    - عند الخسارة: يعود رصيد الرهان فوراً إلى خزنة البوت.
-    - عند الفوز: يتم دفع الأرباح للمستخدم من خزنة البوت.
-    """
-    data = request.json
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({'success': False, 'message': 'Invalid JSON data'}), 400
+
     telegram_id = data.get('telegram_id')
     bet_amount = float(data.get('bet_amount', 0))
     result = data.get('result')  # 'win' أو 'loss'
-    win_amount = float(data.get('win_amount', 0))  # إجمالي المبلغ العائد للمستخدم عند الفوز
+    win_amount = float(data.get('win_amount', 0))
 
     conn = sqlite3.connect('bot_database.db', check_same_thread=False)
     cursor = conn.cursor()
@@ -168,14 +162,11 @@ def api_game_result():
         conn.close()
         return jsonify({'success': False, 'message': 'رصيد المحفظة غير كافٍ للرهان'}), 400
 
-    # خصم قيمة الرهان مؤقتاً من محفظة اللاعب وبدء الجولة
     new_balance = current_balance - bet_amount
 
     if result == 'loss':
-        # الخسارة: يعود رصيد الرهان بالكامل إلى خزنة البوت بشكل فوري
         update_bot_treasury(bet_amount, 'add')
     elif result == 'win':
-        # الفوز: صافي الربح يُدفع من خزنة البوت إلى اللاعب
         net_profit = win_amount - bet_amount
         if net_profit > 0:
             treasury = get_bot_treasury()
@@ -196,7 +187,6 @@ def api_game_result():
 def run_flask():
     flask_app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
 
-# تشغيل خادم الويب في خلفية مستقلة
 threading.Thread(target=run_flask, daemon=True).start()
 
 # ==========================================
@@ -432,9 +422,9 @@ def process_password(message):
         )
 
 # ==========================================
-# معالجة الأزرار المدمجة (Callbacks)
+# معالجة الأزرار المدمجة (Callbacks) - تم إصلاحها لتدعم قبول/رفض المعاملات
 # ==========================================
-@bot.callback_query_handler(func=lambda call: call.data.startswith(('btn_', 'adm_', 'toggle_', 'app_')))
+@bot.callback_query_handler(func=lambda call: call.data.startswith(('btn_', 'adm_', 'toggle_', 'app_', 'accept_tx_', 'reject_tx_')))
 def handle_inline_buttons(call):
     user_id = call.from_user.id
     action = call.data
@@ -487,7 +477,7 @@ def handle_inline_buttons(call):
             
         syriatel_nums = get_setting('syriatel_numbers')
         msg = (f"💰 **شحن رصيد المحفظة عبر سيرياتيل كاش:**\n\n"
-               f"يرجى تحويل المبلغ المطلوبة إلى الرقم المعتمد التالي:\n`{syriatel_nums}`\n\n"
+               f"يرجى تحويل المبلغ المطلوب إلى الرقم المعتمد التالي:\n`{syriatel_nums}`\n\n"
                f"بعد إتمام التحويل، أرسل الآن **رقم عملية التحويل**:")
         bot.edit_message_text(chat_id=user_id, message_id=message_id, text=msg, parse_mode="Markdown", reply_markup=get_back_menu())
         bot.register_next_step_handler(call.message, process_deposit_trx)
@@ -497,7 +487,7 @@ def handle_inline_buttons(call):
             bot.edit_message_text(chat_id=user_id, message_id=message_id, text="⚠️ عذراً، عمليات السحب متوقفة مؤقتاً من قبل الإدارة.", parse_mode="Markdown", reply_markup=get_back_menu())
             return
 
-        msg = "💸 **سحب الأرباح:**\n\nأرسل المبلغ الذي تود سحب من رصيدك (تطبق عمولة 10% للبوت):"
+        msg = "💸 **سحب الأرباح:**\n\nأرسل المبلغ الذي تود سحبه من رصيدك (تطبق عمولة 10% للبوت):"
         bot.edit_message_text(chat_id=user_id, message_id=message_id, text=msg, parse_mode="Markdown", reply_markup=get_back_menu())
         bot.register_next_step_handler(call.message, process_withdrawal_amount)
 
@@ -627,7 +617,7 @@ def handle_inline_buttons(call):
     elif action.startswith(('adm_add_bal_', 'adm_sub_bal_')):
         if str(user_id) == str(ADMIN_ID):
             parts = action.split('_')
-            op_type = parts[1] # add or sub
+            op_type = parts[1]
             target_t_id = int(parts[3])
             
             user_states[user_id] = {'target_t_id': target_t_id, 'op_type': op_type}
@@ -723,7 +713,7 @@ def handle_inline_buttons(call):
             
             markup = InlineKeyboardMarkup()
             markup.row(InlineKeyboardButton("📥 تصدير تقرير Excel (CSV)", callback_data="adm_export_csv"))
-            markup.row(InlineKeyboardButton("🔙 العودة للوحة الأدمن", callback_data="adm_back_to_panel"))
+            markup.row(InlineKeyboardButton("🔙 العودة لوحة الأدمن", callback_data="adm_back_to_panel"))
             
             bot.edit_message_text(chat_id=user_id, message_id=message_id, text=stats_msg, parse_mode="Markdown", reply_markup=markup)
 
@@ -786,7 +776,7 @@ def handle_inline_buttons(call):
                     if t_type == 'deposit':
                         update_bot_treasury(amt, 'sub')
                         cursor.execute("UPDATE users SET balance = balance + ? WHERE telegram_id = ?", (amt, t_id))
-                        bot.send_message(t_id, f"✅ تم اعتماد وفبول عملية الشحن الخاصة بك بقيمة `{amt}` ل.س وإضافتها لمحفظتك بنجاح.", parse_mode="Markdown")
+                        bot.send_message(t_id, f"✅ تم اعتماد وقبول عملية الشحن الخاصة بك بقيمة `{amt}` ل.س وإضافتها لمحفظتك بنجاح.", parse_mode="Markdown")
                     else:
                         bot.send_message(t_id, f"✅ تم قبول ومعالجة طلب السحب الخاص بك بقيمة `{amt}` ل.س بنجاح.", parse_mode="Markdown")
                     conn.commit()
@@ -867,7 +857,7 @@ def process_admin_search_user(message):
                 InlineKeyboardButton("➖ سحب رصيد", callback_data=f"adm_sub_bal_{t_id}")
             )
             markup.row(InlineKeyboardButton("🔙 العودة لإدارة المستخدمين", callback_data="adm_users_page_0"))
-            markup.row(InlineKeyboardButton("🔙 العودة للوحة الأدمن", callback_data="adm_back_to_panel"))
+            markup.row(InlineKeyboardButton("🔙 العودة لوحة الأدمن", callback_data="adm_back_to_panel"))
             bot.send_message(ADMIN_ID, msg, parse_mode="Markdown", reply_markup=markup)
 
 def process_admin_balance_modification(message):
@@ -1159,5 +1149,7 @@ def process_gift_amount(message):
 # ==========================================
 # تشغيل البوت
 # ==========================================
-print("✨ بوت الألعاب والخزنة يعمل بكافة التعديلات والشروط المحدثة وقنوات الإشعارات ومعالج الـ API...")
-bot.infinity_polling()
+
+if __name__ == "__main__":
+    print("✨ تم تشغيل البوت بنجاح...")
+    bot.infinity_polling()
