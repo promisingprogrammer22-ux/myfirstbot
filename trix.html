@@ -42,7 +42,6 @@
         }
         .top-btn:active { transform: scale(0.95); }
 
-        /* منطقة الطاولة وأماكن اللاعبين */
         .table-container {
             position: relative;
             flex: 1;
@@ -52,7 +51,7 @@
             margin: 2px;
         }
         .table-felt {
-            width: 300px;
+            width: 310px;
             height: 195px;
             background: radial-gradient(circle, rgba(6, 95, 70, 0.85) 0%, rgba(2, 44, 34, 0.95) 100%);
             border: 3px solid rgba(250, 204, 21, 0.4);
@@ -64,7 +63,6 @@
             box-shadow: inset 0 0 15px rgba(0,0,0,0.6), 0 6px 15px rgba(0,0,0,0.4);
         }
 
-        /* شارات اللاعبين حول الطاولة */
         .player-badge {
             position: absolute;
             background: rgba(0, 0, 0, 0.85);
@@ -77,12 +75,12 @@
             white-space: nowrap;
             box-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
-        .seat-top { top: -10px; left: 50%; transform: translateX(-50%); }
         .seat-bottom { bottom: -10px; left: 50%; transform: translateX(-50%); }
+        .seat-top { top: -10px; left: 50%; transform: translateX(-50%); }
         .seat-left { left: -10px; top: 50%; transform: translateY(-50%); }
         .seat-right { right: -10px; top: 50%; transform: translateY(-50%); }
 
-        /* مربعات الكروت على الطاولة */
+        /* مربعات الطاولة العادية */
         .played-card-slot {
             position: absolute;
             width: 38px;
@@ -99,6 +97,28 @@
         .slot-left { left: 26px; top: 50%; transform: translateY(-50%); }
         .slot-right { right: 26px; top: 50%; transform: translateY(-50%); }
 
+        /* مربعات تريكس الترتيب (متجانبة بجانب بعضها) */
+        .trix-slots-container {
+            display: none;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+        }
+        .trix-suit-slot {
+            width: 42px;
+            height: 62px;
+            border: 2px dashed #38bdf8;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: #38bdf8;
+        }
+
         .status-bar {
             background: rgba(0, 0, 0, 0.7);
             padding: 4px 8px;
@@ -110,12 +130,11 @@
             border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
-        /* يد اللاعب في الأسفل - ضم الكروت لتظهر كاملة دون سحب */
         .player-hand-area {
             background: rgba(0, 0, 0, 0.9);
             padding: 6px 4px;
             border-top: 2px solid rgba(250, 204, 21, 0.3);
-            z-index: 150; /* أعلى من النوافذ لتكون واضحة دائماً */
+            z-index: 150;
             position: relative;
         }
         .hand-title {
@@ -150,13 +169,12 @@
             user-select: none;
             font-size: 0.65rem;
             flex-shrink: 0;
-            margin-right: -10px; /* تداخل الأوراق لتتسع الشاشة بالكامل دون تمرير */
+            margin-right: -10px;
         }
         .card:last-child { margin-right: 0; }
         .card:hover { transform: translateY(-8px) scale(1.1); z-index: 250; }
         .card.red { color: #dc2626; }
 
-        /* النوافذ المنبثقة (Modals) */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -200,7 +218,6 @@
         .btn-option:hover { filter: brightness(1.1); transform: scale(1.02); }
         .btn-secondary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
 
-        /* جدول النتائج */
         .score-table {
             width: 100%;
             border-collapse: collapse;
@@ -231,37 +248,45 @@
 
     <div class="table-container">
         <div class="table-felt" id="tableFelt">
-            <!-- مقاعد اللاعبين وأسماؤهم -->
-            <div class="player-badge seat-bottom" id="badgePlayer">أنت</div>
-            <div class="player-badge seat-top" id="badgeTop">فادي (الشريك)</div>
-            <div class="player-badge seat-left" id="badgeLeft">أحمد</div>
+            <div class="player-badge seat-bottom" id="badgePlayer">اللاعب</div>
             <div class="player-badge seat-right" id="badgeRight">يارا</div>
+            <div class="player-badge seat-top" id="badgeTop">فادي</div>
+            <div class="player-badge seat-left" id="badgeLeft">أحمد</div>
 
-            <!-- مربعات اللعب على الطاولة -->
-            <div class="played-card-slot slot-bottom" id="slotPlayer"></div>
-            <div class="played-card-slot slot-top" id="slotTop"></div>
-            <div class="played-card-slot slot-left" id="slotLeft"></div>
-            <div class="played-card-slot slot-right" id="slotRight"></div>
+            <!-- المربعات العادية للألعاب -->
+            <div id="standardSlots">
+                <div class="played-card-slot slot-bottom" id="slotPlayer"></div>
+                <div class="played-card-slot slot-right" id="slotRight"></div>
+                <div class="played-card-slot slot-top" id="slotTop"></div>
+                <div class="played-card-slot slot-left" id="slotLeft"></div>
+            </div>
+
+            <!-- مربعات تريكس الترتيب المتجاورة -->
+            <div class="trix-slots-container" id="trixSlots">
+                <div class="trix-suit-slot" id="trixSpade">♠️ <span>فارغ</span></div>
+                <div class="trix-suit-slot" id="trixHeart">♥️ <span>فارغ</span></div>
+                <div class="trix-suit-slot" id="trixClub">♣️ <span>فارغ</span></div>
+                <div class="trix-suit-slot" id="trixDiamond">♦️ <span>فارغ</span></div>
+            </div>
         </div>
     </div>
 
-    <!-- أوراق اللاعب تظهر بالكامل وبشكل مضغوط دون سحب -->
     <div class="player-hand-area">
-        <div class="hand-title">أوراقك في اليد (13 كرت ظاهرة بالكامل):</div>
+        <div class="hand-title">أوراقك (من 2 لـ A - أسود، أحمر، أسود، أحمر):</div>
         <div class="player-hand" id="playerHand"></div>
     </div>
 
-    <!-- النافذة الأولى: اختيار نوع اللعبة -->
+    <!-- نافذة اختيار نوع اللعبة (تظهر فقط عند بدء اللعبة لأول مرة) -->
     <div id="gameModeModal" class="modal">
         <div class="modal-box">
             <h3>🎮 إعدادات لعبة التريكس</h3>
             <p style="font-size:0.75rem; color:#cbd5e1; margin-bottom:8px;">اختر نوع اللعبة:</p>
             <button class="btn-option" onclick="chooseGameMode('complex')">🔥 تريكس كومبليكس (سريعة وحماسية)</button>
-            <button class="btn-option btn-secondary" onclick="chooseGameMode('single')">📋 تريكس مفرودة (5 طلبات)</button>
+            <button class="btn-option btn-secondary" onclick="chooseGameMode('single')">📋 تريكس مفرودة (أو عقود محددة)</button>
         </div>
     </div>
 
-    <!-- النافذة الثانية: اختيار نمط المنافسة -->
+    <!-- نافذة نمط المنافسة (تظهر فقط أول اللعبة) -->
     <div id="playStyleModal" class="modal" style="display:none;">
         <div class="modal-box">
             <h3>👥 نمط المنافسة</h3>
@@ -271,11 +296,11 @@
         </div>
     </div>
 
-    <!-- النافذة الثالثة: اختيار العقد (تظهر وأوراق اللاعب ظاهرة بالكامل في الخلفية) -->
+    <!-- نافذة اختيار العقد (في وضع المفرود) -->
     <div id="contractModal" class="modal" style="display:none; background: rgba(0, 0, 0, 0.65);">
         <div class="modal-box">
             <h3>📋 اختر العقد المطلوب</h3>
-            <p style="font-size:0.7rem; color:#38bdf8; margin-bottom:6px;">أوراقك ظاهرة في الأسفل، اختر العقد المناسب لتبدأ:</p>
+            <p style="font-size:0.7rem; color:#38bdf8; margin-bottom:6px;">اختر العقد المناسب لتبدأ:</p>
             <button class="btn-option" onclick="selectContract('king', -75)">👑 شيخ الكبة (-75)</button>
             <button class="btn-option" onclick="selectContract('queens', -100)">👧 البنات الأربعة (-100)</button>
             <button class="btn-option" onclick="selectContract('diamonds', -130)">♦️ الديناري (-130)</button>
@@ -284,16 +309,19 @@
         </div>
     </div>
 
-    <!-- نافذة لوحة النتائج -->
+    <!-- لوحة النتائج التراكمية الدائمة -->
     <div id="scoreModal" class="modal" style="display:none;">
         <div class="modal-box">
-            <h3>🏆 لوحة النتائج الحالية</h3>
+            <h3>🏆 لوحة النتائج التراكمية</h3>
             <table class="score-table">
-                <tr><th>اللاعب / الفريق</th><th>النقاط</th></tr>
+                <tr><th>اللاعب / الفريق</th><th>النقاط الكلية</th></tr>
                 <tr><td>أنت (<span id="namePlayer">اللاعب</span>)</td><td id="scorePlayer">0</td></tr>
-                <tr><td>أحمد</td><td id="scoreAhmed">0</td></tr>
-                <tr><td>فادي</td><td id="scoreFadi">0</td></tr>
                 <tr><td>يارا</td><td id="scoreYara">0</td></tr>
+                <tr id="fadiRow">
+                    <td id="nameFadiCell">فادي</td>
+                    <td id="scoreFadi">0</td>
+                </tr>
+                <tr><td>أحمد</td><td id="scoreAhmed">0</td></tr>
             </table>
             <div id="teamScores" style="margin-top:8px; font-size:0.75rem; color:#38bdf8; display:none; background:rgba(0,0,0,0.3); padding:5px; border-radius:4px;"></div>
             <button class="btn-option btn-secondary" style="margin-top:10px;" onclick="closeScoreboard()">إغلاق</button>
@@ -305,12 +333,11 @@
         <div class="modal-box">
             <h3 id="winTitle">🏆 انتهاء الجولة</h3>
             <p id="winMessage" style="color:#cbd5e1; font-size:0.8rem; line-height:1.4;"></p>
-            <button class="btn-option" onclick="nextRound()">جولة جديدة</button>
+            <button class="btn-option" onclick="nextRound()">بدء الجولة التالية</button>
         </div>
     </div>
 
     <script>
-        // نظام المؤثرات الصوتية (Web Audio API)
         let soundEnabled = true;
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
@@ -350,18 +377,16 @@
             document.getElementById('soundBtn').textContent = soundEnabled ? '🔊 صوت' : '🔇 صامت';
         }
 
-        // استقطاب اسم اللاعب من تيليجرام أو تعيين اسم افتراضي
-        let playerName = "لاعب تريكس";
+        let playerName = "اللاعب";
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
             let user = window.Telegram.WebApp.initDataUnsafe.user;
-            playerName = user.first_name || user.username || "لاعب تريكس";
+            playerName = user.first_name || user.username || "اللاعب";
         }
         document.getElementById('badgePlayer').textContent = playerName;
         document.getElementById('namePlayer').textContent = playerName;
 
-        // دالة تبديل وتعديل اسم اللاعب من داخل اللعبة
         function changePlayerName() {
-            let newName = prompt("أدخل اسمك الجديد أو اسم حسابك المسجل ضمن البوت:", playerName);
+            let newName = prompt("أدخل اسمك الجديد:", playerName);
             if (newName && newName.trim() !== "") {
                 playerName = newName.trim();
                 document.getElementById('badgePlayer').textContent = playerName;
@@ -373,43 +398,53 @@
         let playStyle = 'individual'; 
         let currentContract = 'complex';
 
-        let suits = ['♠', '♣', '♥', '♦'];
+        let suits = ['♠', '♥', '♣', '♦'];
         let ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
         
-        let hands = { player: [], ahmed: [], fadi: [], yara: [] };
-        let scores = { player: 0, ahmed: 0, fadi: 0, yara: 0 };
-        let turnOrder = ['player', 'ahmed', 'fadi', 'yara'];
+        let rankMap = {'2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14};
+        let suitOrder = {'♠': 1, '♥': 2, '♣': 3, '♦': 4};
+
+        let hands = { player: [], yara: [], fadi: [], ahmed: [] };
+        // النتائج تراكمية ودائمة
+        let scores = { player: 0, yara: 0, fadi: 0, ahmed: 0 };
+        
+        let turnOrder = ['player', 'yara', 'fadi', 'ahmed'];
         let currentTurnIndex = 0;
         let tableCards = {}; 
+        let leadSuit = null;
 
-        // الخطوة 1: اختيار نوع اللعبة
+        let trixState = { '♠': false, '♥': false, '♣': false, '♦': false };
+
         function chooseGameMode(mode) {
             gameMode = mode;
             document.getElementById('gameModeModal').style.display = 'none';
             document.getElementById('playStyleModal').style.display = 'flex';
         }
 
-        // الخطوة 2: اختيار نمط المنافسة وتوزيع الأوراق وإظهارها فوراً
         function choosePlayStyle(style) {
             playStyle = style;
             document.getElementById('playStyleModal').style.display = 'none';
+            
+            let fadiDisplayName = (playStyle === 'partnership') ? 'فادي (الشريك)' : 'فادي';
+            document.getElementById('badgeTop').textContent = fadiDisplayName;
+
             if (playStyle === 'partnership') {
                 document.getElementById('teamScores').style.display = 'block';
+            } else {
+                document.getElementById('teamScores').style.display = 'none';
             }
             
-            // توزيع الأوراق وإظهارها في اليد بوضوح
-            initializeGameRound();
-
-            // الخطوة 3: إذا كانت اللعبة مفرودة، تظهر نافذة اختيار العقد والأوراق ظاهرة بالكامل
             if (gameMode === 'single') {
                 document.getElementById('contractModal').style.display = 'flex';
+            } else {
+                initializeGameRound();
             }
         }
 
         function selectContract(contract, pts) {
             currentContract = contract;
             document.getElementById('contractModal').style.display = 'none';
-            document.getElementById('gameStatus').textContent = `بدء الجولة! العقد: ${currentContract} | دورك للعب`;
+            initializeGameRound();
         }
 
         function buildDeck() {
@@ -423,25 +458,57 @@
             return deck;
         }
 
+        function sortHand(hand) {
+            hand.sort((a, b) => {
+                if (suitOrder[a.suit] !== suitOrder[b.suit]) {
+                    return suitOrder[a.suit] - suitOrder[b.suit];
+                }
+                return rankMap[a.val] - rankMap[b.val];
+            });
+        }
+
         function initializeGameRound() {
             let deck = buildDeck();
             hands.player = deck.slice(0, 13);
-            hands.ahmed = deck.slice(13, 26);
+            hands.yara = deck.slice(13, 26);
             hands.fadi = deck.slice(26, 39);
-            hands.yara = deck.slice(39, 52);
+            hands.ahmed = deck.slice(39, 52);
 
-            // ترتيب أوراق اللاعب تصاعدياً
-            hands.player.sort((a,b) => suits.indexOf(a.suit) - suits.indexOf(b.suit) || ranks.indexOf(a.val) - ranks.indexOf(b.val));
+            sortHand(hands.player);
+            sortHand(hands.yara);
+            sortHand(hands.fadi);
+            sortHand(hands.ahmed);
 
             tableCards = {};
-            clearTableSlots();
+            leadSuit = null;
+            trixState = { '♠': false, '♥': false, '♣': false, '♦': false };
+
+            if (currentContract === 'trix') {
+                document.getElementById('standardSlots').style.display = 'none';
+                document.getElementById('trixSlots').style.display = 'flex';
+            } else {
+                document.getElementById('standardSlots').style.display = 'block';
+                document.getElementById('trixSlots').style.display = 'none';
+                clearTableSlots();
+            }
+
             renderPlayerHand();
             playSound('deal');
+            document.getElementById('gameStatus').textContent = `بدء الجولة! العقد الحالي: ${getContractName()} | دورك للعب (اختر كرتاً)`;
 
-            if (gameMode === 'complex') {
-                document.getElementById('gameStatus').textContent = `بدء الجولة! العقد: كومبليكس | دورك للعب`;
-            }
             currentTurnIndex = 0;
+            if (turnOrder[currentTurnIndex] !== 'player') {
+                processNextTurn();
+            }
+        }
+
+        function getContractName() {
+            if (currentContract === 'king') return 'شيخ الكبة';
+            if (currentContract === 'queens') return 'البنات الأربعة';
+            if (currentContract === 'diamonds') return 'الديناري';
+            if (currentContract === 'tricks') return 'اللطوش';
+            if (currentContract === 'trix') return 'تريكس الترتيب';
+            return 'كومبليكس';
         }
 
         function renderPlayerHand() {
@@ -459,55 +526,122 @@
 
         function playCard(index) {
             if (turnOrder[currentTurnIndex] !== 'player') {
-                alert('ليس دورك الآن!');
+                alert('ليس دورك الآن! انتظر دورك باللعب.');
                 return;
             }
 
-            let played = hands.player.splice(index, 1)[0];
+            let played = hands.player[index];
+
+            if (currentContract === 'trix') {
+                if (played.val !== 'J' && !trixState[played.suit]) {
+                    alert('في لعبة التريكس، يجب أن تبدأ بوضع كرت الولد (Jack/شب) أولاً لتفتح هذا النوع!');
+                    return;
+                }
+            } else {
+                if (leadSuit && hands.player.some(c => c.suit === leadSuit) && played.suit !== leadSuit) {
+                    alert(`يجب عليك لعب كرت من نفس النوع (${leadSuit}) التزاماً بقواعد اللعبة!`);
+                    return;
+                }
+            }
+
+            hands.player.splice(index, 1);
+            
+            if (currentContract === 'trix') {
+                if (played.val === 'J') trixState[played.suit] = true;
+                updateTrixDisplay(played);
+                playSound('play');
+                currentTurnIndex++;
+                processNextTurn();
+                renderPlayerHand();
+                return;
+            }
+
+            if (!leadSuit) leadSuit = played.suit;
+
             tableCards['player'] = played;
             renderPlayerHand();
             renderTableSlots();
             playSound('play');
 
             currentTurnIndex++;
-            playBotTurns();
+            processNextTurn();
         }
 
-        function playBotTurns() {
+        function updateTrixDisplay(card) {
+            let suitKeyMap = {'♠': 'trixSpade', '♥': 'trixHeart', '♣': 'trixClub', '♦': 'trixDiamond'};
+            let slot = document.getElementById(suitKeyMap[card.suit]);
+            if (slot) {
+                const isRed = card.suit === '♥' || card.suit === '♦';
+                slot.innerHTML = `<span class="${isRed ? 'red' : ''}" style="font-size:0.7rem; font-weight:bold;">${card.val} ${card.suit}</span>`;
+            }
+        }
+
+        function processNextTurn() {
             if (currentTurnIndex >= 4) {
-                resolveTrick();
+                if (currentContract !== 'trix') {
+                    resolveTrick();
+                } else {
+                    currentTurnIndex = 0;
+                    if (hands.player.length === 0) {
+                        endRound();
+                    } else if (turnOrder[currentTurnIndex] !== 'player') {
+                        processNextTurn();
+                    }
+                }
                 return;
             }
 
-            let botKey = turnOrder[currentTurnIndex];
-            document.getElementById('gameStatus').textContent = `دور اللاعب (${getBotName(botKey)}) يفكر ويلعب...`;
+            let currentPlayerKey = turnOrder[currentTurnIndex];
+
+            if (currentPlayerKey === 'player') {
+                document.getElementById('gameStatus').textContent = `دورك الآن! انقر فوق الكرت المناسب من يدك للرمي.`;
+                return;
+            }
+
+            document.getElementById('gameStatus').textContent = `دور اللاعب (${getBotName(currentPlayerKey)}) يفكر ويلعب...`;
 
             setTimeout(() => {
-                let botHand = hands[botKey];
+                let botHand = hands[currentPlayerKey];
                 if (botHand.length > 0) {
-                    let cardIdx = Math.floor(Math.random() * botHand.length);
-                    let played = botHand.splice(cardIdx, 1)[0];
-                    tableCards[botKey] = played;
-                    renderTableSlots();
+                    let played;
+                    if (currentContract === 'trix') {
+                        let validCards = botHand.filter(c => c.val === 'J' || trixState[c.suit]);
+                        if (validCards.length > 0) {
+                            played = validCards[Math.floor(Math.random() * validCards.length)];
+                            if (played.val === 'J') trixState[played.suit] = true;
+                            updateTrixDisplay(played);
+                        } else {
+                            played = botHand[0];
+                        }
+                    } else {
+                        let validCards = leadSuit ? botHand.filter(c => c.suit === leadSuit) : botHand;
+                        if (validCards.length === 0) validCards = botHand;
+                        played = validCards[Math.floor(Math.random() * validCards.length)];
+                        if (!leadSuit) leadSuit = played.suit;
+                        tableCards[currentPlayerKey] = played;
+                        renderTableSlots();
+                    }
+                    let realIdx = botHand.indexOf(played);
+                    botHand.splice(realIdx, 1);
                     playSound('play');
                 }
                 currentTurnIndex++;
-                playBotTurns();
-            }, 700);
+                processNextTurn();
+            }, 650);
         }
 
         function getBotName(key) {
-            if (key === 'ahmed') return 'أحمد';
-            if (key === 'fadi') return 'فادي (الشريك)';
             if (key === 'yara') return 'يارا';
+            if (key === 'fadi') return (playStyle === 'partnership') ? 'فادي (الشريك)' : 'فادي';
+            if (key === 'ahmed') return 'أحمد';
             return playerName;
         }
 
         function renderTableSlots() {
             document.getElementById('slotPlayer').innerHTML = renderCardHTML(tableCards['player']);
+            document.getElementById('slotRight').innerHTML = renderCardHTML(tableCards['yara']);
             document.getElementById('slotTop').innerHTML = renderCardHTML(tableCards['fadi']);
             document.getElementById('slotLeft').innerHTML = renderCardHTML(tableCards['ahmed']);
-            document.getElementById('slotRight').innerHTML = renderCardHTML(tableCards['yara']);
         }
 
         function renderCardHTML(card) {
@@ -517,37 +651,88 @@
         }
 
         function clearTableSlots() {
-            ['slotPlayer', 'slotTop', 'slotLeft', 'slotRight'].forEach(id => document.getElementById(id).innerHTML = '');
+            ['slotPlayer', 'slotRight', 'slotTop', 'slotLeft'].forEach(id => document.getElementById(id).innerHTML = '');
         }
 
         function resolveTrick() {
-            document.getElementById('gameStatus').textContent = "اكتملت الأكلة! جاري حساب النقاط...";
+            document.getElementById('gameStatus').textContent = "اكتملت الأكلة! جاري فحص الكروت وحساب النقاط التراكمية...";
             
             setTimeout(() => {
-                let winner = turnOrder[Math.floor(Math.random() * 4)];
-                let penalty = -25;
-                scores[winner] += penalty;
+                let winningPlayer = turnOrder[0];
+                let highestRankVal = -1;
 
-                if (hands.player.length === 0) {
+                turnOrder.forEach(key => {
+                    let c = tableCards[key];
+                    if (c && c.suit === leadSuit) {
+                        let rVal = rankMap[c.val];
+                        if (rVal > highestRankVal) {
+                            highestRankVal = rVal;
+                            winningPlayer = key;
+                        }
+                    }
+                });
+
+                // فحص الأكل وتطبيق شرط الإنهاء المبكر للطلبات
+                let roundEndedEarly = false;
+                turnOrder.forEach(key => {
+                    let c = tableCards[key];
+                    if (c) {
+                        if (currentContract === 'king' && c.id === '♥K') {
+                            scores[key] -= 75;
+                            roundEndedEarly = true;
+                        } else if (currentContract === 'queens' && c.val === 'Q') {
+                            scores[key] -= 25;
+                            // فحص إن اكتملت البنات الأربعة يمكن إنهاؤها أو استمرار الأكل
+                        } else if (currentContract === 'diamonds' && c.suit === '♦') {
+                            scores[key] -= 10;
+                        } else if (currentContract === 'tricks' || currentContract === 'complex') {
+                            if (key === winningPlayer) {
+                                scores[winningPlayer] -= 15; // اللطش
+                                if (c.id === '♥K') scores[winningPlayer] -= 75;
+                                if (c.val === 'Q') scores[winningPlayer] -= 25;
+                                if (c.suit === '♦') scores[winningPlayer] -= 10;
+                            }
+                        }
+                    }
+                });
+
+                // شرط الإنهاء المبكر (شيخ الكبة انتهى بمجرد أكلة)
+                if (currentContract === 'king' && roundEndedEarly) {
+                    endRound();
+                    return;
+                }
+
+                if (hands.player.length === 0 || (currentContract === 'king' && roundEndedEarly)) {
                     endRound();
                 } else {
                     tableCards = {};
+                    leadSuit = null;
                     clearTableSlots();
+                    
+                    let winnerIdx = turnOrder.indexOf(winningPlayer);
+                    turnOrder = [...turnOrder.slice(winnerIdx), ...turnOrder.slice(0, winnerIdx)];
                     currentTurnIndex = 0;
-                    document.getElementById('gameStatus').textContent = `أخذ الأكلة (${getBotName(winner)}). دورك للبدء في الأكلة الجديدة.`;
+
+                    document.getElementById('gameStatus').textContent = `فاز بالأكلة (${getBotName(winningPlayer)}). دوره للبدء الآن.`;
+                    
+                    if (turnOrder[0] !== 'player') {
+                        processNextTurn();
+                    } else {
+                        document.getElementById('gameStatus').textContent = `فاز بالأكلة (${getBotName(winningPlayer)}). دورك للبدء بوضع كرتك!`;
+                    }
                 }
             }, 1000);
         }
 
         function endRound() {
             document.getElementById('winTitle').textContent = "🏆 انتهت الجولة بنجاح";
-            let msg = `تمت تصفية النقاط بناءً على قواعد اللعبة وتوزيع اللطوش.\n`;
+            let msg = `تم تسجيل النقاط التراكمية في لوحة النتائج.\n`;
             if (playStyle === 'partnership') {
                 let team1 = scores.player + scores.fadi;
-                let team2 = scores.ahmed + scores.yara;
-                msg += `🤝 نتيجة فريقك (أنت وفادي): ${team1} نقطة\n🛡️ نتيجة الخصوم (أحمد ويارا): ${team2} نقطة`;
+                let team2 = scores.yara + scores.ahmed;
+                msg += `🤝 نتيجة فريقك (أنت و${getBotName('fadi')}): ${team1} نقطة\n🛡️ نتيجة الخصوم (يارا وأحمد): ${team2} نقطة`;
             } else {
-                msg += `نقاطك الحالية: ${scores.player}\nأحمد: ${scores.ahmed} | فادي: ${scores.fadi} | يارا: ${scores.yara}`;
+                msg += `نقاطك الكلية: ${scores.player} | يارا: ${scores.yara} | فادي: ${scores.fadi} | أحمد: ${scores.ahmed}`;
             }
             document.getElementById('winMessage').textContent = msg;
             document.getElementById('winModal').style.display = 'flex';
@@ -556,19 +741,26 @@
 
         function nextRound() {
             document.getElementById('winModal').style.display = 'none';
-            document.getElementById('gameModeModal').style.display = 'flex';
+            if (gameMode === 'single') {
+                document.getElementById('contractModal').style.display = 'flex';
+            } else {
+                initializeGameRound();
+            }
         }
 
         function openScoreboard() {
             document.getElementById('scorePlayer').textContent = scores.player;
-            document.getElementById('scoreAhmed').textContent = scores.ahmed;
-            document.getElementById('scoreFadi').textContent = scores.fadi;
             document.getElementById('scoreYara').textContent = scores.yara;
+            document.getElementById('scoreFadi').textContent = scores.fadi;
+            document.getElementById('scoreAhmed').textContent = scores.ahmed;
+
+            let fadiLabel = (playStyle === 'partnership') ? 'فادي (الشريك)' : 'فادي';
+            document.getElementById('nameFadiCell').textContent = fadiLabel;
 
             if (playStyle === 'partnership') {
                 let team1 = scores.player + scores.fadi;
-                let team2 = scores.ahmed + scores.yara;
-                document.getElementById('teamScores').innerHTML = `🤝 <b>نتائج الفرق:</b><br>فريقك (أنت + فادي): ${team1} نقطة<br>فريق الخصوم (أحمد + يارا): ${team2} نقطة`;
+                let team2 = scores.yara + scores.ahmed;
+                document.getElementById('teamScores').innerHTML = `🤝 <b>نتائج الفرق:</b><br>فريقك (أنت + ${fadiLabel}): ${team1} نقطة<br>فريق الخصوم (يارا + أحمد): ${team2} نقطة`;
             }
 
             document.getElementById('scoreModal').style.display = 'flex';
