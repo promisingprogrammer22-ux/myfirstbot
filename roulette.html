@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الروليت الاحترافية</title>
+    <title>عجلة الحظ الاحترافية</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --text-color: #f8fafc;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,138 +21,330 @@
         }
 
         body {
-            background: radial-gradient(circle, #831843 0%, #4c0519 100%);
-            color: #ffffff;
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            color: var(--text-color);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            overflow: hidden;
-        }
-
-        /* طاولة الروليت الفاخرة */
-        .roulette-table {
-            width: 100%;
-            max-width: 480px;
-            height: 75vh;
-            background: rgba(76, 5, 25, 0.6);
-            border: 4px solid #f43f5e;
-            border-radius: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .wheel-box {
-            width: 150px;
-            height: 150px;
-            border: 6px dashed #f43f5e;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 28px;
-            background: rgba(0, 0, 0, 0.3);
-            box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
-            animation: spinSlow 10s linear infinite;
+            overflow-x: hidden;
         }
 
-        @keyframes spinSlow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .center-msg {
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px var(--accent-glow);
             text-align: center;
-        }
-
-        .center-msg h2 {
-            color: #f43f5e;
-            font-size: 18px;
-            margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
-        }
-
-        .center-msg p {
-            font-size: 13px;
-            color: #cbd5e1;
-        }
-
-        /* لوحة التحكم السفلية */
-        .controls-panel {
+            max-width: 450px;
             width: 100%;
-            max-width: 480px;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 12px;
-            border-radius: 15px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border: 1px solid rgba(244, 63, 94, 0.3);
+            position: relative;
         }
 
-        .btn {
-            background: #f43f5e;
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .wallet {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .wallet span {
+            color: #34d399;
             font-weight: bold;
-            border-radius: 8px;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto 25px auto;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+        }
+
+        /* مؤشر العجلة العلوي */
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #f43f5e;
+            z-index: 10;
+            filter: drop-shadow(0 3px 5px rgba(0,0,0,0.5));
+        }
+
+        .spin-btn {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
             cursor: pointer;
-            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s ease;
+            width: 100%;
         }
 
-        .btn:hover {
-            background: #e11d48;
-            box-shadow: 0 0 15px rgba(244, 63, 94, 0.6);
+        .spin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(99, 102, 241, 0.6);
         }
 
-        .back-link {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 12px;
+        .spin-btn:active {
+            transform: translateY(1px);
         }
 
-        .back-link:hover {
-            color: #fff;
+        .spin-btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .result-modal {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-height: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .inventory {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            color: #cbd5e1;
         }
     </style>
 </head>
 <body>
 
-    <!-- طاولة الروليت -->
-    <div class="roulette-table">
-        <div style="font-size: 13px; font-weight: bold; color: #f43f5e;">طاولة الحظ الملكية</div>
+    <div class="container">
+        <h1>عجلة الحظ الملكية</h1>
+        <div class="wallet">رصيدك: <span id="balance">5000</span> ل.س</div>
 
-        <div class="wheel-box">
-            🎡
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <canvas id="wheelCanvas" width="400" height="400"></canvas>
         </div>
 
-        <div class="center-msg">
-            <h2>دورة الروليت الحماسية</h2>
-            <p id="rouletteStatus">اختر الرقم أو اللون واختبر حظك الآن...</p>
-        </div>
-    </div>
-
-    <!-- لوحة التحكم -->
-    <div class="controls-panel">
-        <a href="games_platform.html" class="back-link">⬅ عودة للمنصة</a>
-        <button class="btn" onclick="spinRoulette()">تدوير العجلة 🎡</button>
-        <span style="font-size: 13px; color: #4ade80;" id="rouletteScore">الرصيد: 100$</span>
+        <button class="spin-btn" id="spinBtn" onclick="spinWheel()">تدوير العجلة (تلف بـ 500 ل.س)</button>
+        <div class="result-modal" id="resultText"></div>
+        <div class="inventory" id="inventoryText">لفات مجانية مخزنة: 0</div>
     </div>
 
     <script>
-        function spinRoulette() {
-            document.getElementById("rouletteStatus").innerText = "جاري تدوير العجلة بحماس... ترقب النتيجة!";
-            alert("تم إطلاق الروليت بنجاح! حظاً سعيداً في جولتك.");
-        }
-    </script>
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
+        const balanceEl = document.getElementById('balance');
+        const resultText = document.getElementById('resultText');
+        const inventoryText = document.getElementById('inventoryText');
 
+        // الخيارات الـ 5 مع ألوان عصرية (Gradient/Solid) وتصاميم حديثة
+        const sectors = [
+            { label: "حظ أوفر", color: "#ef4444", value: 0, type: "loss" },
+            { label: "1000 ل.س", color: "#10b981", value: 1000, type: "cash" },
+            { label: "لفة مجانية", color: "#8b5cf6", value: 0, type: "free_spin" },
+            { label: "2000 ل.س", color: "#f59e0b", value: 2000, type: "cash" },
+            { label: "50 ل.س", color: "#3b82f6", value: 50, type: "cash" }
+        ];
+
+        const totalSectors = sectors.length;
+        const arcSize = (2 * Math.PI) / totalSectors;
+        
+        let currentAngle = 0;
+        let isSpinning = false;
+        let balance = 5000;
+        let freeSpins = 0;
+        let spinCost = 500;
+
+        // رسم العجلة
+        function drawWheel() {
+            const center = canvas.width / 2;
+            const radius = center - 10;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            sectors.forEach((sector, i) => {
+                const angle = currentAngle + i * arcSize;
+
+                // رسم القطاع
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, radius, angle, angle + arcSize);
+                ctx.closePath();
+                ctx.fillStyle = sector.color;
+                ctx.fill();
+                ctx.strokeStyle = "#0f172a";
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                // رسم النص داخل القطاع
+                ctx.save();
+                ctx.translate(center, center);
+                ctx.rotate(angle + arcSize / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 20px 'Segoe UI', Tahoma";
+                ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+                ctx.shadowBlur = 4;
+                ctx.fillText(sector.label, radius - 40, 10);
+                ctx.restore();
+            });
+
+            // الدائرة المركزية للعجلة
+            ctx.beginPath();
+            ctx.arc(center, center, 35, 0, 2 * Math.PI);
+            ctx.fillStyle = "#1e293b";
+            ctx.fill();
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = "#38bdf8";
+            ctx.stroke();
+            
+            // أيقونة مركزية مصغرة
+            ctx.fillStyle = "#f8fafc";
+            ctx.font = "bold 16px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("🎰", center, center);
+        }
+
+        // محاكاة صوت النقرات (Web Audio API)
+        function playTickSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = 'triangle';
+                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.05);
+                
+                gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.05);
+            } catch(e) {}
+        }
+
+        // عملية التدوير
+        function spinWheel() {
+            if (isSpinning) return;
+
+            // التحقق من الرصيد أو اللفات المجانية
+            if (freeSpins > 0) {
+                freeSpins--;
+                inventoryText.innerText = `لفات مجانية مخزنة: ${freeSpins}`;
+            } else if (balance >= spinCost) {
+                balance -= spinCost;
+                balanceEl.innerText = balance;
+            } else {
+                resultText.style.color = "#ef4444";
+                resultText.innerText = "عذراً، رصيدك غير كافٍ لتدوير العجلة!";
+                return;
+            }
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+            resultText.innerText = "جاري التدوير... 🎲";
+            resultText.style.color = "#38bdf8";
+
+            // اختيار الفائز عشوائياً (مع تفضيل سرعة وتراجع فيزيائي سلس)
+            const randomSectorIndex = Math.floor(Math.random() * totalSectors);
+            const extraSpins = 5; // عدد اللفات الكاملة
+            const arcDeg = 360 / totalSectors;
+            
+            // حساب الزاوية المستهدفة بالضبط لكي يقف المؤشر (الذي في الأعلى أي عند زاوية 270 درجة) بدقة
+            const targetAngle = 360 * extraSpins + (360 - (randomSectorIndex * arcDeg + arcDeg / 2));
+            
+            const startAngle = currentAngle;
+            const startTime = performance.now();
+            const duration = 4000; // مدة الدوران 4 ثوانٍ
+
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // دالة تسارع وتباطؤ احترافية (Ease Out Cubic)
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                
+                currentAngle = startAngle + (targetAngle * Math.PI / 180) * easeOut;
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                    playTickSound();
+                } else {
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    checkResult(randomSectorIndex);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // نتيجة العجلة وتأثيراتها
+        function checkResult(index) {
+            const winningSector = sectors[index];
+            
+            if (winningSector.type === "cash") {
+                balance += winningSector.value;
+                balanceEl.innerText = balance;
+                resultText.style.color = "#34d399";
+                resultText.innerText = `🎉 مبروك! ربحت ${winningSector.label}`;
+                triggerConfetti();
+            } else if (winningSector.type === "free_spin") {
+                freeSpins++;
+                inventoryText.innerText = `لفات مجانية مخزنة: ${freeSpins}`;
+                resultText.style.color = "#a855f7";
+                resultText.innerText = `🎁 مبروك! حصلت على لفة مجانية مخزنة!`;
+                triggerConfetti();
+            } else {
+                resultText.style.color = "#ef4444";
+                resultText.innerText = `❌ ${winningSector.label}، حظ أوفر في المرة القادمة!`;
+            }
+        }
+
+        // إطلاق قصاصات الاحتفال
+        function triggerConfetti() {
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        // الرسم الأولي عند التحميل
+        drawWheel();
+    </script>
 </body>
 </html>

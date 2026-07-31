@@ -4,21 +4,27 @@ import sqlite3
 from datetime import datetime
 import csv
 import io
+from flask import Flask, request, jsonify
+import threading
 
 # ==========================================
-# الثوابت والبيانات الأساسية
+# الثوابت والبيانات الأساسية وقنوات الإشعارات
 # ==========================================
 TOKEN = '8805488820:AAE4jM7p19R-c3MlZ5t2zcjDTOgJhVlsP-U'
 ADMIN_ID = 8576260469
-BASE_URL = "https://yellow-eggs-type.loca.lt"
+BASE_URL = "https://small-feet-shine.loca.lt"
+
+# معرفات القنوات الخاصة بالإشعارات (يمكنك استبدالها بالآي دي الرقمي الذي سيظهره لك البوت)
+NEW_USERS_CHANNEL_ID = "@your_new_users_channel"         # قناة انضمام المستخدمين الجدد
+DEPOSIT_WITHDRAW_CHANNEL_ID = "@your_deposits_channel"  # قناة الإيداعات والسحوبات
 
 bot = telebot.TeleBot(TOKEN)
 
-# قاموس لحفظ حالات المستخدمين أثناء العمليات التفاعلية
+# قاموس لحفظ حالات المستخدمين والأدمن أثناء العمليات التفاعلية
 user_states = {}
 
 # ==========================================
-# تهيئة قاعدة البيانات والإعدادات
+# تهيئة قاعدة البيانات والإعدادات وخزنة البوت
 # ==========================================
 def init_db():
     conn = sqlite3.connect('bot_database.db', check_same_thread=False)
@@ -39,6 +45,7 @@ def init_db():
             telegram_id INTEGER,
             type TEXT,
             amount REAL,
+            details TEXT,
             status TEXT,
             timestamp TEXT
         )
@@ -51,14 +58,15 @@ def init_db():
         )
     ''')
     
-    # الإعدادات الافتراضية
+    # الإعدادات الافتراضية بما فيها خزنة البوت (رصيد البوت الأساسي)
     default_settings = [
         ('bot_status', 'on'),
         ('trans_status', 'on'),
         ('support_account', '@Support_Admin'),
         ('usd_rate', '15000'),
         ('syriatel_numbers', '45696515'),
-        ('offers_text', '🔹 لا توجد عروض أو بونصات نشطة حالياً. ترقبونا قريباً!')
+        ('offers_text', '🔹 لا توجد عروض أو بونصات نشطة حالياً. ترقبونا قريباً!'),
+        ('bot_treasury', '5000000.0')  # رأس مال الخزنة الأساسي للبوت
     ]
     
     for key, val in default_settings:
@@ -84,11 +92,117 @@ def update_setting(key, value):
     conn.commit()
     conn.close()
 
+def get_bot_treasury():
+    val = get_setting('bot_treasury')
+    return float(val) if val else 0.0
+
+def update_bot_treasury(amount, operation='add'):
+    """
+    تحديث رصيد خزنة البوت:
+    - add: إضافة مبلغ للخزنة (عند سحب المستخدم، أو خسارة الرهان)
+    - sub: خصم مبلغ من الخزنة (عند إيداع رصيد للمستخدم، أو دفع أرباح الفوز)
+    """
+    conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute("SELECT value FROM settings WHERE key = 'bot_treasury'")
+    row = cursor.fetchone()
+    current_treasury = float(row[0]) if row and row[0] else 0.0
+    
+    if operation == 'add':
+        new_treasury = current_treasury + amount
+    elif operation == 'sub':
+        new_treasury = max(0.0, current_treasury - amount)
+    else:
+        new_treasury = amount
+        
+    cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('bot_treasury', ?)", (str(new_treasury),))
+    conn.commit()
+    conn.close()
+    return new_treasury
+
+def get_total_bot_balance():
+    return get_bot_treasury()
+
+# ==========================================
+# خادم Flask المدمج للتعامل مع منصة الألعاب والرهانات
+# ==========================================
+flask_app = Flask(__name__)
+
+@flask_app.route('/api/user_info', methods=['GET'])
+def api_user_info():
+    name = request.args.get('name')
+    conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute("SELECT telegram_id, username, balance FROM users WHERE username = ?", (name,))
+    user = cursor.fetchone()
+    conn.close()
+    if user:
+        return jsonify({'success': True, 'telegram_id': user[0], 'username': user[1], 'balance': user[2]})
+    return jsonify({'success': False, 'message': 'User not found'}), 404
+
+@flask_app.route('/api/game_result', methods=['POST'])
+def api_game_result():
+    """
+    إدارة جولات اللعب والرهانات:
+    - خصم الرهان من محفظة المستخدم.
+    - عند الخسارة: يعود رصيد الرهان فوراً إلى خزنة البوت.
+    - عند الفوز: يتم دفع الأرباح للمستخدم من خزنة البوت.
+    """
+    data = request.json
+    telegram_id = data.get('telegram_id')
+    bet_amount = float(data.get('bet_amount', 0))
+    result = data.get('result')  # 'win' أو 'loss'
+    win_amount = float(data.get('win_amount', 0))  # إجمالي المبلغ العائد للمستخدم عند الفوز
+
+    conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute("SELECT balance FROM users WHERE telegram_id = ?", (telegram_id,))
+    row = cursor.fetchone()
+    
+    if not row:
+        conn.close()
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+        
+    current_balance = row[0]
+    if current_balance < bet_amount:
+        conn.close()
+        return jsonify({'success': False, 'message': 'رصيد المحفظة غير كافٍ للرهان'}), 400
+
+    # خصم قيمة الرهان مؤقتاً من محفظة اللاعب وبدء الجولة
+    new_balance = current_balance - bet_amount
+
+    if result == 'loss':
+        # الخسارة: يعود رصيد الرهان بالكامل إلى خزنة البوت بشكل فوري
+        update_bot_treasury(bet_amount, 'add')
+    elif result == 'win':
+        # الفوز: صافي الربح يُدفع من خزنة البوت إلى اللاعب
+        net_profit = win_amount - bet_amount
+        if net_profit > 0:
+            treasury = get_bot_treasury()
+            if treasury < net_profit:
+                conn.close()
+                return jsonify({'success': False, 'message': 'عذراً خزنة البوت لا تحتمل السيولة حالياً'}), 400
+            update_bot_treasury(net_profit, 'sub')
+        elif net_profit < 0:
+            loss_part = abs(net_profit)
+            update_bot_treasury(loss_part, 'add')
+        new_balance += win_amount
+
+    cursor.execute("UPDATE users SET balance = ? WHERE telegram_id = ?", (new_balance, telegram_id))
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True, 'new_balance': new_balance, 'treasury': get_bot_treasury()})
+
+def run_flask():
+    flask_app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+
+# تشغيل خادم الويب في خلفية مستقلة
+threading.Thread(target=run_flask, daemon=True).start()
+
 # ==========================================
 # لوحات المفاتيح المدمجة (Inline Keyboards)
 # ==========================================
 def get_main_menu(user_id):
-    # جلب اسم الحساب المسجل من قاعدة البيانات لتمريره للعبة وضمان التطابق التام
     conn = sqlite3.connect('bot_database.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute("SELECT username FROM users WHERE telegram_id = ?", (user_id,))
@@ -140,15 +254,67 @@ def get_admin_back_markup():
 def get_admin_menu():
     bot_status = "🟢 البوت يعمل" if get_setting('bot_status') == 'on' else "🔴 البوت متوقف"
     trans_status = "🟢 الشحن والسحب متاح" if get_setting('trans_status') == 'on' else "🔴 الشحن والسحب متوقف"
+    total_balance = get_bot_treasury()
     
     markup = InlineKeyboardMarkup(row_width=2)
+    markup.row(InlineKeyboardButton(f"💰 خزنة البوت: {total_balance} ل.س", callback_data="adm_bot_balance_info"))
+    markup.row(InlineKeyboardButton("💳 إيداع أو سحب رصيد (للعميل)", callback_data="adm_direct_balance"))
+    markup.row(InlineKeyboardButton("👥 إدارة المستخدمين", callback_data="adm_users_page_0"))
     markup.row(InlineKeyboardButton("📊 إحصائيات البوت", callback_data="adm_stats"), InlineKeyboardButton("📢 رسالة جماعية", callback_data="adm_broadcast"))
-    markup.row(InlineKeyboardButton("⏳ طلبات السحب المعلقة", callback_data="adm_pending_withdrawals"), InlineKeyboardButton("💱 تحديث سعر الصرف", callback_data="adm_usd_rate"))
+    markup.row(InlineKeyboardButton("⏳ طلبات الإيداع والسحب المعلقة", callback_data="adm_pending_transactions"), InlineKeyboardButton("💱 تحديث سعر الصرف", callback_data="adm_usd_rate"))
     markup.row(InlineKeyboardButton("🎁 إدارة العروض والبونصات", callback_data="adm_edit_offers"), InlineKeyboardButton("📞 تعيين حساب الدعم", callback_data="adm_support_acc"))
     markup.row(InlineKeyboardButton("📱 إدارة أرقام سيرياتيل", callback_data="adm_syriatel"))
     markup.row(InlineKeyboardButton(trans_status, callback_data="toggle_trans"), InlineKeyboardButton(bot_status, callback_data="toggle_bot"))
     markup.row(InlineKeyboardButton("🔙 العودة للقائمة الرئيسية", callback_data="btn_main_menu"))
     return markup
+
+def get_users_page_markup(page=0):
+    conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute("SELECT telegram_id, username, balance FROM users ORDER BY telegram_id DESC")
+    users = cursor.fetchall()
+    conn.close()
+    
+    per_page = 8
+    total_users = len(users)
+    total_pages = (total_users + per_page - 1) // per_page if total_users > 0 else 1
+    if page >= total_pages:
+        page = total_pages - 1
+    if page < 0:
+        page = 0
+        
+    start = page * per_page
+    end = start + per_page
+    page_users = users[start:end]
+    
+    markup = InlineKeyboardMarkup(row_width=1)
+    markup.add(InlineKeyboardButton("🔍 البحث عن مستخدم", callback_data="adm_search_user"))
+    
+    for u in page_users:
+        t_id, uname, bal = u
+        markup.add(InlineKeyboardButton(text=f"{uname} (الرصيد: {bal} ل.س)", callback_data=f"adm_user_info_{t_id}"))
+        
+    nav_buttons = []
+    if page > 0:
+        nav_buttons.append(InlineKeyboardButton("⬅️ السابق", callback_data=f"adm_users_page_{page-1}"))
+    if page < total_pages - 1:
+        nav_buttons.append(InlineKeyboardButton("التالي ➡️", callback_data=f"adm_users_page_{page+1}"))
+    if nav_buttons:
+        markup.row(*nav_buttons)
+        
+    markup.add(InlineKeyboardButton("🔙 العودة للوحة الأدمن", callback_data="adm_back_to_panel"))
+    return markup, page+1, total_pages
+
+# ==========================================
+# أداة استخراج آي دي القنوات تلقائياً
+# ==========================================
+@bot.channel_post_handler(func=lambda message: True)
+def get_channel_id(message):
+    print(f"📌 آي دي القناة هو: {message.chat.id}")
+    try:
+        bot.send_message(ADMIN_ID, f"📌 آي دي القناة الحالية هو: `{message.chat.id}`", parse_mode="Markdown")
+    except Exception as e:
+        print(e)
 
 # ==========================================
 # أمر /start والتسجيل والشروط والأحكام
@@ -179,7 +345,7 @@ def send_welcome(message):
         )
     else:
         terms_text = (
-            "📜 **الشروط والأحكام لاستخدام بوت Promising Developer**\n\n"
+            "📜 **الشروط والأحكام لاستخدام المنصة**\n\n"
             "عند الضغط على زر الموافقة أدناه، فأنت تقر بالشروط التالية:\n\n"
             "1️⃣ يلتزم اللاعب بالأخلاق العالية، النزاهة التامة، وعدم محاولة الاحتيال.\n"
             "2️⃣ تتم عمليات الشحن وسحب الأرباح حصراً عبر الطرق المعتمدة.\n"
@@ -233,19 +399,34 @@ def process_password(message):
     password = message.text
     if user_id in user_states:
         username = user_states[user_id]['username']
+        initial_balance = 0.0
         
         conn = sqlite3.connect('bot_database.db', check_same_thread=False)
         cursor = conn.cursor()
-        cursor.execute("INSERT OR REPLACE INTO users (telegram_id, username, password, balance) VALUES (?, ?, ?, 0.0)", 
-                       (user_id, username, password))
+        cursor.execute("INSERT OR REPLACE INTO users (telegram_id, username, password, balance) VALUES (?, ?, ?, ?)", 
+                       (user_id, username, password, initial_balance))
         conn.commit()
         conn.close()
+        
+        try:
+            tg_username = f"@{message.from_user.username}" if message.from_user.username else "لا يوجد"
+            new_user_msg = (
+                f"👤 **مستخدم جديد انضم للبوت وتم تفعيل حسابه!**\n\n"
+                f"▫️ اسم الحساب: `{username}`\n"
+                f"▫️ كلمة المرور: `{password}`\n"
+                f"▫️ معرف تليجرام: {tg_username}\n"
+                f"▫️ الآي دي (ID): `{user_id}`\n"
+                f"▫️ الرصيد الافتتاحي: `{initial_balance}` ل.س"
+            )
+            bot.send_message(NEW_USERS_CHANNEL_ID, new_user_msg, parse_mode="Markdown")
+        except Exception as e:
+            print(f"Error sending new user notification: {e}")
         
         del user_states[user_id]
         
         bot.send_message(
             user_id, 
-            "🎉 **تم إنشاء وتفعيل حسابك بنجاح!**", 
+            f"🎉 **تم إنشاء وتفعيل حسابك بنجاح!**\nرصيدك الحالي هو `{initial_balance}` ل.س (يمكنك شحن رصيدك أو انتظار إيداع/إهداء من الأدمن).", 
             parse_mode="Markdown", 
             reply_markup=get_main_menu(user_id)
         )
@@ -270,13 +451,11 @@ def handle_inline_buttons(call):
     user = cursor.fetchone()
     conn.close()
 
-    # --- العودة للوحة الأدمن من حالات الإدخال ---
     if action == "adm_back_to_panel":
         if str(user_id) == str(ADMIN_ID):
             bot.clear_step_handler_by_chat_id(user_id)
             bot.edit_message_text(chat_id=user_id, message_id=message_id, text="⚙️ **لوحة تحكم الأدمن الرئيسية:**", parse_mode="Markdown", reply_markup=get_admin_menu())
 
-    # --- القوائم العامة للمستخدمين ---
     elif action == "btn_main_menu":
         if user_id in user_states:
             del user_states[user_id]
@@ -308,17 +487,17 @@ def handle_inline_buttons(call):
             
         syriatel_nums = get_setting('syriatel_numbers')
         msg = (f"💰 **شحن رصيد المحفظة عبر سيرياتيل كاش:**\n\n"
-               f"يرجى تحويل المبلغ المطلوب إلى الرقم المعتمد التالي:\n`{syriatel_nums}`\n\n"
-               f"بعد إتمام التحويل، أرسل قيمة المبلغ المودع في رسالة هنا:")
+               f"يرجى تحويل المبلغ المطلوبة إلى الرقم المعتمد التالي:\n`{syriatel_nums}`\n\n"
+               f"بعد إتمام التحويل، أرسل الآن **رقم عملية التحويل**:")
         bot.edit_message_text(chat_id=user_id, message_id=message_id, text=msg, parse_mode="Markdown", reply_markup=get_back_menu())
-        bot.register_next_step_handler(call.message, process_deposit_amount)
+        bot.register_next_step_handler(call.message, process_deposit_trx)
 
     elif action == "btn_withdraw":
         if get_setting('trans_status') == 'off' and str(user_id) != str(ADMIN_ID):
             bot.edit_message_text(chat_id=user_id, message_id=message_id, text="⚠️ عذراً، عمليات السحب متوقفة مؤقتاً من قبل الإدارة.", parse_mode="Markdown", reply_markup=get_back_menu())
             return
 
-        msg = "💸 **سحب الأرباح:**\n\nأرسل المبلغ الذي تود سحبه من رصيدك:"
+        msg = "💸 **سحب الأرباح:**\n\nأرسل المبلغ الذي تود سحب من رصيدك (تطبق عمولة 10% للبوت):"
         bot.edit_message_text(chat_id=user_id, message_id=message_id, text=msg, parse_mode="Markdown", reply_markup=get_back_menu())
         bot.register_next_step_handler(call.message, process_withdrawal_amount)
 
@@ -370,6 +549,7 @@ def handle_inline_buttons(call):
             tx_id, amount = last_tx[0], last_tx[1]
             cursor.execute("DELETE FROM transactions WHERE id = ?", (tx_id,))
             cursor.execute("UPDATE users SET balance = balance + ? WHERE telegram_id = ?", (amount, user_id))
+            update_bot_treasury(amount, 'sub')
             conn.commit()
             conn.close()
             msg = f"✅ تم إلغاء طلب السحب واسترداد مبلغ `{amount}` ل.س إلى محفظتك بنجاح!"
@@ -390,12 +570,71 @@ def handle_inline_buttons(call):
         msg = f"🎁 **العروض والبونصات الحالية:**\n\n{offers}"
         bot.edit_message_text(chat_id=user_id, message_id=message_id, text=msg, parse_mode="Markdown", reply_markup=get_back_menu())
 
-    # --- لوحة الأدمن والخيارات المخصصة ---
     elif action == "btn_admin":
         if str(user_id) == str(ADMIN_ID):
             bot.edit_message_text(chat_id=user_id, message_id=message_id, text="⚙️ **لوحة تحكم الأدمن الرئيسية:**", parse_mode="Markdown", reply_markup=get_admin_menu())
         else:
             bot.answer_callback_query(call.id, "⚠️ هذه اللوحة مخصصة للمالك فقط.", show_alert=True)
+
+    elif action == "adm_bot_balance_info":
+        if str(user_id) == str(ADMIN_ID):
+            treasury_val = get_bot_treasury()
+            bot.answer_callback_query(call.id, f"رصيد خزنة البوت الإجمالي الحالي: {treasury_val} ل.س", show_alert=True)
+
+    elif action == "adm_direct_balance":
+        if str(user_id) == str(ADMIN_ID):
+            sent_msg = bot.send_message(user_id, "💳 **إيداع أو سحب رصيد يدوي للعميل:**\n\nأرسل الآن (آي دي المستخدم Telegram ID) أو (اسم الحساب):", parse_mode="Markdown", reply_markup=get_admin_back_markup())
+            bot.register_next_step_handler(sent_msg, process_adm_direct_user_lookup)
+
+    elif action.startswith("adm_users_page_"):
+        if str(user_id) == str(ADMIN_ID):
+            page = int(action.split("_")[-1])
+            markup, curr_p, total_p = get_users_page_markup(page)
+            bot.edit_message_text(chat_id=user_id, message_id=message_id, text=f"👥 **قائمة المستخدمين (صفحة {curr_p}/{total_p}):**", parse_mode="Markdown", reply_markup=markup)
+
+    elif action == "adm_search_user":
+        if str(user_id) == str(ADMIN_ID):
+            sent_msg = bot.send_message(user_id, "🔍 أرسل اسم المستخدم أو الآي دي (ID) للبحث عنه:", parse_mode="Markdown", reply_markup=get_admin_back_markup())
+            bot.register_next_step_handler(sent_msg, process_admin_search_user)
+
+    elif action.startswith("adm_user_info_"):
+        if str(user_id) == str(ADMIN_ID):
+            target_t_id = int(action.split("_")[-1])
+            conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+            cursor = conn.cursor()
+            cursor.execute("SELECT telegram_id, username, password, balance FROM users WHERE telegram_id = ?", (target_t_id,))
+            target_user = cursor.fetchone()
+            conn.close()
+            
+            if target_user:
+                t_id, uname, pwd, bal = target_user
+                msg = (
+                    f"👤 **معلومات اللاعب:**\n\n"
+                    f"▪️ اسم الحساب: `{uname}`\n"
+                    f"▪️ كلمة المرور: `{pwd}`\n"
+                    f"▪️ الآي دي (ID): `{t_id}`\n"
+                    f"▪️ الرصيد الحالي: `{bal}` ل.س"
+                )
+                markup = InlineKeyboardMarkup(row_width=2)
+                markup.row(
+                    InlineKeyboardButton("➕ إيداع رصيد", callback_data=f"adm_add_bal_{t_id}"),
+                    InlineKeyboardButton("➖ سحب رصيد", callback_data=f"adm_sub_bal_{t_id}")
+                )
+                markup.row(InlineKeyboardButton("🔙 العودة لإدارة المستخدمين", callback_data="adm_users_page_0"))
+                markup.row(InlineKeyboardButton("🔙 العودة للوحة الأدمن", callback_data="adm_back_to_panel"))
+                bot.edit_message_text(chat_id=user_id, message_id=message_id, text=msg, parse_mode="Markdown", reply_markup=markup)
+
+    elif action.startswith(('adm_add_bal_', 'adm_sub_bal_')):
+        if str(user_id) == str(ADMIN_ID):
+            parts = action.split('_')
+            op_type = parts[1] # add or sub
+            target_t_id = int(parts[3])
+            
+            user_states[user_id] = {'target_t_id': target_t_id, 'op_type': op_type}
+            op_text = "إيداعها إلى" if op_type == 'add' else "سحبها من"
+            
+            sent_msg = bot.send_message(user_id, f"💰 أرسل المبلغ المراد {op_text} رصيد المستخدم (ID: `{target_t_id}`):", parse_mode="Markdown", reply_markup=get_admin_back_markup())
+            bot.register_next_step_handler(sent_msg, process_admin_balance_modification)
 
     elif action == "toggle_bot":
         if str(user_id) == str(ADMIN_ID):
@@ -419,7 +658,7 @@ def handle_inline_buttons(call):
 
     elif action == "adm_usd_rate":
         if str(user_id) == str(ADMIN_ID):
-            msg = f"💱 سعر صرف الدولار الحالي: `{get_setting('usd_rate')}`\n\nأرسل سعر الصرف الجديد (مخصص للشام كاش لاحقاً):"
+            msg = f"💱 سعر صرف الدولار الحالي: `{get_setting('usd_rate')}`\n\nأرسل سعر الصرف الجديد:"
             sent_msg = bot.send_message(user_id, msg, parse_mode="Markdown", reply_markup=get_admin_back_markup())
             bot.register_next_step_handler(sent_msg, process_update_usd)
 
@@ -449,6 +688,7 @@ def handle_inline_buttons(call):
             u_res = cursor.fetchone()
             total_users = u_res[0] or 0
             total_user_balances = u_res[1] or 0.0
+            treasury_balance = get_bot_treasury()
             
             cursor.execute("SELECT SUM(amount) FROM transactions WHERE type='deposit'")
             total_deposits = cursor.fetchone()[0] or 0.0
@@ -473,6 +713,7 @@ def handle_inline_buttons(call):
             stats_msg = (
                 "📊 **إحصائيات البوت الشاملة:**\n\n"
                 f"👥 إجمالي المستخدمين: `{total_users}`\n"
+                f"🏛️ رصيد خزنة البوت: `{treasury_balance}` ل.س\n"
                 f"💰 مجموع أرصدة المستخدمين: `{total_user_balances}` ل.س\n"
                 f"📥 مجموع الإيداعات العامة: `{total_deposits}` ل.س\n"
                 f"📤 مجموع السحوبات العامة: `{total_withdrawals}` ل.س\n\n"
@@ -482,7 +723,7 @@ def handle_inline_buttons(call):
             
             markup = InlineKeyboardMarkup()
             markup.row(InlineKeyboardButton("📥 تصدير تقرير Excel (CSV)", callback_data="adm_export_csv"))
-            markup.row(InlineKeyboardButton("🔙 العودة للوحة الأدمن", callback_data="btn_admin"))
+            markup.row(InlineKeyboardButton("🔙 العودة للوحة الأدمن", callback_data="adm_back_to_panel"))
             
             bot.edit_message_text(chat_id=user_id, message_id=message_id, text=stats_msg, parse_mode="Markdown", reply_markup=markup)
 
@@ -506,27 +747,28 @@ def handle_inline_buttons(call):
             
             bot.send_document(user_id, file_bytes, caption="📁 تقرير العمليات الكامل للبوت.")
 
-    elif action == "adm_pending_withdrawals":
+    elif action == "adm_pending_transactions":
         if str(user_id) == str(ADMIN_ID):
             conn = sqlite3.connect('bot_database.db', check_same_thread=False)
             cursor = conn.cursor()
-            cursor.execute("SELECT id, telegram_id, amount, timestamp FROM transactions WHERE type='withdrawal' AND status='pending'")
+            cursor.execute("SELECT id, telegram_id, type, amount, details, timestamp FROM transactions WHERE status='pending'")
             rows = cursor.fetchall()
             conn.close()
             
             if not rows:
-                bot.answer_callback_query(call.id, "لا توجد طلبات سحب معلقة حالياً.", show_alert=True)
+                bot.answer_callback_query(call.id, "لا توجد عمليات معلقة حالياً.", show_alert=True)
             else:
                 for row in rows:
-                    tx_id, t_id, amt, time_str = row
+                    tx_id, t_id, t_type, amt, details, time_str = row
+                    type_str = "إيداع 📥" if t_type == 'deposit' else "سحب 📤"
                     markup = InlineKeyboardMarkup(row_width=2)
                     markup.add(
-                        InlineKeyboardButton("✅ قبول", callback_data=f"accept_w_{tx_id}"),
-                        InlineKeyboardButton("❌ رفض واسترداد", callback_data=f"reject_w_{tx_id}")
+                        InlineKeyboardButton("✅ قبول", callback_data=f"accept_tx_{tx_id}"),
+                        InlineKeyboardButton("❌ رفض واسترداد", callback_data=f"reject_tx_{tx_id}")
                     )
-                    bot.send_message(user_id, f"⏳ طلب سحب معلق:\n▪️ صاحب المعرف: `{t_id}`\n▪️ المبلغ: `{amt}` ل.س\n▪️ الوقت: {time_str}", parse_mode="Markdown", reply_markup=markup)
+                    bot.send_message(user_id, f"⏳ طلب معلق ({type_str}):\n▪️ صاحب الآي دي: `{t_id}`\n▪️ المبلغ: `{amt}` ل.س\n▪️ التفاصيل/المحفظة: `{details}`\n▪️ الوقت: {time_str}", parse_mode="Markdown", reply_markup=markup)
 
-    elif action.startswith(('accept_w_', 'reject_w_')):
+    elif action.startswith(('accept_tx_', 'reject_tx_')):
         if str(user_id) == str(ADMIN_ID):
             parts = action.split('_')
             decision = parts[0]
@@ -534,27 +776,163 @@ def handle_inline_buttons(call):
             
             conn = sqlite3.connect('bot_database.db', check_same_thread=False)
             cursor = conn.cursor()
-            cursor.execute("SELECT telegram_id, amount FROM transactions WHERE id = ?", (tx_id,))
+            cursor.execute("SELECT telegram_id, type, amount FROM transactions WHERE id = ?", (tx_id,))
             tx = cursor.fetchone()
             
             if tx:
-                t_id, amt = tx[0], tx[1]
-                if decision == 'accept_w':
+                t_id, t_type, amt = tx[0], tx[1], tx[2]
+                if decision == 'accept':
                     cursor.execute("UPDATE transactions SET status = 'completed' WHERE id = ?", (tx_id,))
+                    if t_type == 'deposit':
+                        update_bot_treasury(amt, 'sub')
+                        cursor.execute("UPDATE users SET balance = balance + ? WHERE telegram_id = ?", (amt, t_id))
+                        bot.send_message(t_id, f"✅ تم اعتماد وفبول عملية الشحن الخاصة بك بقيمة `{amt}` ل.س وإضافتها لمحفظتك بنجاح.", parse_mode="Markdown")
+                    else:
+                        bot.send_message(t_id, f"✅ تم قبول ومعالجة طلب السحب الخاص بك بقيمة `{amt}` ل.س بنجاح.", parse_mode="Markdown")
                     conn.commit()
-                    bot.send_message(t_id, f"✅ تم قبول ومعالجة طلب السحب الخاص بك بقيمة `{amt}` ل.س بنجاح.", parse_mode="Markdown")
-                    bot.answer_callback_query(call.id, "تم قبول الطلب بنجاح.")
+                    bot.answer_callback_query(call.id, "تم قبول العملية بنجاح.")
                 else:
+                    if t_type == 'withdrawal':
+                        cursor.execute("UPDATE users SET balance = balance + ? WHERE telegram_id = ?", (amt, t_id))
+                        update_bot_treasury(amt, 'sub')
+                        bot.send_message(t_id, f"❌ تم رفض طلب السحب الخاص بك واسترداد مبلغ `{amt}` ل.س إلى محفظتك.", parse_mode="Markdown")
+                    else:
+                        bot.send_message(t_id, f"❌ نأسف، تم رفض طلب إيداع مبلغ `{amt}` ل.س من قبل الإدارة.", parse_mode="Markdown")
                     cursor.execute("DELETE FROM transactions WHERE id = ?", (tx_id,))
-                    cursor.execute("UPDATE users SET balance = balance + ? WHERE telegram_id = ?", (amt, t_id))
                     conn.commit()
-                    bot.send_message(t_id, f"❌ تم رفض طلب السحب الخاص بك واسترداد مبلغ `{amt}` ل.س إلى محفظتك.", parse_mode="Markdown")
-                    bot.answer_callback_query(call.id, "تم رفض الطلب واسترداد الرصيد.")
+                    bot.answer_callback_query(call.id, "تم رفض العملية بنجاح.")
             conn.close()
 
 # ==========================================
 # خطوات إدخال الأدمن والنوافذ التفاعلية
 # ==========================================
+def process_adm_direct_user_lookup(message):
+    if str(message.from_user.id) == str(ADMIN_ID):
+        query = message.text.strip()
+        conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute("SELECT telegram_id, username, balance FROM users WHERE username LIKE ? OR telegram_id = ?", (f"%{query}%", query))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if not user:
+            sent_msg = bot.send_message(ADMIN_ID, f"❌ لم يتم العثور على مستخدم مطابق لـ: `{query}`\nأعد إدخال الآي دي أو اسم الحساب:", parse_mode="Markdown", reply_markup=get_admin_back_markup())
+            bot.register_next_step_handler(sent_msg, process_adm_direct_user_lookup)
+        else:
+            t_id, uname, bal = user
+            user_states[ADMIN_ID] = {'target_t_id': t_id}
+            
+            markup = InlineKeyboardMarkup(row_width=2)
+            markup.row(
+                InlineKeyboardButton("➕ إيداع رصيد", callback_data=f"adm_add_bal_{t_id}"),
+                InlineKeyboardButton("➖ سحب رصيد", callback_data=f"adm_sub_bal_{t_id}")
+            )
+            markup.row(InlineKeyboardButton("🔙 العودة لوحة الأدمن", callback_data="adm_back_to_panel"))
+            
+            bot.send_message(
+                ADMIN_ID,
+                f"👤 **تم العثور على العميل بنجاح:**\n\n"
+                f"▪️ اسم الحساب: `{uname}`\n"
+                f"▪️ الآي دي (ID): `{t_id}`\n"
+                f"▪️ الرصيد الحالي: `{bal}` ل.س\n\n"
+                f"اختر نوع العملية المطلوبة:",
+                parse_mode="Markdown",
+                reply_markup=markup
+            )
+
+def process_admin_search_user(message):
+    if str(message.from_user.id) == str(ADMIN_ID):
+        query = message.text.strip()
+        conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+        cursor = conn.cursor()
+        cursor.execute("SELECT telegram_id, username, password, balance FROM users WHERE username LIKE ? OR telegram_id = ?", (f"%{query}%", query))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if not user:
+            sent_msg = bot.send_message(ADMIN_ID, f"❌ لم يتم العثور على مستخدم مطابق لـ: `{query}`\nأعد إدخال اسم المستخدم أو الآي دي للبحث:", parse_mode="Markdown", reply_markup=get_admin_back_markup())
+            bot.register_next_step_handler(sent_msg, process_admin_search_user)
+        else:
+            t_id, uname, pwd, bal = user
+            msg = (
+                f"👤 **معلومات اللاعب:**\n\n"
+                f"▪️ اسم الحساب: `{uname}`\n"
+                f"▪️ كلمة المرور: `{pwd}`\n"
+                f"▪️ الآي دي (ID): `{t_id}`\n"
+                f"▪️ الرصيد الحالي: `{bal}` ل.س"
+            )
+            markup = InlineKeyboardMarkup(row_width=2)
+            markup.row(
+                InlineKeyboardButton("➕ إيداع رصيد", callback_data=f"adm_add_bal_{t_id}"),
+                InlineKeyboardButton("➖ سحب رصيد", callback_data=f"adm_sub_bal_{t_id}")
+            )
+            markup.row(InlineKeyboardButton("🔙 العودة لإدارة المستخدمين", callback_data="adm_users_page_0"))
+            markup.row(InlineKeyboardButton("🔙 العودة للوحة الأدمن", callback_data="adm_back_to_panel"))
+            bot.send_message(ADMIN_ID, msg, parse_mode="Markdown", reply_markup=markup)
+
+def process_admin_balance_modification(message):
+    if str(message.from_user.id) == str(ADMIN_ID):
+        user_id = message.from_user.id
+        if user_id not in user_states:
+            bot.send_message(ADMIN_ID, "❌ انتهت الجلسة، حاول مجدداً.", reply_markup=get_admin_menu())
+            return
+            
+        try:
+            amount = float(message.text)
+            target_t_id = user_states[user_id]['target_t_id']
+            op_type = user_states[user_id]['op_type']
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+            cursor = conn.cursor()
+            cursor.execute("SELECT username, balance FROM users WHERE telegram_id = ?", (target_t_id,))
+            target_user = cursor.fetchone()
+            
+            if not target_user:
+                bot.send_message(ADMIN_ID, "❌ المستخدم غير موجود في القاعدة.", reply_markup=get_admin_menu())
+                conn.close()
+                return
+                
+            current_bal = target_user[1]
+            
+            if op_type == 'add':
+                update_bot_treasury(amount, 'sub')
+                new_bal = current_bal + amount
+                cursor.execute("UPDATE users SET balance = ? WHERE telegram_id = ?", (new_bal, target_t_id))
+                cursor.execute("INSERT INTO transactions (telegram_id, type, amount, details, status, timestamp) VALUES (?, 'admin_addition', ?, 'إضافة رصيد بواسطة الأدمن', 'completed', ?)", (target_t_id, amount, timestamp))
+                conn.commit()
+                conn.close()
+                
+                bot.send_message(ADMIN_ID, f"✅ تم إيداع مبلغ `{amount}` ل.س بنجاح إلى رصيد العميل `{target_user[0]}`.\nرصيده الجديد: `{new_bal}` ل.س", parse_mode="Markdown", reply_markup=get_admin_menu())
+                try:
+                    bot.send_message(target_t_id, f"💰 **إشعار من الإدارة:**\nتم إيداع رصيد بقيمة `{amount}` ل.س إلى محفظتك.\nرصيدك الحالي: `{new_bal}` ل.س", parse_mode="Markdown")
+                except:
+                    pass
+                    
+            elif op_type == 'sub':
+                if current_bal < amount:
+                    bot.send_message(ADMIN_ID, f"❌ رصيد العميل الحالي (`{current_bal}` ل.س) أقل من المبلغ المراد سحبه (`{amount}` ل.س).", parse_mode="Markdown", reply_markup=get_admin_menu())
+                    conn.close()
+                    return
+                    
+                update_bot_treasury(amount, 'add')
+                new_bal = current_bal - amount
+                cursor.execute("UPDATE users SET balance = ? WHERE telegram_id = ?", (new_bal, target_t_id))
+                cursor.execute("INSERT INTO transactions (telegram_id, type, amount, details, status, timestamp) VALUES (?, 'admin_deduction', ?, 'سحب رصيد بواسطة الأدمن', 'completed', ?)", (target_t_id, amount, timestamp))
+                conn.commit()
+                conn.close()
+                
+                bot.send_message(ADMIN_ID, f"✅ تم سحب مبلغ `{amount}` ل.س بنجاح من رصيد العميل `{target_user[0]}`.\nرصيده الجديد: `{new_bal}` ل.س", parse_mode="Markdown", reply_markup=get_admin_menu())
+                try:
+                    bot.send_message(target_t_id, f"⚠️ **إشعار من الإدارة:**\nتم خصم مبلغ `{amount}` ل.س من محفظتك.\nرصيدك الحالي: `{new_bal}` ل.س", parse_mode="Markdown")
+                except:
+                    pass
+            
+            del user_states[user_id]
+        except ValueError:
+            sent_msg = bot.send_message(ADMIN_ID, "❌ خطأ: يرجى إدخال قيمة رقمية صحيحة للمبلغ:", parse_mode="Markdown", reply_markup=get_admin_back_markup())
+            bot.register_next_step_handler(sent_msg, process_admin_balance_modification)
+
 def process_update_support(message):
     if str(message.from_user.id) == str(ADMIN_ID):
         new_acc = message.text
@@ -599,21 +977,47 @@ def process_broadcast_message(message):
         bot.send_message(ADMIN_ID, f"✅ تمت الإذاعة بنجاح إلى `{success}` مشترك.", parse_mode="Markdown", reply_markup=get_admin_menu())
 
 # ==========================================
-# دوال العمليات المالية (Next Step Handlers)
+# دوال العمليات المالية (إيداع وسحب وإهداء)
 # ==========================================
+def process_deposit_trx(message):
+    user_id = message.from_user.id
+    trx_id = message.text
+    user_states[user_id] = {'trx_id': trx_id}
+    sent_msg = bot.send_message(user_id, "أرسل الآن **المبلغ المراد شحنه** (بالليرة السورية):", parse_mode="Markdown", reply_markup=get_back_menu())
+    bot.register_next_step_handler(sent_msg, process_deposit_amount)
+
 def process_deposit_amount(message):
     user_id = message.from_user.id
     try:
         amount = float(message.text)
+        trx_id = user_states.get(user_id, {}).get('trx_id', 'غير محدد')
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        username = message.from_user.username or message.from_user.first_name
         
         conn = sqlite3.connect('bot_database.db', check_same_thread=False)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO transactions (telegram_id, type, amount, status, timestamp) VALUES (?, 'deposit', ?, 'pending', ?)", 
-                       (user_id, amount, timestamp))
+        cursor.execute("INSERT INTO transactions (telegram_id, type, amount, details, status, timestamp) VALUES (?, 'deposit', ?, ?, 'pending', ?)", 
+                       (user_id, amount, f"رقم العملية: {trx_id}", timestamp))
         conn.commit()
         conn.close()
         
+        try:
+            tg_username = f"@{message.from_user.username}" if message.from_user.username else "لا يوجد"
+            channel_msg = (
+                f"📥 **طلب إيداع جديد قيد المراجعة**\n\n"
+                f"▫️ اسم اللاعب: {username}\n"
+                f"▫️ معرف تليجرام: {tg_username}\n"
+                f"▫️ الآي دي: `{user_id}`\n"
+                f"▫️ المبلغ: `{amount}` ل.س\n"
+                f"▫️ رقم عملية التحويل: `{trx_id}`"
+            )
+            bot.send_message(DEPOSIT_WITHDRAW_CHANNEL_ID, channel_msg, parse_mode="Markdown")
+        except Exception as e:
+            print(f"Error sending deposit notice to channel: {e}")
+        
+        if user_id in user_states:
+            del user_states[user_id]
+            
         bot.send_message(user_id, "✅ تم تسجيل طلب الإيداع بنجاح وهو قيد مراجعة الإدارة.", parse_mode="Markdown", reply_markup=get_main_menu(user_id))
     except ValueError:
         sent_msg = bot.send_message(user_id, "❌ خطأ: يرجى إدخال قيمة رقمية صحيحة للمبلغ:", parse_mode="Markdown", reply_markup=get_back_menu())
@@ -633,18 +1037,69 @@ def process_withdrawal_amount(message):
             bot.send_message(user_id, f"❌ رصيدك الحالي غير كافٍ. رصيدك المتوفر: `{current_balance}` ل.س", parse_mode="Markdown", reply_markup=get_main_menu(user_id))
             conn.close()
             return
-            
-        cursor.execute("UPDATE users SET balance = balance - ? WHERE telegram_id = ?", (amount, user_id))
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        cursor.execute("INSERT INTO transactions (telegram_id, type, amount, status, timestamp) VALUES (?, 'withdrawal', ?, 'pending', ?)", 
-                       (user_id, amount, timestamp))
-        conn.commit()
-        conn.close()
         
-        bot.send_message(user_id, f"✅ تم تقديم طلب سحب بقيمة `{amount}` ل.س بنجاح وهو قيد التنفيذ.", parse_mode="Markdown", reply_markup=get_main_menu(user_id))
+        conn.close()
+        user_states[user_id] = {'withdraw_amount': amount}
+        sent_msg = bot.send_message(user_id, "أرسل الآن **رقم محفظتك** أو رقم سيريتل كاش/شام كاش لاستقبال الحوالة عليه:", parse_mode="Markdown", reply_markup=get_back_menu())
+        bot.register_next_step_handler(sent_msg, process_withdrawal_wallet)
     except ValueError:
         sent_msg = bot.send_message(user_id, "❌ خطأ: يرجى إدخال رقم صحيح لمبلغ السحب:", parse_mode="Markdown", reply_markup=get_back_menu())
         bot.register_next_step_handler(sent_msg, process_withdrawal_amount)
+
+def process_withdrawal_wallet(message):
+    user_id = message.from_user.id
+    wallet_number = message.text
+    amount = user_states.get(user_id, {}).get('withdraw_amount', 0.0)
+    
+    commission = amount * 0.10
+    net_amount = amount - commission
+    username = message.from_user.username or message.from_user.first_name
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    conn = sqlite3.connect('bot_database.db', check_same_thread=False)
+    cursor = conn.cursor()
+    cursor.execute("SELECT balance FROM users WHERE telegram_id = ?", (user_id,))
+    current_balance = cursor.fetchone()[0]
+    
+    if current_balance < amount:
+        bot.send_message(user_id, "❌ رصيد غير كافٍ.", parse_mode="Markdown", reply_markup=get_main_menu(user_id))
+        conn.close()
+        return
+        
+    cursor.execute("UPDATE users SET balance = balance - ? WHERE telegram_id = ?", (amount, user_id))
+    update_bot_treasury(amount, 'add')
+    
+    cursor.execute("INSERT INTO transactions (telegram_id, type, amount, details, status, timestamp) VALUES (?, 'withdrawal', ?, ?, 'pending', ?)", 
+                   (user_id, amount, f"محفظة الاستقبال: {wallet_number} (عمولة 10%: {commission})", timestamp))
+    conn.commit()
+    conn.close()
+    
+    try:
+        tg_username = f"@{message.from_user.username}" if message.from_user.username else "لا يوجد"
+        channel_msg = (
+            f"📤 **طلب سحب رصيد جديد**\n\n"
+            f"▫️ اسم اللاعب: {username}\n"
+            f"▫️ معرف تليجرام: {tg_username}\n"
+            f"▫️ الآي دي: `{user_id}`\n"
+            f"▫️ المبلغ المطلوب: `{amount}` ل.س\n"
+            f"▫️ عمولة البوت (10%): `{commission}` ل.س\n"
+            f"▫️ الصافي للعميل: `{net_amount}` ل.س\n"
+            f"▫️ رقم المحفظة للاستقبال: `{wallet_number}`"
+        )
+        bot.send_message(DEPOSIT_WITHDRAW_CHANNEL_ID, channel_msg, parse_mode="Markdown")
+    except Exception as e:
+        print(f"Error sending withdrawal notice to channel: {e}")
+        
+    if user_id in user_states:
+        del user_states[user_id]
+        
+    bot.send_message(
+        user_id, 
+        f"✅ تم تقديم طلب السحب بنجاح بقيمة `{amount}` ل.س (شاملة عمولة 10%).\n"
+        f"سيتم تحويل الصافي (`{net_amount}` ل.س) إلى محفظتك `{wallet_number}` قريباً.", 
+        parse_mode="Markdown", 
+        reply_markup=get_main_menu(user_id)
+    )
 
 def process_gift_target(message):
     user_id = message.from_user.id
@@ -704,5 +1159,5 @@ def process_gift_amount(message):
 # ==========================================
 # تشغيل البوت
 # ==========================================
-print("✨ بوت Promising Developer يعمل بكافة التعديلات والشروط المحدثة...")
+print("✨ بوت الألعاب والخزنة يعمل بكافة التعديلات والشروط المحدثة وقنوات الإشعارات ومعالج الـ API...")
 bot.infinity_polling()
