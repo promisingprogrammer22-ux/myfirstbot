@@ -22,22 +22,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 12px;
-            background: rgba(0, 0, 0, 0.6);
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.7);
             border-bottom: 1px solid rgba(250, 204, 21, 0.2);
-            z-index: 10;
+            z-index: 200;
         }
-        h2 { color: #facc15; margin: 0; font-size: 1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .top-controls { display: flex; gap: 5px; }
+        h2 { color: #facc15; margin: 0; font-size: 0.95rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .top-controls { display: flex; gap: 4px; }
         .top-btn {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
             border: none;
-            padding: 4px 8px;
-            border-radius: 6px;
+            padding: 4px 7px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .top-btn:active { transform: scale(0.95); }
@@ -52,11 +52,11 @@
             margin: 2px;
         }
         .table-felt {
-            width: 310px;
-            height: 210px;
+            width: 300px;
+            height: 195px;
             background: radial-gradient(circle, rgba(6, 95, 70, 0.85) 0%, rgba(2, 44, 34, 0.95) 100%);
             border: 3px solid rgba(250, 204, 21, 0.4);
-            border-radius: 20px;
+            border-radius: 18px;
             position: relative;
             display: flex;
             justify-content: center;
@@ -70,130 +70,132 @@
             background: rgba(0, 0, 0, 0.85);
             padding: 3px 8px;
             border-radius: 6px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #facc15;
             border: 1px solid rgba(250, 204, 21, 0.5);
             text-align: center;
             white-space: nowrap;
             box-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
-        .seat-top { top: -12px; left: 50%; transform: translateX(-50%); }
-        .seat-bottom { bottom: -12px; left: 50%; transform: translateX(-50%); }
-        .seat-left { left: -12px; top: 50%; transform: translateY(-50%); }
-        .seat-right { right: -12px; top: 50%; transform: translateY(-50%); }
+        .seat-top { top: -10px; left: 50%; transform: translateX(-50%); }
+        .seat-bottom { bottom: -10px; left: 50%; transform: translateX(-50%); }
+        .seat-left { left: -10px; top: 50%; transform: translateY(-50%); }
+        .seat-right { right: -10px; top: 50%; transform: translateY(-50%); }
 
         /* مربعات الكروت على الطاولة */
         .played-card-slot {
             position: absolute;
-            width: 40px;
-            height: 60px;
+            width: 38px;
+            height: 56px;
             border: 2px dashed rgba(250, 204, 21, 0.3);
-            border-radius: 6px;
+            border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(0,0,0,0.2);
         }
-        .slot-bottom { bottom: 25px; left: 50%; transform: translateX(-50%); }
-        .slot-top { top: 25px; left: 50%; transform: translateX(-50%); }
-        .slot-left { left: 30px; top: 50%; transform: translateY(-50%); }
-        .slot-right { right: 30px; top: 50%; transform: translateY(-50%); }
+        .slot-bottom { bottom: 22px; left: 50%; transform: translateX(-50%); }
+        .slot-top { top: 22px; left: 50%; transform: translateX(-50%); }
+        .slot-left { left: 26px; top: 50%; transform: translateY(-50%); }
+        .slot-right { right: 26px; top: 50%; transform: translateY(-50%); }
 
         .status-bar {
             background: rgba(0, 0, 0, 0.7);
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.75rem;
             color: #38bdf8;
             text-align: center;
-            margin: 0 10px 4px 10px;
+            margin: 0 8px 3px 8px;
             border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
-        /* يد اللاعب في الأسفل بحجم أصغر ومناسب للجوالات */
+        /* يد اللاعب في الأسفل - ضم الكروت لتظهر كاملة دون سحب */
         .player-hand-area {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 6px;
-            border-top: 2px solid rgba(250, 204, 21, 0.2);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 6px 4px;
+            border-top: 2px solid rgba(250, 204, 21, 0.3);
+            z-index: 150; /* أعلى من النوافذ لتكون واضحة دائماً */
+            position: relative;
         }
         .hand-title {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #facc15;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             text-align: center;
             font-weight: bold;
         }
         .player-hand {
             display: flex;
-            gap: 4px;
-            overflow-x: auto;
-            min-height: 65px;
+            justify-content: center;
             align-items: center;
-            padding-bottom: 2px;
-            scrollbar-width: thin;
+            min-height: 58px;
+            width: 100%;
+            padding: 0 2px;
         }
         .card {
-            min-width: 36px;
-            width: 36px;
-            height: 56px;
+            width: 31px;
+            height: 52px;
             background: #fff;
             color: #000;
-            border-radius: 5px;
+            border-radius: 4px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 3px;
+            padding: 2px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: -2px 2px 5px rgba(0,0,0,0.5);
+            transition: transform 0.2s, z-index 0.2s;
             user-select: none;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             flex-shrink: 0;
+            margin-right: -10px; /* تداخل الأوراق لتتسع الشاشة بالكامل دون تمرير */
         }
-        .card:hover { transform: translateY(-6px); box-shadow: 0 5px 10px rgba(0,0,0,0.6); }
+        .card:last-child { margin-right: 0; }
+        .card:hover { transform: translateY(-8px) scale(1.1); z-index: 250; }
         .card.red { color: #dc2626; }
 
         /* النوافذ المنبثقة (Modals) */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.8);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 100;
-            padding: 15px;
+            padding: 10px;
             box-sizing: border-box;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
         }
         .modal-box {
             background: linear-gradient(135deg, #1e293b, #0f172a);
-            padding: 18px;
-            border-radius: 14px;
+            padding: 15px;
+            border-radius: 12px;
             width: 100%;
-            max-width: 310px;
+            max-width: 290px;
             text-align: center;
             border: 2px solid #facc15;
-            box-shadow: 0 12px 25px rgba(0,0,0,0.6);
-            max-height: 90vh;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            max-height: 85vh;
             overflow-y: auto;
         }
-        .modal-box h3 { color: #facc15; margin-top: 0; font-size: 1.15rem; }
+        .modal-box h3 { color: #facc15; margin-top: 0; font-size: 1.05rem; }
         .btn-option {
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: #000;
             border: none;
-            padding: 9px;
-            margin: 5px 0;
-            border-radius: 7px;
-            font-size: 0.85rem;
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 6px;
+            font-size: 0.8rem;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
             transition: transform 0.1s, filter 0.2s;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         .btn-option:hover { filter: brightness(1.1); transform: scale(1.02); }
         .btn-secondary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
@@ -202,12 +204,12 @@
         .score-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         .score-table th, .score-table td {
             border: 1px solid #475569;
-            padding: 5px;
-            font-size: 0.8rem;
+            padding: 4px;
+            font-size: 0.75rem;
             text-align: center;
         }
         .score-table th { background: #334155; color: #facc15; }
@@ -216,8 +218,9 @@
 <body>
 
     <header>
-        <h2>♠️ تريكس الملوك الفاخرة</h2>
+        <h2>♠️ تريكس الملوك</h2>
         <div class="top-controls">
+            <button class="top-btn" onclick="changePlayerName()" style="background:#10b981;">✏️ اسمي</button>
             <button class="top-btn" onclick="toggleSound()" id="soundBtn">🔊 صوت</button>
             <button class="top-btn" onclick="openScoreboard()">📊 النتائج</button>
             <button class="top-btn" style="background:#ef4444;" onclick="window.location.reload()">خروج</button>
@@ -242,8 +245,9 @@
         </div>
     </div>
 
+    <!-- أوراق اللاعب تظهر بالكامل وبشكل مضغوط دون سحب -->
     <div class="player-hand-area">
-        <div class="hand-title">أوراقك في اليد (13 كرت):</div>
+        <div class="hand-title">أوراقك في اليد (13 كرت ظاهرة بالكامل):</div>
         <div class="player-hand" id="playerHand"></div>
     </div>
 
@@ -251,27 +255,27 @@
     <div id="gameModeModal" class="modal">
         <div class="modal-box">
             <h3>🎮 إعدادات لعبة التريكس</h3>
-            <p style="font-size:0.8rem; color:#cbd5e1; margin-bottom:10px;">اختر نوع اللعبة:</p>
+            <p style="font-size:0.75rem; color:#cbd5e1; margin-bottom:8px;">اختر نوع اللعبة:</p>
             <button class="btn-option" onclick="chooseGameMode('complex')">🔥 تريكس كومبليكس (سريعة وحماسية)</button>
             <button class="btn-option btn-secondary" onclick="chooseGameMode('single')">📋 تريكس مفرودة (5 طلبات)</button>
         </div>
     </div>
 
-    <!-- النافذة الثانية: اختيار نمط المنافسة (تظهر بعد اختيار النوع) -->
+    <!-- النافذة الثانية: اختيار نمط المنافسة -->
     <div id="playStyleModal" class="modal" style="display:none;">
         <div class="modal-box">
             <h3>👥 نمط المنافسة</h3>
-            <p style="font-size:0.8rem; color:#cbd5e1; margin-bottom:10px;">اختر نظام اللعب:</p>
+            <p style="font-size:0.75rem; color:#cbd5e1; margin-bottom:8px;">اختر نظام اللعب:</p>
             <button class="btn-option" onclick="choosePlayStyle('individual')">👤 لعب فردي (البقاء للأقوى)</button>
             <button class="btn-option btn-secondary" onclick="choosePlayStyle('partnership')">🤝 لعب شراكة (فريقك مقابل الخصوم)</button>
         </div>
     </div>
 
-    <!-- النافذة الثالثة: اختيار العقد (تظهر فقط في التريكس المفرودة بعد ظهور الأوراق) -->
-    <div id="contractModal" class="modal" style="display:none;">
+    <!-- النافذة الثالثة: اختيار العقد (تظهر وأوراق اللاعب ظاهرة بالكامل في الخلفية) -->
+    <div id="contractModal" class="modal" style="display:none; background: rgba(0, 0, 0, 0.65);">
         <div class="modal-box">
             <h3>📋 اختر العقد المطلوب</h3>
-            <p style="font-size:0.75rem; color:#38bdf8; margin-bottom:8px;">أوراقك ظاهرة أمامه، اختر العقد المناسب لتبدأ:</p>
+            <p style="font-size:0.7rem; color:#38bdf8; margin-bottom:6px;">أوراقك ظاهرة في الأسفل، اختر العقد المناسب لتبدأ:</p>
             <button class="btn-option" onclick="selectContract('king', -75)">👑 شيخ الكبة (-75)</button>
             <button class="btn-option" onclick="selectContract('queens', -100)">👧 البنات الأربعة (-100)</button>
             <button class="btn-option" onclick="selectContract('diamonds', -130)">♦️ الديناري (-130)</button>
@@ -291,8 +295,8 @@
                 <tr><td>فادي</td><td id="scoreFadi">0</td></tr>
                 <tr><td>يارا</td><td id="scoreYara">0</td></tr>
             </table>
-            <div id="teamScores" style="margin-top:10px; font-size:0.8rem; color:#38bdf8; display:none; background:rgba(0,0,0,0.3); padding:6px; border-radius:5px;"></div>
-            <button class="btn-option btn-secondary" style="margin-top:12px;" onclick="closeScoreboard()">إغلاق</button>
+            <div id="teamScores" style="margin-top:8px; font-size:0.75rem; color:#38bdf8; display:none; background:rgba(0,0,0,0.3); padding:5px; border-radius:4px;"></div>
+            <button class="btn-option btn-secondary" style="margin-top:10px;" onclick="closeScoreboard()">إغلاق</button>
         </div>
     </div>
 
@@ -300,7 +304,7 @@
     <div id="winModal" class="modal" style="display:none;">
         <div class="modal-box">
             <h3 id="winTitle">🏆 انتهاء الجولة</h3>
-            <p id="winMessage" style="color:#cbd5e1; font-size:0.85rem; line-height:1.4;"></p>
+            <p id="winMessage" style="color:#cbd5e1; font-size:0.8rem; line-height:1.4;"></p>
             <button class="btn-option" onclick="nextRound()">جولة جديدة</button>
         </div>
     </div>
@@ -346,7 +350,7 @@
             document.getElementById('soundBtn').textContent = soundEnabled ? '🔊 صوت' : '🔇 صامت';
         }
 
-        // استقطاب اسم اللاعب من تيليجرام أو تعيين اسم افتراضي فاخر
+        // استقطاب اسم اللاعب من تيليجرام أو تعيين اسم افتراضي
         let playerName = "لاعب تريكس";
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
             let user = window.Telegram.WebApp.initDataUnsafe.user;
@@ -354,6 +358,16 @@
         }
         document.getElementById('badgePlayer').textContent = playerName;
         document.getElementById('namePlayer').textContent = playerName;
+
+        // دالة تبديل وتعديل اسم اللاعب من داخل اللعبة
+        function changePlayerName() {
+            let newName = prompt("أدخل اسمك الجديد أو اسم حسابك المسجل ضمن البوت:", playerName);
+            if (newName && newName.trim() !== "") {
+                playerName = newName.trim();
+                document.getElementById('badgePlayer').textContent = playerName;
+                document.getElementById('namePlayer').textContent = playerName;
+            }
+        }
 
         let gameMode = 'complex'; 
         let playStyle = 'individual'; 
@@ -368,14 +382,14 @@
         let currentTurnIndex = 0;
         let tableCards = {}; 
 
-        // الخطوة 1: اختيار نوع اللعبة ثم الانتقال لنافذة نمط المنافسة
+        // الخطوة 1: اختيار نوع اللعبة
         function chooseGameMode(mode) {
             gameMode = mode;
             document.getElementById('gameModeModal').style.display = 'none';
             document.getElementById('playStyleModal').style.display = 'flex';
         }
 
-        // الخطوة 2: اختيار نمط الشراكة أو الفردي ثم توزيع الأوراق وإظهارها
+        // الخطوة 2: اختيار نمط المنافسة وتوزيع الأوراق وإظهارها فوراً
         function choosePlayStyle(style) {
             playStyle = style;
             document.getElementById('playStyleModal').style.display = 'none';
@@ -383,10 +397,10 @@
                 document.getElementById('teamScores').style.display = 'block';
             }
             
-            // توزيع الأوراق وإظهارها أولاً في يد اللاعب
+            // توزيع الأوراق وإظهارها في اليد بوضوح
             initializeGameRound();
 
-            // الخطوة 3: إذا كانت اللعبة مفرودة، تظهر نافذة التسمية بعد أن تكون الأوراق قد ظهرت
+            // الخطوة 3: إذا كانت اللعبة مفرودة، تظهر نافذة اختيار العقد والأوراق ظاهرة بالكامل
             if (gameMode === 'single') {
                 document.getElementById('contractModal').style.display = 'flex';
             }
@@ -416,7 +430,7 @@
             hands.fadi = deck.slice(26, 39);
             hands.yara = deck.slice(39, 52);
 
-            // ترتيب أوراق اللاعب تصاعدياً لسهولة القراءة
+            // ترتيب أوراق اللاعب تصاعدياً
             hands.player.sort((a,b) => suits.indexOf(a.suit) - suits.indexOf(b.suit) || ranks.indexOf(a.val) - ranks.indexOf(b.val));
 
             tableCards = {};
@@ -437,7 +451,7 @@
                 const cDiv = document.createElement('div');
                 const isRed = card.suit === '♥' || card.suit === '♦';
                 cDiv.className = `card ${isRed ? 'red' : ''}`;
-                cDiv.innerHTML = `<span>${card.val}</span><span style="font-size:14px; text-align:center;">${card.suit}</span><span>${card.val}</span>`;
+                cDiv.innerHTML = `<span>${card.val}</span><span style="font-size:11px; text-align:center;">${card.suit}</span><span>${card.val}</span>`;
                 cDiv.onclick = () => playCard(index);
                 handEl.appendChild(cDiv);
             });
@@ -499,7 +513,7 @@
         function renderCardHTML(card) {
             if (!card) return '';
             const isRed = card.suit === '♥' || card.suit === '♦';
-            return `<div class="card ${isRed ? 'red' : ''}" style="width:36px; height:52px; font-size:0.65rem; padding:2px;"><span>${card.val}</span><span style="font-size:12px; text-align:center;">${card.suit}</span><span>${card.val}</span></div>`;
+            return `<div class="card ${isRed ? 'red' : ''}" style="width:32px; height:46px; font-size:0.55rem; padding:1px; margin:0; box-shadow:none;"><span>${card.val}</span><span style="font-size:10px; text-align:center;">${card.suit}</span><span>${card.val}</span></div>`;
         }
 
         function clearTableSlots() {
@@ -542,7 +556,6 @@
 
         function nextRound() {
             document.getElementById('winModal').style.display = 'none';
-            // إعادة عرض إعدادات البداية للجولة الجديدة أو إعادة التهيئة
             document.getElementById('gameModeModal').style.display = 'flex';
         }
 
