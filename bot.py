@@ -1,5 +1,3 @@
-"""Blank Python project entry point."""
-
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 import sqlite3
@@ -12,9 +10,13 @@ import threading
 # ==========================================
 # الثوابت والبيانات الأساسية وقنوات الإشعارات
 # ==========================================
-TOKEN = '8805488820:AAE4jM7p19R-c3MlZ5t2zcjDTOgJhVlsP-U'
-ADMIN_ID = 8576260469
-BASE_URL = "https://mygamebot2026.loca.lt"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID"))
+BASE_URL = "https://public-grapes-lead.loca.lt"
 
 # معرفات القنوات الخاصة بالإشعارات (استبدلها بالآي دي الرقمي الصحيح أو اسم المستخدم العام)
 NEW_USERS_CHANNEL_ID = "@your_new_users_channel"         # قناة انضمام المستخدمين الجدد
@@ -1149,7 +1151,5 @@ def process_gift_amount(message):
 # ==========================================
 # تشغيل البوت
 # ==========================================
-
-if __name__ == "__main__":
-    print("✨ تم تشغيل البوت بنجاح...")
-    bot.infinity_polling()
+print("✨ بوت الألعاب والخزنة يعمل بكافة التعديلات والشروط المحدثة وقنوات الإشعارات ومعالج الـ API...")
+bot.infinity_polling()
